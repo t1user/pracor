@@ -1,0 +1,14 @@
+<form action="" method="POST">
+    <table>
+        {{ form }}
+    </table>
+    {% csrf_token %}
+    <input type="submit" value="Wyślij">
+</form>
+
+{{ search_results }}
+{% if search_results %}
+{% for item in search_results.search_results %}
+<p>{{ item }}</p>
+{% endfor %}
+{% endif %}

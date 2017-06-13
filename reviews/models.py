@@ -3,7 +3,8 @@ from django.db import models
 
 class Company(models.Model):
     name = models.CharField(max_length=100)
-    city = models.CharField(max_length=60)
+    headquarters_city = models.CharField(max_length=60)
+    website = models.URLField()
     overallscore_score = models.PositiveIntegerField(editable=False,
                                                      default=0)
     advancement_score = models.PositiveIntegerField(editable=False,
@@ -16,6 +17,9 @@ class Company(models.Model):
                                                     default=0)
     number_of_reviews = models.PositiveIntegerField(editable=False,
                                                     default=0)
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
@@ -34,6 +38,9 @@ class Review(models.Model):
     worklife = models.PositiveIntegerField('równowaga praca/życie')
     compensation = models.PositiveIntegerField('zarobki')
     environment = models.PositiveIntegerField('atmosfera w pracy')
+
+    def __str__(self):
+        return 'id_' + str(self.id)
 
     
 class Salary(models.Model):
@@ -58,4 +65,7 @@ class Salary(models.Model):
     employment_status = models.CharField(max_length=1,
                                          choices=status_zatrudnienia)
     salary = models.PositiveIntegerField()
-    
+
+    def __str__(self):
+        return 'id_' + str(self.id)
+

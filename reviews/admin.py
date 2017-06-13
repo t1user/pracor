@@ -1,3 +1,9 @@
 from django.contrib import admin
+from .models import Company, Review, Salary
 
-# Register your models here.
+
+myModels = [Company, Review, Salary]
+
+admin.site.register(myModels)
+
+

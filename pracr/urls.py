@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^accounts/profile/$', views.profile, name='profile'),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^', include('social_django.urls', namespace='social')),
+    url(r'^', include('reviews.urls')),
 ]
