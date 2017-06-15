@@ -6,11 +6,13 @@
     <input type="submit" value="Wyślij">
 </form>
 
-
-{{ search_results }}
-{% if search_results %}
-{% for item in search_results.search_results %}
+{% if searchterm and search_results %}
+<h2>Wyniki wyszukiwania dla: '{{ searchterm }}'</h2>
+{% for item in search_results %}
 <p>{{ item }}</p>
 {% endfor %}
 {% endif %}
 
+{% if searchterm and not search_results %}
+<h2>Nie znaleziono firmy '{{ searchterm }}'</h2>
+{% endif %}

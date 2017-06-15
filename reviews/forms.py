@@ -2,10 +2,13 @@ from django import forms
 from django.forms import ModelForm
 from .models import Review, Salary
 
+
 class CompanysearchForm(forms.Form):
-    company_name = forms.CharField(label="Wyszukaj firmę: ", max_length=100)
-    
+    company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
+
+
 class ReviewForm(ModelForm):
+
     class Meta:
         model = Review
         fields = ['company', 'position', 'city', 'years_at_company', 'advancement',
@@ -24,17 +27,16 @@ class ReviewForm(ModelForm):
             'cons': 'wady',
             'ovarallscore': 'ocena ogólna',
             'comment': 'dodatkowe uwagi',
-            }
+        }
         help_text = {
             'company': 'Firma, której dotyczy recenzja',
             'position': 'Ostatnie/obecne stanowisko w firmie',
-            }
+        }
+
 
 class SalaryForm(ModelForm):
+
     class Meta:
         model = Salary
         fields = ['company', 'position', 'city', 'years_at_company',
                   'years_experience', 'employment_status', 'salary']
-
-
-    

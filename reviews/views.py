@@ -1,9 +1,11 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views import View
+from django.urls import reverse
 
 from .models import Company
 from .forms import CompanysearchForm, ReviewForm, SalaryForm
+
 
 class BaseFormView(View):
     form_class = []
@@ -36,40 +38,30 @@ class ReviewView(BaseFormView):
     def process_result(self, request, *args, **kwargs):
         form = kwargs.get('form')
         form.save()
-        
+
 
 class CompanysearchView(BaseFormView):
     form_class = CompanysearchForm
     initial = {}
     template_name = 'reviews/companysearchform.html'
-    redirect_view = 'searchcompany_results'
-    
-    def process_result(self, request, *args, **kwargs):
-        search_term = kwargs.get('form').cleaned_data['company_name']
-        self.initial = search_term
-        self.search_results = Company.objects.filter(name__icontains=search_term)
-        print(search_term)
-        print(self.search_results)
-        
-class CompanysearchResultsView(CompanysearchView):
-    form_class = CompanysearchForm
-    initial = {}
-    template_name = 'reviews/companysearchform.html'
-    redirect_view = 'searchcompany_results'
-    search_results = {}
+    redirect_view = 'searchcompany'
 
     def get(self, request, *args, **kwargs):
+        search_results = None
+        searchterm = kwargs.get('searchterm').replace('_', ' ')
+        if searchterm:
+            search_results = Company.objects.filter(name__icontains=searchterm)
+            #self.initial = {'company_name': searchterm}
         form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form,
-                                                    'search_results': self.search_results})
-    
-    def process_result(self, request, *args, **kwargs):
-        search_term = kwargs.get('form').cleaned_data['company_name']
-        self.initial = search_term
-        self.search_results = Company.objects.filter(name__icontains=search_term)
-        print(search_term)
-        print(self.search_results)
-        
-        
-        
-        
+        return render(request, self.template_name,
+                      {'form': form,
+                       'search_results': search_results,
+                       'searchterm': searchterm})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            searchterm = form.cleaned_data['company_name'].replace(' ', '_')
+            return HttpResponseRedirect(reverse(self.redirect_view,
+                                                kwargs={'searchterm': searchterm}))
+        return render(request, self.template_name, {'form': form})
