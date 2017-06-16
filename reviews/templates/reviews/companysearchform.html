@@ -9,7 +9,9 @@
 {% if searchterm and search_results %}
 <h2>Wyniki wyszukiwania dla: '{{ searchterm }}'</h2>
 {% for item in search_results %}
-<p>{{ item }}</p>
+<p>
+<a href= {% url 'companypage' item.pk %}>{{ item }}</a>
+</p>
 {% endfor %}
 {% endif %}
 

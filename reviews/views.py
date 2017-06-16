@@ -1,7 +1,10 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse
+
+
+from django.views.generic.detail import DetailView
 
 from .models import Company
 from .forms import CompanysearchForm, ReviewForm, SalaryForm
@@ -65,3 +68,21 @@ class CompanysearchView(BaseFormView):
             return HttpResponseRedirect(reverse(self.redirect_view,
                                                 kwargs={'searchterm': searchterm}))
         return render(request, self.template_name, {'form': form})
+
+
+def companyview(request, pk):
+    a = Company.objects.get(pk=pk)
+    return HttpResponse(a)
+
+
+class CompanyDetailView(DetailView):
+
+    model = Company
+    template_name = 'reviews/company_view.html'
+    context_object_name = 'company'
+
+'''
+    def get_queryset(self, **kwargs):
+        self.company = get_object_or_404(Company, pk=self.kwargs['pk'])
+        return self.company
+'''

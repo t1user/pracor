@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Company(models.Model):
@@ -21,11 +22,15 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse(companyview,
+                       kwargs={'company': 'str(self.pk)'})
+
 
 class Review(models.Model):
     company = models.ForeignKey(Company,
-                         verbose_name="recenzja firmy",
-                         )
+                                verbose_name="recenzja firmy",
+                                )
     date = models.DateTimeField(auto_now=True, editable=False)
     position = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -42,7 +47,7 @@ class Review(models.Model):
     def __str__(self):
         return 'id_' + str(self.id)
 
-    
+
 class Salary(models.Model):
     company = models.ForeignKey(Company)
     position = models.CharField(max_length=100)
@@ -61,11 +66,10 @@ class Salary(models.Model):
         ('d', 'część etatu - umowa na czas określony'),
         ('e', 'umowa zlecenie'),
         ('f', 'samozatrudnienie')
-        ]
+    ]
     employment_status = models.CharField(max_length=1,
                                          choices=status_zatrudnienia)
     salary = models.PositiveIntegerField()
 
     def __str__(self):
         return 'id_' + str(self.id)
-

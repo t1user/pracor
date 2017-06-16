@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Review, Salary
+from .models import Review, Salary, Company
 
 
 class CompanysearchForm(forms.Form):
@@ -40,3 +40,10 @@ class SalaryForm(ModelForm):
         model = Salary
         fields = ['company', 'position', 'city', 'years_at_company',
                   'years_experience', 'employment_status', 'salary']
+
+
+class CompanyForm(ModelForm):
+
+    class Meta:
+        model = Company
+        fields = ['name', 'headquarters_city', 'website']
