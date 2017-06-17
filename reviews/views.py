@@ -45,8 +45,8 @@ class ReviewView(BaseFormView):
         id = kwargs.get('id')
         if id:
             company = Company.objects.get(pk=id)
-        # self.
-        super().get(self, request, *args, **kwargs)
+            self.initial['company'] = company.pk
+        return super().get(request, *args, **kwargs)
 
     def process_result(self, request, *args, **kwargs):
         form = kwargs.get('form')
