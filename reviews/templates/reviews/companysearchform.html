@@ -17,4 +17,5 @@
 
 {% if searchterm and not search_results %}
 <h2>Nie znaleziono firmy '{{ searchterm }}'</h2>
+<a href= {% url 'companycreate' searchterm_joined %}>Utwórz firmę</a>
 {% endif %}

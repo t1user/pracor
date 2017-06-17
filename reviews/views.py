@@ -7,7 +7,8 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 
 from .models import Company
-from .forms import CompanysearchForm, ReviewForm, SalaryForm
+from .forms import (CompanysearchForm, ReviewForm, SalaryForm,
+                    CompanyForm)
 
 
 class BaseFormView(View):
@@ -15,6 +16,7 @@ class BaseFormView(View):
     initial = {'key': 'value'}
     template_name = 'form_template.html'
     redirect_view = 'home'
+    model_instance = None
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
@@ -25,7 +27,8 @@ class BaseFormView(View):
         if form.is_valid():
             # <process form cleaned data>
             self.process_result(request, form=form)
-            return redirect(self.redirect_view)
+            return redirect(self.redirect_view,
+                            self.model_instance.pk)
         return render(request, self.template_name, {'form': form})
 
     def process_result(self, request, *args, **kwargs):
@@ -36,11 +39,18 @@ class ReviewView(BaseFormView):
     form_class = ReviewForm
     initial = {}
     template_name = 'reviews/review.html'
-    redirect_view = 'home'
+    redirect_view = 'searchcompany'
+
+    def get(self, request, *args, **kwargs):
+        id = kwargs.get('id')
+        if id:
+            company = Company.objects.get(pk=id)
+        # self.
+        super().get(self, request, *args, **kwargs)
 
     def process_result(self, request, *args, **kwargs):
         form = kwargs.get('form')
-        form.save()
+        self.model_instance = form.save()
 
 
 class CompanysearchView(BaseFormView):
@@ -51,15 +61,17 @@ class CompanysearchView(BaseFormView):
 
     def get(self, request, *args, **kwargs):
         search_results = None
-        searchterm = kwargs.get('searchterm').replace('_', ' ')
+        searchterm_joined = kwargs.get('searchterm')
+        searchterm = searchterm_joined.replace('_', ' ')
         if searchterm:
             search_results = Company.objects.filter(name__icontains=searchterm)
-            #self.initial = {'company_name': searchterm}
+            # self.initial = {'company_name': searchterm}
         form = self.form_class(initial=self.initial)
         return render(request, self.template_name,
                       {'form': form,
                        'search_results': search_results,
-                       'searchterm': searchterm})
+                       'searchterm': searchterm,
+                       'searchterm_joined': searchterm_joined})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -70,19 +82,23 @@ class CompanysearchView(BaseFormView):
         return render(request, self.template_name, {'form': form})
 
 
-def companyview(request, pk):
-    a = Company.objects.get(pk=pk)
-    return HttpResponse(a)
-
-
 class CompanyDetailView(DetailView):
 
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
 
-'''
-    def get_queryset(self, **kwargs):
-        self.company = get_object_or_404(Company, pk=self.kwargs['pk'])
-        return self.company
-'''
+
+class CompanyCreateView(ReviewView):
+    form_class = CompanyForm
+    initial = {'website': 'http://www.'}
+    template_name = 'reviews/create_company.html'
+    company_name_joined = ''
+    redirect_view = 'review'
+
+    def get(self, request, *args, **kwargs):
+        self.company_name_joined = kwargs.get('company')
+        company_name = self.company_name_joined.replace('_', ' ')
+        self.initial['name'] = company_name
+        form = self.form_class(initial=self.initial)
+        return render(request, self.template_name, {'form': form})

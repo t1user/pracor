@@ -47,3 +47,6 @@ class CompanyForm(ModelForm):
     class Meta:
         model = Company
         fields = ['name', 'headquarters_city', 'website']
+        initial = {
+            'website': 'http://',
+        }
