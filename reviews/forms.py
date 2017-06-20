@@ -11,11 +11,12 @@ class ReviewForm(ModelForm):
 
     class Meta:
         model = Review
-        fields = ['company', 'position', 'city', 'years_at_company', 'advancement',
+        fields = [#'company',
+                  'position', 'city', 'years_at_company', 'advancement',
                   'worklife', 'compensation', 'environment', 'overallscore',
                   'pros', 'cons', 'comment']
         labels = {
-            'company': 'firma',
+            #'company': 'firma',
             'position': 'stanowisko',
             'city': 'miasto',
             'years_at_company': 'staż w firmie',
@@ -29,7 +30,7 @@ class ReviewForm(ModelForm):
             'comment': 'dodatkowe uwagi',
         }
         help_text = {
-            'company': 'Firma, której dotyczy recenzja',
+            #'company': 'Firma, której dotyczy recenzja',
             'position': 'Ostatnie/obecne stanowisko w firmie',
         }
 

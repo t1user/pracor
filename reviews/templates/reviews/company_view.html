@@ -10,4 +10,14 @@
 <li>{{ company.number_of_reviews }}</li>
 </ul>
 
+<a href= {% url 'review' company.pk %}>Oceń firmę</a>
+
+<p>Wyszukaj inną firmę</p>
+<form action="" method="POST">
+  <table>
+    <input type="text" name="company_name"/>
+  </table>
+  {% csrf_token %}
+  <input type="submit" value="Wyślij">
+</form>
 
