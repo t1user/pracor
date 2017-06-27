@@ -23,8 +23,8 @@ class Company(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse(companyview,
-                       kwargs={'company': 'str(self.pk)'})
+        return reverse('company_page',
+                       kwargs={'pk': self.pk})
 
 
 class Review(models.Model):
@@ -70,6 +70,10 @@ class Salary(models.Model):
     employment_status = models.CharField(max_length=1,
                                          choices=status_zatrudnienia)
     salary = models.PositiveIntegerField()
+
+    def get_absolute_url(self):
+        return reverse('company_page',
+                       kwargs={'pk': self.company.id})
 
     def __str__(self):
         return 'id_' + str(self.id)

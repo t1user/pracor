@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from .models import Review, Salary, Company
 
 
-class CompanysearchForm(forms.Form):
+class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
 

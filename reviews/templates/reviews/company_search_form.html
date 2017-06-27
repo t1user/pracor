@@ -10,17 +10,17 @@
 <h2>Wyniki wyszukiwania dla: '{{ searchterm }}'</h2>
 {% for item in search_results %}
 <p>
-<a href= {% url 'companypage' item.pk %}>{{ item }}</a>
+<a href= {% url 'company_page' item.pk %}>{{ item }}</a>
 </p>
 {% endfor %}
 <br>
 <p>Jeśli na liście nie ma firmy, której szukałeś możesz ją utworzyć:</p>
-<a href= {% url 'companycreate' searchterm_joined %}>Utwórz firmę</a>
+<a href= {% url 'company_create' searchterm_joined %}>Utwórz firmę</a>
 
 {% endif %}
 
 {% if searchterm and not search_results %}
 <h2>Nie znaleziono firmy '{{ searchterm }}'</h2>
-<a href= {% url 'companycreate' searchterm_joined %}>Utwórz firmę</a>
+<a href= {% url 'company_create' searchterm_joined %}>Utwórz firmę</a>
 {% endif %}
 

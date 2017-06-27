@@ -1,23 +1,43 @@
+<h1>Firma: {{ company.name }}</h1>
 <ul>
-<li>{{ company.name }}</li>
-<li>{{ company.headquarters_city }}</li>
-<li>{{ company.website }}</li>
-<li>{{ company.overallscore_score }}</li>
-<li>{{ company.advancement_score }}</li>
-<li>{{ company.worklife_score }}</li>
-<li>{{ company.compensation_score }}</li>
-<li>{{ company.environment_score }}</li>
-<li>{{ company.number_of_reviews }}</li>
+    <li>Siedziba centrali: {{ company.headquarters_city }}</li>
+    <li>Strona www: <a href="{{ company.website }}">{{ company.website }}</a></li>
 </ul>
+<br/>
 
-<a href= {% url 'review' company.pk %}>Oceń firmę</a>
+<section>
+  <h3>Średnia ocen:</h3>
+<table>
+    <tr><td><strong>Ocena ogólna:</strong></td><td><strong>{{ company.overallscore_score }}</strong></td></tr>
+<tr><td>Możliwości rozwoju:</td><td>{{ company.advancement_score }}</td></tr>
+<tr><td>Równowaga praca-życie:</td><td>{{ company.worklife_score }}</td></tr>
+<tr><td>Zarobki:</td><td>{{ company.compensation_score }}</td></tr>
+<tr><td>Atmosfera w pracy:</td><td>{{ company.environment_score }}</td></tr>
+</table>
+</section>
 
-<p>Wyszukaj inną firmę</p>
-<form action="" method="POST">
+<section>
+    <p>Liczba recenzji: {{ company.number_of_reviews }}</p>
+</section>
+
+<section>
+  <a href= {% url 'review' company.pk %}>Oceń firmę</a>
+  <a href = {% url 'salary' company.pk %}>Dodaj zarobki</a>
+</section>
+<section>
+<hr>
+<form action="{% url 'company_search' '' %}" method="POST">
   <table>
-    <input type="text" name="company_name"/>
+    <tr>
+      <td><label for="company_name">Wyszukaj inną firmę: </label></td>
+    </tr>
+    <tr>
+      <td><input type="text" name="company_name"/></td>
+      <td><input type="submit" value="Szukaj"></td>
+    </tr>
   </table>
   {% csrf_token %}
-  <input type="submit" value="Wyślij">
 </form>
+</section>
+
 

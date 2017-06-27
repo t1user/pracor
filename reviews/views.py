@@ -1,13 +1,12 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.urls import reverse
-
-
+from django.urls import reverse, reverse_lazy
+from django.views.generic import UpdateView, DeleteView, CreateView
 from django.views.generic.detail import DetailView
 
-from .models import Company
-from .forms import (CompanysearchForm, ReviewForm, SalaryForm,
+from .models import Company, Salary
+from .forms import (CompanySearchForm, ReviewForm, SalaryForm,
                     CompanyForm)
 
 
@@ -17,7 +16,7 @@ class BaseFormView(View):
     template_name = 'form_template.html'
     redirect_view = 'home'
     redirect_data = None
-    paras = None
+    paras = None #parameters passed by urlconf
     context = {}
     
     def get_paras(self, *args, **kwargs):
@@ -64,7 +63,7 @@ class BaseFormView(View):
 class ReviewView(BaseFormView):
     form_class = ReviewForm
     template_name = 'reviews/review.html'
-    redirect_view = 'companypage'
+    redirect_view = 'company_page'
 
     def process_result(self, request, *args, **kwargs):
         incomplete_form = self.form.save(commit=False)
@@ -91,11 +90,11 @@ class CompanyCreateView(BaseFormView):
         self.redirect_data = self.model_instance.pk
 
         
-class CompanysearchView(BaseFormView):
-    form_class = CompanysearchForm
+class CompanySearchView(View):
+    form_class = CompanySearchForm
     initial = {}
-    template_name = 'reviews/companysearchform.html'
-    redirect_view = 'searchcompany'
+    template_name = 'reviews/company_search_form.html'
+    redirect_view = 'company_search'
 
     def get(self, request, *args, **kwargs):
         search_results = ''
@@ -125,15 +124,32 @@ class CompanyDetailView(DetailView):
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
 
-
-    def get(self, request, *args, **kwargs):
-        form = CompanysearchForm()
-        return super().get(request, *args, **kwargs)
+class CompanyCreate(CreateView):
+    model = Company
     
-    def post(self, request, *args, **kwargs):
-        form = CompanysearchForm(request.POST)
-        if form.is_valid():
-            searchterm = form.cleaned_data['company_name'].replace(' ', '_')
-            return HttpResponseRedirect(reverse('searchcompany',
-                                            kwargs={'searchterm': searchterm}))
-        return HttpResponseRedirect(reverse('searchcompany'))
+    
+    
+class CompanyUpdate(UpdateView):
+    model = Company
+    fields = ['name', 'headquarters_city', 'website']
+    #template_name = 'reviews/company_view.html'
+
+    
+class CompanyDelete(DeleteView):
+    model = Company
+    success_url = reverse_lazy('home')
+
+
+class SalaryCreate(CreateView):
+    model = Salary
+    fields = ['position', 'city', 'years_at_company', 'employment_status', 'salary']
+
+    def form_valid(self, form):
+        form.instance.company = Company.objects.get(pk=self.kwargs['id'])
+        form.instance.years_experience = 5 #stub value to be replaced with request.user.something
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_name'] = Company.objects.get(pk=self.kwargs['id'])
+        return context
