@@ -2,14 +2,15 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse, reverse_lazy
-from django.views.generic import UpdateView, DeleteView, CreateView
-from django.views.generic.detail import DetailView
+from django.views.generic import (UpdateView, DeleteView, CreateView,
+                                  ListView, DetailView)
+#from django.views.generic.detail import DetailView
 
-from .models import Company, Salary
+from .models import Company, Salary, Review
 from .forms import (CompanySearchForm, ReviewForm, SalaryForm,
                     CompanyForm)
 
-
+"""
 class BaseFormView(View):
     form_class = []
     initial = {'key': 'value'}
@@ -88,7 +89,7 @@ class CompanyCreateView(BaseFormView):
     def process_result(self, request, *args, **kwargs):
         super().process_result(request, *args, **kwargs)
         self.redirect_data = self.model_instance.pk
-
+"""
         
 class CompanySearchView(View):
     form_class = CompanySearchForm
@@ -119,15 +120,36 @@ class CompanySearchView(View):
 
 
 class CompanyDetailView(DetailView):
-
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['review_count'] = self.object.review_set.count()
+        context['salary_count'] = self.object.salary_set.count()
+        if self.kwargs['item']:
+            if self.kwargs['item'] == 'recenzje':
+                context['reviews'] = self.object.review_set.all()
+            elif self.kwargs['item'] == 'zarobki':
+                context['salaries'] = self.object.salary_set.all()
+        else:
+            context['review'] = self.object.review_set.last()
+            context['salary'] = self.object.salary_set.last()
+        return context
+
+    
 class CompanyCreate(CreateView):
     model = Company
+    initial = {'website': 'http://www.'}
+    fields = ['name', 'headquarters_city', 'website']
     
-    
+    def get(self, request, **kwargs):
+        company_name_joined = self.kwargs.get('company')
+        company_name = company_name_joined.replace('_', ' ').title()
+        self.initial['name'] = company_name
+        return super().get(request, **kwargs)
+        
     
 class CompanyUpdate(UpdateView):
     model = Company
@@ -138,6 +160,35 @@ class CompanyUpdate(UpdateView):
 class CompanyDelete(DeleteView):
     model = Company
     success_url = reverse_lazy('home')
+
+
+class ReviewCreate(CreateView):
+    model = Review
+    fields = ['position', 'city', 'years_at_company', 'advancement',
+              'worklife', 'compensation', 'environment', 'overallscore',
+              'pros', 'cons', 'comment']
+    labels = {
+            'position': 'stanowisko',
+            'city': 'miasto',
+            'years_at_company': 'staż w firmie',
+            'advancement': 'możliwości rozwoju',
+            'worklife': 'równowaga praca/życie',
+            'compensation': 'zarobki',
+            'environment': 'atmosfera w pracy',
+            'pros': 'zalety',
+            'cons': 'wady',
+            'ovarallscore': 'ocena ogólna',
+            'comment': 'dodatkowe uwagi',
+        }
+
+    def form_valid(self, form):
+        form.instance.company = Company.objects.get(pk=self.kwargs['id'])
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_name'] = Company.objects.get(pk=self.kwargs['id'])
+        return context
 
 
 class SalaryCreate(CreateView):
@@ -153,3 +204,7 @@ class SalaryCreate(CreateView):
         context = super().get_context_data(**kwargs)
         context['company_name'] = Company.objects.get(pk=self.kwargs['id'])
         return context
+
+class CompanyList(ListView):
+    model = Company
+    context_object_name = 'company_list'

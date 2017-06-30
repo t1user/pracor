@@ -16,8 +16,6 @@ class Company(models.Model):
                                                      default=0)
     environment_score = models.PositiveIntegerField(editable=False,
                                                     default=0)
-    number_of_reviews = models.PositiveIntegerField(editable=False,
-                                                    default=0)
 
     def __str__(self):
         return self.name
@@ -44,6 +42,10 @@ class Review(models.Model):
     compensation = models.PositiveIntegerField('zarobki')
     environment = models.PositiveIntegerField('atmosfera w pracy')
 
+    def get_absolute_url(self):
+        return reverse('company_page',
+                       kwargs={'pk': self.company.id})
+    
     def __str__(self):
         return 'id_' + str(self.id)
 
