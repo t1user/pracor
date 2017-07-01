@@ -1,8 +1,37 @@
 <h1>Recenzja firmy: {{ company_name }}</h1>
 <form action='' method='POST'>
   <table>
-    {{ form.as_table }}
+    <tr><td>{{ form.position.label_tag }}</td><td>{{ form.position }}</td></tr>
+    <tr><td>{{ form.city.label_tag }}</td><td>{{ form.city }}</td></tr>
+    <tr><td>{{ form.years_at_company.label_tag }}</td><td>{{form.years_at_company }}</td></tr>
   </table>
+  <h2>Twoja ocena firmy:</h2>
+  <table>
+
+    <table>
+    {% for item in form %}
+    {% if item.name in radios %}
+    <tr>
+      <td>
+        {{ item.label_tag }}
+      </td>
+      <td>
+      <span>
+      {% for radio in item %}
+      {{ radio }}
+      {% endfor %}
+      </span>
+      </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </table>
+<br>
+    <table>
+    <tr><td>{{ form.pros.label_tag }}</td><td>{{ form.pros }}</td></tr>
+    <tr><td>{{ form.cons.label_tag }}</td><td>{{ form.cons }}</td></tr>
+    <tr><td>{{ form.comment.label_tag }}</td><td>{{ form.comment }}</td></tr>
+    </table>
   {% csrf_token %}
   <input type='submit' value='Wyślij'/>
 </form>

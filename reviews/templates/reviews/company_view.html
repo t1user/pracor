@@ -8,11 +8,11 @@
 <section>
   <h3>Średnia ocen:</h3>
 <table>
-    <tr><td><strong>Ocena ogólna:</strong></td><td><strong>{{ company.overallscore_score }}</strong></td></tr>
-<tr><td>Możliwości rozwoju:</td><td>{{ company.advancement_score }}</td></tr>
-<tr><td>Równowaga praca-życie:</td><td>{{ company.worklife_score }}</td></tr>
-<tr><td>Zarobki:</td><td>{{ company.compensation_score }}</td></tr>
-<tr><td>Atmosfera w pracy:</td><td>{{ company.environment_score }}</td></tr>
+    <tr><td><strong>Ocena ogólna:</strong></td><td><strong>{{ scores.overallscore }}</strong></td></tr>
+<tr><td>Możliwości rozwoju:</td><td>{{ scores.advancement }}</td></tr>
+<tr><td>Równowaga praca-życie:</td><td>{{ scores.worklife }}</td></tr>
+<tr><td>Zarobki:</td><td>{{ scores.compensation }}</td></tr>
+<tr><td>Atmosfera w pracy:</td><td>{{ scores.environment }}</td></tr>
 </table>
 </section>
 
@@ -46,12 +46,15 @@
 
 {% if review %}
 <section>
-    <h2>Ocena firmy:</h2>
-    <a href="{% url 'company_page' company.pk 'recenzje' %}">Więcej ocen</a>
+  <h2>Ocena firmy:</h2>
+  {% if review_count > 1 %}
+  <a href="{% url 'company_page' company.pk 'recenzje' %}">Więcej ocen</a>
+  {% endif %}
 {% endif %}
 
 {% if reviews %}
-    <h2>Oceny firmy:</h2>
+  <h2>Oceny firmy:</h2>
+  <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
 {% endif %}
 
 
@@ -68,12 +71,15 @@
 
 {% if salary %}
 <section>
-    <h2>Zarobki:</h2>
-    <a href="{% url 'company_page' company.pk 'zarobki' %}">Więcej zarobków</a>
+  <h2>Zarobki:</h2>
+  {% if salary_count > 1 %}
+  <a href="{% url 'company_page' company.pk 'zarobki' %}">Więcej danych o zarobkach</a>
+  {% endif %}
 {% endif %}
 
 {% if salaries %}
-    <h2>Zarobki w firmie:</h2>
+  <h2>Zarobki w firmie:</h2>
+  <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
 {% endif %}
 
 {% if salary %}

@@ -6,17 +6,35 @@ class Company(models.Model):
     name = models.CharField(max_length=100)
     headquarters_city = models.CharField(max_length=60)
     website = models.URLField()
-    overallscore_score = models.PositiveIntegerField(editable=False,
+    overallscore_total = models.PositiveIntegerField(editable=False,
                                                      default=0)
-    advancement_score = models.PositiveIntegerField(editable=False,
+    advancement_total = models.PositiveIntegerField(editable=False,
                                                     default=0)
-    worklife_score = models.PositiveIntegerField(editable=False,
+    worklife_total = models.PositiveIntegerField(editable=False,
                                                  default=0)
-    compensation_score = models.PositiveIntegerField(editable=False,
+    compensation_total = models.PositiveIntegerField(editable=False,
                                                      default=0)
-    environment_score = models.PositiveIntegerField(editable=False,
+    environment_total = models.PositiveIntegerField(editable=False,
                                                     default=0)
+    number_of_reviews = models.PositiveIntegerField(editable=False,
+                                                    default=0)
+    
 
+    def get_scores(self):
+        if self.number_of_reviews != 0:
+            overallscore = round(self.overallscore_total/self.number_of_reviews, 1)
+            advancement = round(self.advancement_total/self.number_of_reviews, 1)
+            worklife = round(self.worklife_total/self.number_of_reviews, 1)
+            compensation = round(self.compensation_total/self.number_of_reviews, 1)
+            environment = round(self.environment_total/self.number_of_reviews, 1)
+            return {'overallscore': overallscore,
+                    'advancement': advancement,
+                    'worklife': worklife,
+                    'compensation': compensation,
+                    'environment': environment,
+            }
+        
+    
     def __str__(self):
         return self.name
 
@@ -26,9 +44,7 @@ class Company(models.Model):
 
 
 class Review(models.Model):
-    company = models.ForeignKey(Company,
-                                verbose_name="recenzja firmy",
-                                )
+    company = models.ForeignKey(Company)
     date = models.DateTimeField(auto_now=True, editable=False)
     position = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -36,11 +52,18 @@ class Review(models.Model):
     pros = models.CharField(max_length=500)
     cons = models.CharField(max_length=500)
     comment = models.TextField()
-    overallscore = models.PositiveIntegerField('ocena ogólna')
-    advancement = models.PositiveIntegerField('możliwości rozwoju')
-    worklife = models.PositiveIntegerField('równowaga praca/życie')
-    compensation = models.PositiveIntegerField('zarobki')
-    environment = models.PositiveIntegerField('atmosfera w pracy')
+
+    RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
+    overallscore = models.PositiveIntegerField('ocena ogólna',
+                                               choices=RATINGS, default=None)
+    advancement = models.PositiveIntegerField('możliwości rozwoju',
+                                              choices=RATINGS, default=None)
+    worklife = models.PositiveIntegerField('równowaga praca-życie',
+                                           choices=RATINGS, default=None)
+    compensation = models.PositiveIntegerField('zarobki',
+                                               choices=RATINGS, default=None)
+    environment = models.PositiveIntegerField('atmosfera w pracy',
+                                              choices=RATINGS, default=None)
 
     def get_absolute_url(self):
         return reverse('company_page',
@@ -62,15 +85,15 @@ class Salary(models.Model):
                            )
     date = models.DateTimeField(auto_now=True, editable=False)
     status_zatrudnienia = [
-        ('a', 'pełny etat - umowa na czas nieokreślony'),
-        ('b', 'część etatu - umowa na czas nieokreślony'),
-        ('c', 'pełny etat - umowa na czas określony'),
-        ('d', 'część etatu - umowa na czas określony'),
-        ('e', 'umowa zlecenie'),
-        ('f', 'samozatrudnienie')
+        ('a', 'Pełen etat'),
+        ('b', 'Część etatu'),
+        ('c', 'Zlecenie'),
+        ('d', 'Samozazatrudnienie'),
+        ('e', 'Inne'),
     ]
     employment_status = models.CharField(max_length=1,
-                                         choices=status_zatrudnienia)
+                                         choices=status_zatrudnienia,
+                                         default='a')
     salary = models.PositiveIntegerField()
 
     def get_absolute_url(self):

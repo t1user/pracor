@@ -1,96 +1,20 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django import forms
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (UpdateView, DeleteView, CreateView,
                                   ListView, DetailView)
-#from django.views.generic.detail import DetailView
+from django.core.validators import URLValidator
+
 
 from .models import Company, Salary, Review
-from .forms import (CompanySearchForm, ReviewForm, SalaryForm,
-                    CompanyForm)
 
-"""
-class BaseFormView(View):
-    form_class = []
-    initial = {'key': 'value'}
-    template_name = 'form_template.html'
-    redirect_view = 'home'
-    redirect_data = None
-    paras = None #parameters passed by urlconf
-    context = {}
+
+class CompanySearchForm(forms.Form):
+    company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
+
     
-    def get_paras(self, *args, **kwargs):
-        id = kwargs.get('id')
-        print('id: ', id)
-        if id:
-            self.paras = Company.objects.get(pk=id)
-            self.context['paras'] = self.paras
-
-    def get(self, request, *args, **kwargs):
-        self.get_paras(*args, **kwargs)
-        print('initializing method GET with id: ', self.paras)
-        print('Object: ', self)
-        self.form = self.form_class(initial=self.initial)
-        self.set_context()
-        print(self.context)
-        return render(request, self.template_name, self.context)
-
-    def post(self, request, *args, **kwargs):
-        self.get_paras(*args, **kwargs)
-        print('initializing method POST with id: ', self.paras)
-        print('Object: ', self)
-        self.form = self.form_class(request.POST)
-        if self.form.is_valid():
-            # <process form cleaned data>
-            self.process_result(request)
-            if self.redirect_data:
-                return redirect(self.redirect_view,
-                                self.redirect_data)
-            else:
-                return redirect(self.redirect_view)
-        self.set_context()
-        return render(request, self.template_name, self.context)
-
-    def set_context(self, *args, **kwargs):
-        self.context['form'] = self.form
-        for k, v in kwargs.items():
-            self.context[k] = v
-    
-    def process_result(self, request, *args, **kwargs):
-        self.model_instance = self.form.save()
-
-
-class ReviewView(BaseFormView):
-    form_class = ReviewForm
-    template_name = 'reviews/review.html'
-    redirect_view = 'company_page'
-
-    def process_result(self, request, *args, **kwargs):
-        incomplete_form = self.form.save(commit=False)
-        incomplete_form.company = self.paras
-        model_instance = self.form.save()
-        self.redirect_data = model_instance.company.pk
-
-class CompanyCreateView(BaseFormView):
-    form_class = CompanyForm
-    initial = {'website': 'http://www.'}
-    template_name = 'reviews/create_company.html'
-    company_name_joined = ''
-    redirect_view = 'review'
-
-    def get(self, request, *args, **kwargs):
-        self.company_name_joined = kwargs.get('company')
-        company_name = self.company_name_joined.replace('_', ' ')
-        self.initial['name'] = company_name
-        form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
-
-    def process_result(self, request, *args, **kwargs):
-        super().process_result(request, *args, **kwargs)
-        self.redirect_data = self.model_instance.pk
-"""
-        
 class CompanySearchView(View):
     form_class = CompanySearchForm
     initial = {}
@@ -128,6 +52,7 @@ class CompanyDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['review_count'] = self.object.review_set.count()
         context['salary_count'] = self.object.salary_set.count()
+        context['scores'] =  self.object.get_scores()
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
                 context['reviews'] = self.object.review_set.all()
@@ -149,6 +74,10 @@ class CompanyCreate(CreateView):
         company_name = company_name_joined.replace('_', ' ').title()
         self.initial['name'] = company_name
         return super().get(request, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.headquarters_city = form.instance.headquarters_city.title()
+        return super().form_valid(form)
         
     
 class CompanyUpdate(UpdateView):
@@ -161,13 +90,14 @@ class CompanyDelete(DeleteView):
     model = Company
     success_url = reverse_lazy('home')
 
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['position', 'city', 'years_at_company', 'advancement',
+                  'worklife', 'compensation', 'environment', 'overallscore',
+                  'pros', 'cons', 'comment']
 
-class ReviewCreate(CreateView):
-    model = Review
-    fields = ['position', 'city', 'years_at_company', 'advancement',
-              'worklife', 'compensation', 'environment', 'overallscore',
-              'pros', 'cons', 'comment']
-    labels = {
+        labels = {
             'position': 'stanowisko',
             'city': 'miasto',
             'years_at_company': 'staż w firmie',
@@ -181,13 +111,43 @@ class ReviewCreate(CreateView):
             'comment': 'dodatkowe uwagi',
         }
 
+        widgets = {
+            'advancement': forms.RadioSelect(),
+            'worklife': forms.RadioSelect(),
+            'compensation': forms.RadioSelect(),
+            'environment': forms.RadioSelect(),
+            'overallscore': forms.RadioSelect()
+        }
+
+            
+class ReviewCreate(CreateView):
+    form_class = ReviewForm
+    model = Review 
+    
     def form_valid(self, form):
-        form.instance.company = Company.objects.get(pk=self.kwargs['id'])
+        company = get_object_or_404(Company, pk=self.kwargs['id'])
+        form.instance.company = company
+        company.overallscore_total += form.instance.overallscore
+        company.advancement_total += form.instance.advancement
+        company.worklife_total += form.instance.worklife
+        company.compensation_total += form.instance.compensation
+        company.environment_total += form.instance.environment
+        company.number_of_reviews += 1
+        company.save(update_fields=['overallscore_total',
+                                    'advancement_total',
+                                    'worklife_total',
+                                    'compensation_total',
+                                    'environment_total',
+                                    'number_of_reviews',
+        ])
+        form.instance.position = form.instance.position.title()
+        form.instance.city = form.instance.city.title()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['company_name'] = Company.objects.get(pk=self.kwargs['id'])
+        context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
+        context['radios'] = ['overallscore', 'advancement', 'compensation', 'environment', 'worklife']
         return context
 
 
@@ -196,13 +156,15 @@ class SalaryCreate(CreateView):
     fields = ['position', 'city', 'years_at_company', 'employment_status', 'salary']
 
     def form_valid(self, form):
-        form.instance.company = Company.objects.get(pk=self.kwargs['id'])
+        form.instance.company = get_object_or_404(Company, pk=self.kwargs['id'])
         form.instance.years_experience = 5 #stub value to be replaced with request.user.something
+        form.instance.city = form.instance.city.title()
+        form.instance.position = form.instance.position.title()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['company_name'] = Company.objects.get(pk=self.kwargs['id'])
+        context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
         return context
 
 class CompanyList(ListView):
