@@ -3,9 +3,12 @@ from django.urls import reverse
 
 
 class Company(models.Model):
-    name = models.CharField(max_length=100)
+    class Meta:
+        ordering=['name']
+        
+    name = models.CharField(max_length=100, unique=True)
     headquarters_city = models.CharField(max_length=60)
-    website = models.URLField()
+    website = models.URLField(unique=True)
     overallscore_total = models.PositiveIntegerField(editable=False,
                                                      default=0)
     advancement_total = models.PositiveIntegerField(editable=False,

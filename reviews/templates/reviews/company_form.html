@@ -6,9 +6,19 @@
 
 </table>
 {% csrf_token %}
-<input type='submit' value='Aktualizuj' align="right">
+<input type='submit' value='Wyślij' align="right">
 
 </form>
+
+
+{% if unique_error %}
+<h2>Istniejące firmy:</h2>
+<ul>
+{% for company in unique_error %}
+<li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
 
 
 
