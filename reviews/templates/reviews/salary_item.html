@@ -1,7 +1,15 @@
-    <table>
+<table>
       <tr><td>Data:</td><td>{{ salary.date }}</td></tr>
       <tr><td>Miasto:</td><td>{{ salary.city }}</td></tr>
       <tr><td>Stanowisko:</td><td>{{ salary.position }}</td></tr>
-      <tr><td>Zarobki:</td><td>{{ salary.salary }}</td></tr>
+      <tr><td>Rodzaj umowy:</td><td>{{ salary.get_employment_status_display }}</td></tr>
+      <tr><td>Waluta:</td><td>{{ salary.currency }}</td></tr>
+      <tr><td>Zarobki:</td><td>{{ salary.salary_input }}</td></tr>
+      <tr><td>Okres:</td><td>{{ salary.get_period_display }}</td></tr>
+      <tr><td>Brutto/Netto:</td><td>{{ salary.get_gross_net_display }}</td></tr>
+      <tr><td>Premia:</td><td>{{ salary.bonus_input }}</td></tr>
+      <tr><td>Za okres:</td><td>{{ salary.get_bonus_period_display }}</td></tr>
+      <tr><td>Premia Brutto/Netto:</td><td>{{ salary.get_bonus_gross_net_display }}</td></tr>
   </table>
 <hr/>
+

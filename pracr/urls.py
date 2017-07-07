@@ -20,7 +20,7 @@ from . import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home, name='home'),
-    url(r'^accounts/profile/$', views.profile, name='profile'),
+    url(r'^accounts/profile/$', views.home, name='home'),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^', include('social_django.urls', namespace='social')),
     url(r'^', include('reviews.urls')),

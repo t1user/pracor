@@ -1,5 +1,5 @@
-from django.http import HttpResponseRedirect #, HttpResponse
-from django.shortcuts import render, get_object_or_404 #, redirect
+from django.http import HttpResponseRedirect 
+from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django import forms
 from django.urls import reverse, reverse_lazy
@@ -49,17 +49,17 @@ class CompanyDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['review_count'] = self.object.review_set.count()
-        context['salary_count'] = self.object.salary_set.count()
+        context['review_count'] = self.object.get_reviews().count()
+        context['salary_count'] = self.object.get_salaries().count()
         context['scores'] =  self.object.get_scores()
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
-                context['reviews'] = self.object.review_set.all()
+                context['reviews'] = self.object.get_reviews().all()
             elif self.kwargs['item'] == 'zarobki':
-                context['salaries'] = self.object.salary_set.all()
+                context['salaries'] = self.object.get_salaries().all()
         else:
-            context['review'] = self.object.review_set.last()
-            context['salary'] = self.object.salary_set.last()
+            context['review'] = self.object.get_reviews().last()
+            context['salary'] = self.object.get_salaries().last()
         return context
 
 class CompanyCreateForm(forms.ModelForm):
@@ -69,8 +69,8 @@ class CompanyCreateForm(forms.ModelForm):
 
     def clean_website(self):
         """
-        Method ensures that urls with http, https, with and without www are treated 
-        as one
+        Method cleans field: 'website'. Ensures that urls with http, https, 
+        with and without www are treated as one.
         """
         url = self.cleaned_data['website']
         if url.startswith('https'):
@@ -103,13 +103,13 @@ class CompanyCreate(CreateView):
     def form_invalid(self, form, **kwargs):
         """
         In case there's an attempt to create a non-unique Company,
-        the method returns an instance of the company that already exists and
-        adds it to the context.
+        the method pulls out the instance(s) of the Company(s)
+        that already exist(s) and adds it/them to the context.
         """
         context = self.get_context_data(**kwargs)
         context['form'] = form
         errorlist = form.errors.as_data()
-        form_dict =form.instance.__dict__
+        form_dict = form.instance.__dict__
         companies = []
         for field, errors in errorlist.items():
             for error in errors:
@@ -168,21 +168,22 @@ class ReviewCreate(CreateView):
     def form_valid(self, form):
         company = get_object_or_404(Company, pk=self.kwargs['id'])
         form.instance.company = company
-        company.overallscore_total += form.instance.overallscore
-        company.advancement_total += form.instance.advancement
-        company.worklife_total += form.instance.worklife
-        company.compensation_total += form.instance.compensation
-        company.environment_total += form.instance.environment
+        company.overallscore += form.instance.overallscore
+        company.advancement += form.instance.advancement
+        company.worklife += form.instance.worklife
+        company.compensation += form.instance.compensation
+        company.environment += form.instance.environment
         company.number_of_reviews += 1
-        company.save(update_fields=['overallscore_total',
-                                    'advancement_total',
-                                    'worklife_total',
-                                    'compensation_total',
-                                    'environment_total',
+        company.save(update_fields=['overallscore',
+                                    'advancement',
+                                    'worklife',
+                                    'compensation',
+                                    'environment',
                                     'number_of_reviews',
         ])
         form.instance.position = form.instance.position.title()
         form.instance.city = form.instance.city.title()
+        form.instance.user = self.request.user
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -194,13 +195,26 @@ class ReviewCreate(CreateView):
 
 class SalaryCreate(CreateView):
     model = Salary
-    fields = ['position', 'city', 'years_at_company', 'employment_status', 'salary']
+    fields = [
+        'position',
+        'city',
+        'years_at_company',
+        'employment_status',
+        'currency',
+        'salary_input',
+        'period',
+        'gross_net',
+        'bonus_input',
+        'bonus_period',
+        'bonus_gross_net',
+    ]
 
     def form_valid(self, form):
         form.instance.company = get_object_or_404(Company, pk=self.kwargs['id'])
         form.instance.years_experience = 5 #stub value to be replaced with request.user.something
         form.instance.city = form.instance.city.title()
         form.instance.position = form.instance.position.title()
+        form.instance.user = self.request.user
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
