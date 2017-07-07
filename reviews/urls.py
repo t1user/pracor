@@ -27,4 +27,7 @@ urlpatterns = [
 
     url(r'^salary/(?P<id>\d*)/?$',
         SalaryCreate.as_view(), name='salary'),
+
+    url(r'^interview/(?P<id>\d*)/?$',
+        InterviewCreate.as_view(), name='interview'),
 ]

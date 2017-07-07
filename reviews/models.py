@@ -39,7 +39,9 @@ class Company(models.Model):
 
     def get_salaries(self):
         return  Salary.objects.filter(company=self.pk)
-    
+
+    def get_interviews(self):
+        return Interview.objects.filter(company=self.pk)
 
     def get_scores(self):
         if self.number_of_reviews != 0:
@@ -107,6 +109,7 @@ class Review(Position):
     #position = models.ForeignKey(Position, on_delete=models.CASCADE)
     #position = models.OneToOneField(Position, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True, editable=False)
+    title = models.CharField(max_length=100)
     pros = models.CharField(max_length=500)
     cons = models.CharField(max_length=500)
     comment = models.TextField()
@@ -132,14 +135,14 @@ class Review(Position):
 
 
 class Salary(Position):
-    TIMEUNIT = [
+    PERIOD = [
         ('M', 'miesięcznie'),
         ('R', 'rocznie'),
         ('G', 'na godzinę'),
     ]
     GROSS_NET = [
-        ('G', 'Brutto'),
-        ('N', 'Netto'),
+        ('G', 'brutto'),
+        ('N', 'netto'),
     ]
     
     #company = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -147,15 +150,19 @@ class Salary(Position):
     #position = models.OneToOneField(Position, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True, editable=False)
 
-    currency = models.CharField(max_length=3, default='PLN')
+    currency = models.CharField('waluta',
+                                max_length=3, default='PLN')
 
-    salary_input = models.PositiveIntegerField()
-    period = models.CharField(max_length=1, default='M', choices=TIMEUNIT)
-    gross_net = models.CharField(max_length=1, default='G', choices=GROSS_NET)
+    salary_input = models.PositiveIntegerField('pensja')
+    period = models.CharField('za okres',
+                              max_length=1, default='M', choices=PERIOD)
+    gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
 
-    bonus_input = models.PositiveIntegerField(default=0)
-    bonus_period = models.CharField(max_length=1, default='M', choices=TIMEUNIT)
-    bonus_gross_net = models.CharField(max_length=1, default='G', choices=GROSS_NET)
+    bonus_input = models.PositiveIntegerField('premia', default=0)
+    bonus_period = models.CharField('',
+                                    max_length=1, default='M', choices=PERIOD)
+    bonus_gross_net = models.CharField('',
+                                       max_length=1, default='G', choices=GROSS_NET)
 
     base_monthly = models.PositiveIntegerField(blank=True,
                                               default=0, editable=False)
@@ -168,6 +175,46 @@ class Salary(Position):
                                                default=0, editable=False)
     
     
+    def get_absolute_url(self):
+        return reverse('company_page',
+                       kwargs={'pk': self.company.id})
+
+    def __str__(self):
+        return 'id_' + str(self.id)
+
+class Interview(models.Model):
+    HOW_GOT = [
+        ('A', 'Ogłoszenie'),
+        ('B', 'Kontakty profesjonalne'),
+        ('C', 'Head-hunter'),
+        ('D', 'Znajomi-rodzina'),
+        ('E', 'Sex z decydentem'),
+        ('F', 'Inne'),
+    ]
+    DIFFICULTY = [
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+    ]
+    company = models.ForeignKey(Company,
+                                on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True, editable=False)
+    position = models.CharField('stanowisko',
+                                max_length=100, blank=True)
+    department = models.CharField('departament',
+                                  max_length=100, blank=True)
+    how_got = models.CharField('droga do interview',
+                               max_length=1, choices=HOW_GOT, default=None)
+    difficulty = models.PositiveIntegerField('trudność',
+                                             choices=DIFFICULTY)
+    got_offer = models.BooleanField('czy dostał ofertę',
+                                    blank=True)
+    questions = models.TextField('pytania')
+    impressions = models.CharField('wrażenia',
+                                   max_length=100, blank=True)
+
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})

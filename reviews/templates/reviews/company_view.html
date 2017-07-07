@@ -5,6 +5,7 @@
 </ul>
 <br/>
 
+{% if review or reviews %}
 <section>
   <h3>Średnia ocen:</h3>
 <table>
@@ -16,14 +17,23 @@
 </table>
 </section>
 
+{% else %}
+Firma nie ma jeszcze ocen.
+<br/>
+{% endif %}
+
+<br>
 <section>
-    <p>Liczba recenzji: <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ review_count }}</a></p>
-    <p>Dane o zarobkach: <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ salary_count }}</a></p>
+    <span>Recenzje: <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ review_count }}</a></span>
+    <span>Zarobki: <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ salary_count }}</a></span>
+    <span>Interviews: <a href="{% url 'company_page' company.pk 'interviews' %}">{{ interview_count }}</a></span>
 </section>
+<br>
 
 <section>
   <a href= {% url 'review' company.pk %}>Oceń firmę</a>
   <a href = {% url 'salary' company.pk %}>Dodaj zarobki</a>
+  <a href = {% url 'interview' company.pk %}>Dodaj interview</a>
 </section>
 <section>
 <hr>
@@ -49,6 +59,7 @@
   <h2>Ocena firmy:</h2>
   {% if review_count > 1 %}
   <a href="{% url 'company_page' company.pk 'recenzje' %}">Więcej ocen</a>
+  <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
   {% endif %}
 {% endif %}
 
@@ -80,6 +91,7 @@
 {% if salaries %}
   <h2>Zarobki w firmie:</h2>
   <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
+  <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
 {% endif %}
 
 {% if salary %}
@@ -89,6 +101,32 @@
 {% if salaries %}
 {% for salary in salaries %}
 {% include "reviews/salary_item.html" %}
+{% endfor %}
+{% endif %}
+</section>
+
+{% if interview %}
+<section>
+  <h2>Interview:</h2>
+  {% if interview_count > 1 %}
+  <a href="{% url 'company_page' company.pk 'interview' %}">Więcej interview</a>
+  {% endif %}
+{% endif %}
+
+{% if interviews %}
+  <h2>Interviews:</h2>
+  <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
+  <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
+{% endif %}
+
+
+{% if interview %}
+{% include "reviews/interview_item.html" %}
+{% endif %}
+
+{% if interviews %}
+{% for interview in interviews %}
+{% include "reviews/interview_item.html" %}
 {% endfor %}
 {% endif %}
 </section>

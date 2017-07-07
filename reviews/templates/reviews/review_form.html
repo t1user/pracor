@@ -1,6 +1,7 @@
 <h1>Recenzja firmy: {{ company_name }}</h1>
 <form action='' method='POST'>
   <table>
+    <tr><td>{{ form.title.label_tag }}</td><td>{{form.title }}</td></tr>
     <tr><td>{{ form.position.label_tag }}</td><td>{{ form.position }}</td></tr>
     <tr><td>{{ form.city.label_tag }}</td><td>{{ form.city }}</td></tr>
     <tr><td>{{ form.years_at_company.label_tag }}</td><td>{{form.years_at_company }}</td></tr>

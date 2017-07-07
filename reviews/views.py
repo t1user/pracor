@@ -7,7 +7,7 @@ from django.views.generic import (UpdateView, DeleteView, CreateView,
                                   ListView, DetailView)
 
 
-from .models import Company, Salary, Review
+from .models import Company, Salary, Review, Interview
 
 
 class CompanySearchForm(forms.Form):
@@ -51,15 +51,19 @@ class CompanyDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['review_count'] = self.object.get_reviews().count()
         context['salary_count'] = self.object.get_salaries().count()
+        context['interview_count'] = self.object.get_interviews().count()
         context['scores'] =  self.object.get_scores()
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
-                context['reviews'] = self.object.get_reviews().all()
+                context['reviews'] = self.object.get_reviews()
             elif self.kwargs['item'] == 'zarobki':
-                context['salaries'] = self.object.get_salaries().all()
+                context['salaries'] = self.object.get_salaries()
+            elif self.kwargs['item'] == 'interviews':
+                context['interviews'] = self.object.get_interviews()
         else:
             context['review'] = self.object.get_reviews().last()
             context['salary'] = self.object.get_salaries().last()
+            context['interview'] = self.object.get_interviews().last()
         return context
 
 class CompanyCreateForm(forms.ModelForm):
@@ -79,11 +83,6 @@ class CompanyCreateForm(forms.ModelForm):
             url = url.replace('http://', 'http://www.')
         ### TODO check here if the website returns 200
         return url
-"""
-    def clean(self):
-        data = super().clean()
-        print(data)
-"""
 
 class CompanyCreate(CreateView):
     model = Company
@@ -134,11 +133,12 @@ class CompanyDelete(DeleteView):
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ['position', 'city', 'years_at_company', 'advancement',
+        fields = ['title','position', 'city', 'years_at_company', 'advancement',
                   'worklife', 'compensation', 'environment', 'overallscore',
                   'pros', 'cons', 'comment']
 
         labels = {
+            'title': 'tytuł recenzji',
             'position': 'stanowisko',
             'city': 'miasto',
             'years_at_company': 'staż w firmie',
@@ -222,6 +222,29 @@ class SalaryCreate(CreateView):
         context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
         return context
 
+class InterviewCreate(CreateView):
+    model = Interview
+    fields = [
+        'position',
+        'department',
+        'how_got',
+        'difficulty',
+        'got_offer',
+        'questions',
+        'impressions'
+    ]
+
+    def form_valid(self, form):
+        form.instance.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
+        return context
+
+
+    
 class CompanyList(ListView):
     model = Company
     context_object_name = 'company_list'
