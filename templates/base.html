@@ -1,0 +1,75 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta name="description" content="pracr to portal gdzie użytkownicy anonimowo dzielą się opiniami o pracodawcach i danymi o zarobkach. Anonimowość jest gwarantowana."/>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        
+        <title>
+            {% block title %}
+            pracr - społecznościowa baza danych o pracodawcach i zarobkach
+            {% endblock title %}
+        </title>
+
+        <!--Import Google Icon Font-->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <!--     Fonts      -->
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato:300,400,500,700" />
+
+        <!-- Normalize and Skeleton -->
+        <link rel="stylesheet" href="{% static 'css/normalize.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/skeleton.css' %}"/>
+         
+        <!-- Custom project css -->
+        <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+
+        <!-- Custom app css -->
+        {% block css %}
+        {% endblock css %}
+    </head>
+    
+    <body>
+        <nav>
+            <!-- brand logo -->
+            <a href="{% url 'home' %}"><img src="{% static 'pictures/logo_new.png' %}"></a>
+            <!-- searchbar  -->
+            <div class="search-bar">
+                <form action="{% url 'company_search' '' %}" method="POST">
+                    <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" arial-label="wyszukaj firmę" /><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
+                    {% csrf_token %}
+                </form>
+            </div>
+            <!-- menu items -->
+            <div class="topnav" id="myTopnav">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="#">Option</a>
+                <a href="{% url 'login' %}">Login</a>
+            </div>
+            <!-- buttons for mobile only -->
+            <a href="javascript:void(0);" class="icon" onclick="showMenu()"><i class="material-icons">menu</i></a>
+            <a href="javascript:void(0);" class="glass" onclick="showSearch"><i class="material-icons">search</i></a>
+        </nav>
+
+        <main>                      
+                
+            {% block content %}
+
+            {% endblock content %}
+
+        </main>
+
+
+        
+        <footer>
+
+            Tu będzie footer.
+            
+        </footer>
+        <script src="{% static 'js/scripts.js' %}"></script>
+    </body>
+</html>

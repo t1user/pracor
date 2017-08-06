@@ -5,7 +5,7 @@ from django import forms
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (UpdateView, DeleteView, CreateView,
                                   ListView, DetailView)
-
+from .widgets import RadioSelectModified
 
 from .models import Company, Salary, Review, Interview
 
@@ -18,6 +18,7 @@ class CompanySearchView(View):
     form_class = CompanySearchForm
     initial = {}
     template_name = 'reviews/company_search_form.html'
+    redirect_template_name = 'reviews/company_search_results.html'
     redirect_view = 'company_search'
 
     def get(self, request, *args, **kwargs):
@@ -26,12 +27,14 @@ class CompanySearchView(View):
         searchterm = searchterm_joined.replace('_', ' ')
         if searchterm:
             search_results = Company.objects.filter(name__icontains=searchterm)
+            self.template_name = self.redirect_template_name
         form = self.form_class(initial=self.initial)
         return render(request, self.template_name,
                       {'form': form,
                        'search_results': search_results,
                        'searchterm': searchterm,
                        'searchterm_joined': searchterm_joined})
+
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -40,7 +43,6 @@ class CompanySearchView(View):
             return HttpResponseRedirect(reverse(self.redirect_view,
                                                 kwargs={'searchterm': searchterm}))
         return render(request, self.template_name, {'form': form})
-
 
 class CompanyDetailView(DetailView):
     model = Company
@@ -53,6 +55,20 @@ class CompanyDetailView(DetailView):
         context['salary_count'] = self.object.get_salaries().count()
         context['interview_count'] = self.object.get_interviews().count()
         context['scores'] =  self.object.get_scores()
+        #calculate number of full,  half and blank stars for display
+        if context['scores']:
+            for key, value in context['scores'].items():
+                truncated = int(value)
+                half = value - truncated
+                if 0.25 <= half < 0.75: 
+                    half = 1
+                else:
+                    half = 0
+                if value - truncated >= 0.75:
+                    truncated += 1
+                full = range(truncated)
+                blank = range(5 - truncated - half)
+                context[key] = {'full': full, 'half': half, 'blank': blank}
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
                 context['reviews'] = self.object.get_reviews()
@@ -131,6 +147,7 @@ class CompanyDelete(DeleteView):
     success_url = reverse_lazy('home')
 
 class ReviewForm(forms.ModelForm):
+
     class Meta:
         model = Review
         fields = ['title','position', 'city', 'years_at_company', 'advancement',
@@ -153,13 +170,22 @@ class ReviewForm(forms.ModelForm):
         }
 
         widgets = {
-            'advancement': forms.RadioSelect(),
-            'worklife': forms.RadioSelect(),
-            'compensation': forms.RadioSelect(),
-            'environment': forms.RadioSelect(),
-            'overallscore': forms.RadioSelect()
+            'advancement': RadioSelectModified(),
+            'worklife': RadioSelectModified(),
+            'compensation': RadioSelectModified(),
+            'environment': RadioSelectModified(),
+            'overallscore': RadioSelectModified(),
         }
+"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.Meta.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control'
+            })
+"""
 
+        
             
 class ReviewCreate(CreateView):
     form_class = ReviewForm
@@ -187,6 +213,7 @@ class ReviewCreate(CreateView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        print(RadioSelectModified().get_context('advancement',1, {'class':'dupa', 'wrap_label':False}))
         context = super().get_context_data(**kwargs)
         context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
         context['radios'] = ['overallscore', 'advancement', 'compensation', 'environment', 'worklife']

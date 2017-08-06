@@ -60,7 +60,7 @@ class Company(models.Model):
 
     def update_scores(self):
         """
-        Method recalculates all scores to make them compliant with existing reviews.
+        Method recalculates all scores to make them compliant with existing reviews. This is an admin method.
         """
         reviews = self.get_reviews()
         self.overallscore = 0

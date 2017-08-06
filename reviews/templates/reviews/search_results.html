@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <form action="" method="POST">
     <table>
         {{ form }}
@@ -12,3 +16,5 @@
 <p>{{ item }}</p>
 {% endfor %}
 {% endif %}
+
+{% endblock content %}

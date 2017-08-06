@@ -1,0 +1,56 @@
+
+form {
+    font-family: Lato;
+    font-size: 1.8rem;
+    }
+
+main form input {
+    width: 100%;
+    }
+
+
+aside li {
+    margin-left: 1.7rem;
+    list-style-position: outside;
+    font-size: 1.8rem;
+    font-weight: 300;
+    }
+
+form div {
+    overflow: hidden;
+    display: inline-block;
+    direction: rtl;
+}
+
+
+
+input[type=radio] {
+    float: right;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    margin: 0 0 0 -4.8rem;
+    opacity: 0;
+}
+
+
+form div label {
+    cursor: pointer;
+    position: relative;
+    float: right;
+    display: block;
+    font-size: 0;
+    width: 4.8rem;
+    height: 4.8rem;
+    background: url('img/ic_star_border_black_24px.svg') 0/4.8rem;
+}
+
+
+form div label:hover,
+form div label:hover ~ label,
+input[type=radio]:checked,
+input[type=radio]:checked ~ label {
+    background-position: 0 0;
+    background: url('img/ic_star_black_24px.svg') 0/4.8rem;
+}
+

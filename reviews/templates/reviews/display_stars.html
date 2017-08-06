@@ -1,0 +1,11 @@
+<span>
+    {% for full in stars.full %}
+    <i class="material-icons stars">star</i>
+    {% endfor %}
+    {% if stars.half %}
+    <i class="material-icons stars">star_half</i>
+    {% endif %}
+    {% for blank in stars.blank %}
+    <i class="material-icons stars">star_border</i>
+    {% endfor %}
+</span>

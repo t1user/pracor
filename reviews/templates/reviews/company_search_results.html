@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            {% if searchterm and search_results %}
+            <h3>Wyniki wyszukiwania dla: '{{ searchterm }}'</h3>
+            {% for item in search_results %}
+            <p>
+                <a href= {% url 'company_page' item.pk %}>{{ item }}</a>
+            </p>
+            {% endfor %}
+            <br>
+            <p>Jeśli na liście nie ma firmy, której szukałeś możesz ją utworzyć:</p>
+            <a href= {% url 'company_create' searchterm_joined %}>Utwórz firmę</a>
+
+            {% endif %}
+
+            {% if searchterm and not search_results %}
+            <h3>Nie znaleziono firmy '{{ searchterm }}'</h3>
+            <a href= {% url 'company_create' searchterm_joined %}>Utwórz firmę</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

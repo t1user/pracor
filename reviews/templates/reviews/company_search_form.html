@@ -1,26 +1,27 @@
-<form action="" method="POST">
-    <table>
-        {{ form }}
-    </table>
-    {% csrf_token %}
-    <input type="submit" value="Wyślij">
-</form>
+{% extends "base.html" %}
 
-{% if searchterm and search_results %}
-<h2>Wyniki wyszukiwania dla: '{{ searchterm }}'</h2>
-{% for item in search_results %}
-<p>
-<a href= {% url 'company_page' item.pk %}>{{ item }}</a>
-</p>
-{% endfor %}
-<br>
-<p>Jeśli na liście nie ma firmy, której szukałeś możesz ją utworzyć:</p>
-<a href= {% url 'company_create' searchterm_joined %}>Utwórz firmę</a>
+{% load staticfiles %}
 
-{% endif %}
-
-{% if searchterm and not search_results %}
-<h2>Nie znaleziono firmy '{{ searchterm }}'</h2>
-<a href= {% url 'company_create' searchterm_joined %}>Utwórz firmę</a>
-{% endif %}
-
+{% block content %}
+<div class="container-fluid" style="height: 550px; width: 100%; background-image: url({% static 'pictures/city_landscape.svg' %}); background-size: auto; background-position:center;">
+    <div class="row">
+        <div class="container text-center" style="margin-top:7rem;">
+            <h1 style="margin-bottom:4rem" >Społecznościowa baza danych o pracodawcach i zarobkach</h1>
+            <h2 style="margin-bottom:5rem;">Dowiedz się gdzie warto pracować!</h2>
+            <form action="" method="POST">
+                <div class="input-group input-group-lg">
+                    <label class="sr-only" for="company_name">company name</label>
+                    <input type="text" class="form-control" placeholder="Wyszukaj firmę..." name="company_name">
+                    <div class="input-group-btn">
+                        <button class="btn btn-success">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </div>
+                {% csrf_token %}
+            </form>
+            
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -27,7 +27,7 @@ SECRET_KEY = 'yiym2_8*6$km-^uy-m7eb!x*7_(xpv6rmwu3t40%+71natjp2e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -154,7 +154,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+ ]
 
 # Settings for python-social-oauth
 

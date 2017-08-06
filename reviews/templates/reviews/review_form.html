@@ -1,38 +1,55 @@
-<h1>Recenzja firmy: {{ company_name }}</h1>
-<form action='' method='POST'>
-  <table>
-    <tr><td>{{ form.title.label_tag }}</td><td>{{form.title }}</td></tr>
-    <tr><td>{{ form.position.label_tag }}</td><td>{{ form.position }}</td></tr>
-    <tr><td>{{ form.city.label_tag }}</td><td>{{ form.city }}</td></tr>
-    <tr><td>{{ form.years_at_company.label_tag }}</td><td>{{form.years_at_company }}</td></tr>
-  </table>
-  <h2>Twoja ocena firmy:</h2>
-  <table>
+{% extends "base.html" %}
 
-    <table>
-    {% for item in form %}
-    {% if item.name in radios %}
-    <tr>
-      <td>
-        {{ item.label_tag }}
-      </td>
-      <td>
-      <span>
-      {% for radio in item %}
-      {{ radio }}
-      {% endfor %}
-      </span>
-      </td>
-    </tr>
-    {% endif %}
-    {% endfor %}
-    </table>
-<br>
-    <table>
-    <tr><td>{{ form.pros.label_tag }}</td><td>{{ form.pros }}</td></tr>
-    <tr><td>{{ form.cons.label_tag }}</td><td>{{ form.cons }}</td></tr>
-    <tr><td>{{ form.comment.label_tag }}</td><td>{{ form.comment }}</td></tr>
-    </table>
-  {% csrf_token %}
-  <input type='submit' value='Wyślij'/>
-</form>
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/review_form.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Recenzja firmy: {{ company_name }}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <section class="eight columns">
+            <article>
+                {% if form.errors %}
+                <p> style="color:red;">
+                    Popraw błędy poniżej
+                </p>
+                {% endif %}
+            </article>
+            <atricle>
+                <form action='' method='POST'>
+                    <fieldset>
+                        {% for field in form %}
+                        {{ field.errors }}
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                        {% endif %}
+                        {% endfor %}
+                    </fieldset>
+                    {% csrf_token %}
+                    <input type='submit' class="btn btn-success" value='Wyślij'/>
+                </form>
+            </atricle>
+        </section>
+        <aside class="four columns">
+            <h4>Zasady pisania recenzji</h4>
+            <ul>
+                <li>Bez przekleństw</li>
+                <li>Bez nazwisk, ani danych pozwalających zidentyfikować kontretną osobę</li>
+                <li>Żadnych informacji poufnych</li>
+                <li>Recenzje zbilansowane wymieniające zarówno złe i dobre strony</li>
+                <li>Prawda, cała prawda i tylko prawda</li>
+                <li>Tylko to co może być przydatne dla innych użytkowników</li>
+            </ul>
+        </aside>
+    </div>
+</div>
+{% endblock content %}

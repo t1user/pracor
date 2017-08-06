@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <h1>Doświadczenia z interview w firmie: {{ company_name }}</h1>
 <form action='' method='POST'>
   <table>
@@ -6,3 +10,5 @@
   {% csrf_token %}
   <input type='submit' value='Wyślij'/>
 </form>
+
+{% endblock content %}

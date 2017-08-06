@@ -1,24 +1,39 @@
+{% extends "base.html" %}
 
-<form action='' method='POST'>
-<table>
-  
-{{ form.as_table }}
+{% block content %}
 
-</table>
-{% csrf_token %}
-<input type='submit' value='Wyślij' align="right">
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
 
-</form>
+            <h1>Dodawanie firmy do bazy danych</h1>
+        </div>
+        <div class=row>
+            <div class="twelve columns">
 
+            <form class="u-full-width" action='' method='POST'>
 
-{% if unique_error %}
-<h2>Istniejące firmy:</h2>
-<ul>
-{% for company in unique_error %}
-<li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
-{% endfor %}
-</ul>
-{% endif %}
+                
+                {{ form }}
 
 
+                {% csrf_token %}
+                <input type='submit' value='Wyślij' align="right">
 
+            </form>
+
+
+            {% if unique_error %}
+            <h2>Istniejące firmy:</h2>
+            <ul>
+                {% for company in unique_error %}
+                <li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

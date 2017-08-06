@@ -1,0 +1,80 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #f5f5f5;
+}
+
+
+/* Custom page CSS -------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+    padding: 60px 15px 0;
+}
+.container .text-muted {
+    margin: 20px 0;
+}
+
+.footer > .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+code {
+    font-size: 80%;
+}
+
+.navbar-default {
+    font-family: Roboto;
+    background-color: rgba(255, 255, 255, 0);
+    background-image: none;
+    border: none;
+    color: white;
+ }
+
+
+.navbar-brand {
+  padding: 0px;
+}
+
+.navbar-brand > img {
+  height: 100%;
+  #padding: 7x 15px;
+  #width: auto;
+}
+
+
+h1 {
+    #font-size: 40px;
+    color:white;
+}
+
+h2 {
+    font-size: 7rem;
+    color: #ff6600;
+    #color: #5cb85c;
+    #color: #000066;
+}
+
+h1, h2 {
+    font-family: Roboto;
+    font-weight: bold;
+}
+
+
+

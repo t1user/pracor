@@ -1,135 +1,202 @@
-<h1>Firma: {{ company.name }}</h1>
-<ul>
-    <li>Siedziba centrali: {{ company.headquarters_city }}</li>
-    <li>Strona www: <a href="{{ company.website }}">{{ company.website }}</a></li>
-</ul>
-<br/>
+{% extends "base.html" %}
 
-{% if review or reviews %}
-<section>
-  <h3>Średnia ocen:</h3>
-<table>
-    <tr><td><strong>Ocena ogólna:</strong></td><td><strong>{{ scores.overallscore }}</strong></td></tr>
-<tr><td>Możliwości rozwoju:</td><td>{{ scores.advancement }}</td></tr>
-<tr><td>Równowaga praca-życie:</td><td>{{ scores.worklife }}</td></tr>
-<tr><td>Zarobki:</td><td>{{ scores.compensation }}</td></tr>
-<tr><td>Atmosfera w pracy:</td><td>{{ scores.environment }}</td></tr>
-</table>
-</section>
+{% load static %}
 
-{% else %}
-Firma nie ma jeszcze ocen.
-<br/>
-{% endif %}
-
-<br>
-<section>
-    <span>Recenzje: <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ review_count }}</a></span>
-    <span>Zarobki: <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ salary_count }}</a></span>
-    <span>Interviews: <a href="{% url 'company_page' company.pk 'interviews' %}">{{ interview_count }}</a></span>
-</section>
-<br>
-
-<section>
-  <a href= {% url 'review' company.pk %}>Oceń firmę</a>
-  <a href = {% url 'salary' company.pk %}>Dodaj zarobki</a>
-  <a href = {% url 'interview' company.pk %}>Dodaj interview</a>
-</section>
-<section>
-<hr>
-<form action="{% url 'company_search' '' %}" method="POST">
-  <table>
-    <tr>
-      <td><label for="company_name">Wyszukaj inną firmę: </label></td>
-    </tr>
-    <tr>
-      <td><input type="text" name="company_name"/></td>
-      <td><input type="submit" value="Szukaj"></td>
-    </tr>
-  </table>
-  {% csrf_token %}
-</form>
-</section>
-
-<br/>
-<hr/>
-
-{% if review %}
-<section>
-  <h2>Ocena firmy:</h2>
-  {% if review_count > 1 %}
-  <a href="{% url 'company_page' company.pk 'recenzje' %}">Więcej ocen</a>
-  <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
-  {% endif %}
-{% endif %}
-
-{% if reviews %}
-  <h2>Oceny firmy:</h2>
-  <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
-{% endif %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/company_view.css' %}">
+{% endblock css %}
 
 
-{% if review %}
-{% include "reviews/review_item.html" %}
-{% endif %}
+{% block title %}
 
-{% if reviews %}
-{% for review in reviews %}
-{% include "reviews/review_item.html" %}
-{% endfor %}
-{% endif %}
-</section>
+pracr | {{ company.name }} | Opinie, zarobki, interview
 
-{% if salary %}
-<section>
-  <h2>Zarobki:</h2>
-  {% if salary_count > 1 %}
-  <a href="{% url 'company_page' company.pk 'zarobki' %}">Więcej danych o zarobkach</a>
-  {% endif %}
-{% endif %}
+{% endblock title %}
 
-{% if salaries %}
-  <h2>Zarobki w firmie:</h2>
-  <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
-  <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
-{% endif %}
+{% block content %}
+<div class="container">
+    <section>
+        <div class="row">
+            <div class="twelve columns">
+                <h1>{{ company.name }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <article class="twelve columns">
+                <ul>
+                    <li>Siedziba centrali: {{ company.headquarters_city }}</li>
+                    <li>Strona www: <a href="{{ company.website }}">{{ company.website }}</a></li>
+                </ul>
+                <br/>
+            </article>
+        </div>
 
-{% if salary %}
-{% include "reviews/salary_item.html" %}
-{% endif %}
+        {% if review or reviews %}
+        <div class="row">
+            <article class="twelve columns">               
+                <div class="overall">
+                    <div class="left-block">
+                        <div>
+                            {% include "reviews/display_stars.html" with stars=overallscore %}
+                        </div>
+                    </div>
+                    <div class="right-block score">
+                        {{ scores.overallscore }}
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="row">
+            <article class="six columns">
+                <table>
+                    <tr>
+                        <td>
+                            <div>Możliwości rozwoju:</div>
+                            <div>{% include "reviews/display_stars.html" with stars=advancement %}</div>
+                        </td>
+                        <td class="score">{{ scores.advancement }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>Równowaga praca-życie:</div>
+                            <div>{% include "reviews/display_stars.html" with stars=worklife %}</div>
+                        </td>
+                        <td class="score">{{ scores.worklife }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>Zarobki:</div>
+                            <div>{% include "reviews/display_stars.html" with stars=compensation %}</div>
+                        </td>
+                        <td class="score">{{ scores.compensation }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>Atmosfera w pracy:</div>
+                            <div>{% include "reviews/display_stars.html" with stars=environment %}</div>
+                        </td>
+                        <td class="score">{{ scores.environment }}</td>
+                    </tr>
+                </table>
 
-{% if salaries %}
-{% for salary in salaries %}
-{% include "reviews/salary_item.html" %}
-{% endfor %}
-{% endif %}
-</section>
+            </article>
+        </div>
+        {% else %}
+        Firma nie ma jeszcze ocen.
+        <br/>
+        {% endif %}
+    </section>
+    <div class="row">
+        <div class="twelve columns">
+            <article>
+                <span>Recenzje: <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ review_count }}</a></span>
+                <span>Zarobki: <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ salary_count }}</a></span>
+                <span>Interviews: <a href="{% url 'company_page' company.pk 'interviews' %}">{{ interview_count }}</a></span>
+            </article>
+            <br>
 
-{% if interview %}
-<section>
-  <h2>Interview:</h2>
-  {% if interview_count > 1 %}
-  <a href="{% url 'company_page' company.pk 'interview' %}">Więcej interview</a>
-  {% endif %}
-{% endif %}
+            <article>
+                <a href= {% url 'review' company.pk %}>Oceń firmę</a>
+                <a href = {% url 'salary' company.pk %}>Dodaj zarobki</a>
+                <a href = {% url 'interview' company.pk %}>Dodaj interview</a>
+            </article>
 
-{% if interviews %}
-  <h2>Interviews:</h2>
-  <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
-  <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
-{% endif %}
+            <br/>
+            <hr/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <section>
+                {% if review %}
+                <h2>Ocena firmy:</h2>
+                {% if review_count > 1 %}
+                <a href="{% url 'company_page' company.pk 'recenzje' %}">Więcej ocen</a>
+                <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
+                {% endif %}
+                {% endif %}
+
+                {% if reviews %}
+                <h2>Oceny firmy:</h2>
+                <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
+                {% endif %}
+
+                {% if review %}
+                <article>
+                    {% include "reviews/review_item.html" %}
+                </article>
+                {% endif %}
+
+                {% if reviews %}
+                {% for review in reviews %}
+                <article>
+                    {% include "reviews/review_item.html" %}
+                </article>
+                {% endfor %}
+
+                {% endif %}
+                {% if salary %}
+            </section>
+            
+            <section>
+                <h2>Zarobki:</h2>
+                {% if salary_count > 1 %}
+                <a href="{% url 'company_page' company.pk 'zarobki' %}">Więcej danych o zarobkach</a>
+                {% endif %}
+                {% endif %}
+
+                {% if salaries %}
+                <h2>Zarobki w firmie:</h2>
+                <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
+                <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
+                {% endif %}
+
+                {% if salary %}
+                <article>
+                    {% include "reviews/salary_item.html" %}
+                </article>
+                {% endif %}
+
+                {% if salaries %}
+                {% for salary in salaries %}
+                <article>
+                    {% include "reviews/salary_item.html" %}
+                </article>
+                {% endfor %}
+                {% endif %}
+            </section>
+
+            <section>
+                {% if interview %}
+                <h2>Interview:</h2>
+                {% if interview_count > 1 %}
+                <a href="{% url 'company_page' company.pk 'interview' %}">Więcej interview</a>
+                {% endif %}
+                {% endif %}
+
+                {% if interviews %}
+                <h2>Interviews:</h2>
+                <a href="{% url 'company_page' company.pk 'recenzje' %}">Zobacz oceny</a>
+                <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
+                {% endif %}
 
 
-{% if interview %}
-{% include "reviews/interview_item.html" %}
-{% endif %}
+                {% if interview %}
+                <article>
+                    {% include "reviews/interview_item.html" %}
+                </article>
+                {% endif %}
 
-{% if interviews %}
-{% for interview in interviews %}
-{% include "reviews/interview_item.html" %}
-{% endfor %}
-{% endif %}
-</section>
+                {% if interviews %}
+                {% for interview in interviews %}
+                <article>
+                    {% include "reviews/interview_item.html" %}
+                </article>
+                {% endfor %}
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</div>
 
-
-
+{% endblock content %}
