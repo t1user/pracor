@@ -17,68 +17,60 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
 <div class="container">
     <section>
         <div class="row">
-            <div class="twelve columns">
+            <div class="six columns">
                 <h1>{{ company.name }}</h1>
+                <p>{{ company.headquarters_city | upper }}, <a href="{{ company.website }}">{{ company.website }}</a><p>
             </div>
-        </div>
-        <div class="row">
-            <article class="twelve columns">
-                <ul>
-                    <li>Siedziba centrali: {{ company.headquarters_city }}</li>
-                    <li>Strona www: <a href="{{ company.website }}">{{ company.website }}</a></li>
-                </ul>
-                <br/>
-            </article>
-        </div>
-
-        {% if review or reviews %}
-        <div class="row">
-            <article class="twelve columns">               
-                <div class="overall">
-                    <div class="left-block">
-                        <div>
-                            {% include "reviews/display_stars.html" with stars=overallscore %}
+            {% if reviews or review %}
+            <article class="six columns">               
+                    <div class="overall">
+                        <div class="left-block">
+                            <div>
+                                {{ rating_items.overallscore.label }}
+                            </div>
+                            <div>
+                                {% include "reviews/display_stars.html" with stars=rating_items.overallscore %}
+                            </div>
+                        </div>
+                        <div class="right-block score">
+                            {{ rating_items.overallscore.rating }}
                         </div>
                     </div>
-                    <div class="right-block score">
-                        {{ scores.overallscore }}
-                    </div>
-                </div>
             </article>
+            {% endif %}
         </div>
         <div class="row">
+            <div class="six columns">
+                <article class="counter">
+                    <div class="counter-button">
+                        Recenzje
+                        <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ count.reviews }}</a>
+                    </div>
+                    <div class="counter-button">
+                        Zarobki
+                        <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ count.salaries }}</a>
+                    </div>
+                    <div class="counter-button">
+                        Interview
+                        <a href="{% url 'company_page' company.pk 'interviews' %}">{{ count.interviews }}</a>
+                    </div>
+                </article>
+            </div>
+            {% if review or reviews %}
             <article class="six columns">
                 <table>
+                    {% for item, value in rating_items.items %}
+                    {% if not forloop.first %}
                     <tr>
                         <td>
-                            <div>Możliwości rozwoju:</div>
-                            <div>{% include "reviews/display_stars.html" with stars=advancement %}</div>
+                            <div>{{ value.label }}</div>
+                            <div>{% include "reviews/display_stars.html" with stars=value %}</div>
                         </td>
-                        <td class="score">{{ scores.advancement }}</td>
+                        <td class="score">{{ value.rating }}</td>
                     </tr>
-                    <tr>
-                        <td>
-                            <div>Równowaga praca-życie:</div>
-                            <div>{% include "reviews/display_stars.html" with stars=worklife %}</div>
-                        </td>
-                        <td class="score">{{ scores.worklife }}</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>Zarobki:</div>
-                            <div>{% include "reviews/display_stars.html" with stars=compensation %}</div>
-                        </td>
-                        <td class="score">{{ scores.compensation }}</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>Atmosfera w pracy:</div>
-                            <div>{% include "reviews/display_stars.html" with stars=environment %}</div>
-                        </td>
-                        <td class="score">{{ scores.environment }}</td>
-                    </tr>
+                    {% endif %}
+                    {% endfor %}
                 </table>
-
             </article>
         </div>
         {% else %}
@@ -87,24 +79,14 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
         {% endif %}
     </section>
     <div class="row">
-        <div class="twelve columns">
-            <article>
-                <span>Recenzje: <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ review_count }}</a></span>
-                <span>Zarobki: <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ salary_count }}</a></span>
-                <span>Interviews: <a href="{% url 'company_page' company.pk 'interviews' %}">{{ interview_count }}</a></span>
-            </article>
-            <br>
-
-            <article>
-                <a href= {% url 'review' company.pk %}>Oceń firmę</a>
-                <a href = {% url 'salary' company.pk %}>Dodaj zarobki</a>
-                <a href = {% url 'interview' company.pk %}>Dodaj interview</a>
-            </article>
-
-            <br/>
-            <hr/>
-        </div>
+        <article class="twelve columns action-buttons">
+                <a href= {% url 'review' company.pk %} class="button button-primary">Dodaj recenzję</a>
+                <a href = {% url 'salary' company.pk %} class="button button-primary">Dodaj zarobki</a>
+                <a href = {% url 'interview' company.pk %} class="button button-primary">Dodaj interview</a>
+        </article>
     </div>
+</div>
+<div class="container">
     <div class="row">
         <div class="twelve columns">
             <section>

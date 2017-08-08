@@ -20,15 +20,15 @@ class Company(models.Model):
     name = models.CharField(max_length=100, unique=True)
     headquarters_city = models.CharField(max_length=60)
     website = models.URLField(unique=True)
-    overallscore = models.PositiveIntegerField(editable=False,
+    overallscore = models.PositiveIntegerField('Rating pracodawcy', editable=False,
                                                      default=0)
-    advancement = models.PositiveIntegerField(editable=False,
+    advancement = models.PositiveIntegerField('Możliwości rozwoju', editable=False,
                                                     default=0)
-    worklife = models.PositiveIntegerField(editable=False,
+    worklife = models.PositiveIntegerField('Równowaga praca/życie', editable=False,
                                                  default=0)
-    compensation = models.PositiveIntegerField(editable=False,
+    compensation = models.PositiveIntegerField('Zarobki', editable=False,
                                                      default=0)
-    environment = models.PositiveIntegerField(editable=False,
+    environment = models.PositiveIntegerField('Atmosfera w pracy', editable=False,
                                                     default=0)
     number_of_reviews = models.PositiveIntegerField(editable=False,
                                                     default=0)

@@ -20,6 +20,7 @@
         <!--     Fonts      -->
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" />
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato:300,400,500,700" />
+        <link href="https://fonts.googleapis.com/css?family=Fira+Mono" rel="stylesheet"> 
 
         <!-- Normalize and Skeleton -->
         <link rel="stylesheet" href="{% static 'css/normalize.css' %}"/>
@@ -36,7 +37,7 @@
     <body>
         <nav>
             <!-- brand logo -->
-            <a href="{% url 'home' %}"><img src="{% static 'pictures/logo_new.png' %}"></a>
+            <a href="{% url 'home' %}"><img src="{% static 'pictures/logo_new_white.png' %}"></a>
             <!-- searchbar  -->
             <div class="search-bar">
                 <form action="{% url 'company_search' '' %}" method="POST">

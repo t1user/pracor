@@ -49,15 +49,23 @@ class CompanyDetailView(DetailView):
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
 
+    def count(self, **kwargs):
+        reviews = self.object.get_reviews().count()
+        salaries = self.object.get_salaries().count()
+        interviews = self.object.get_interviews().count()
+        return {'reviews': reviews,
+                'salaries': salaries,
+                'interviews': interviews}
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['review_count'] = self.object.get_reviews().count()
-        context['salary_count'] = self.object.get_salaries().count()
-        context['interview_count'] = self.object.get_interviews().count()
-        context['scores'] =  self.object.get_scores()
+        context['count'] =self.count()
+        scores =  self.object.get_scores()
         #calculate number of full,  half and blank stars for display
-        if context['scores']:
-            for key, value in context['scores'].items():
+        #add rating to context
+        if scores:
+            rating_items = {}
+            for key, value in scores.items():
                 truncated = int(value)
                 half = value - truncated
                 if 0.25 <= half < 0.75: 
@@ -68,7 +76,15 @@ class CompanyDetailView(DetailView):
                     truncated += 1
                 full = range(truncated)
                 blank = range(5 - truncated - half)
-                context[key] = {'full': full, 'half': half, 'blank': blank}
+                #add field names to context to allow for looping over rating items
+                label = self.object._meta.get_field(key).verbose_name
+                rating_items[key] = {'rating': value,
+                                     'full': full,
+                                     'half': half,
+                                     'blank': blank,
+                                     'label': label}
+            context['rating_items'] = rating_items
+        print(context)
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
                 context['reviews'] = self.object.get_reviews()

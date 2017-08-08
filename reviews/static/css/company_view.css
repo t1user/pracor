@@ -5,17 +5,16 @@
 }
 
 table .stars {
-    font-size: 3.6rem;
+    font-size: 2.4rem;
 }
 
 .right-block {
     padding-top: 1.2rem;
-}
-}
+}}
 
 .overall {
-    padding: 1rem;
     display: inline-flex;
+    #padding: 2rem;
 }
 
 .left-block {
@@ -28,5 +27,72 @@ table .stars {
 }
 
 
+.stars {
+    color: #e6b800;
+}
+
+td {
+    padding: 0;
+    padding-right: 2rem;
+}
+
+h1 {
+    margin-bottom: 0.2rem;
+}
+
+table {
+    #margin-top: 3.5rem;
+    table-layout: fixed;
+
+}
+
+.counter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+
+}
+
+.counter-button {
+    padding: 1.5rem;
+    border: 0.1px solid #0CAA41;
+    text-align: center;
+    margin: 0.3rem;
+    min-width: 24%;
+    font-size: 1.8rem;
+}
 
 
+@media screen and (max-width: 900px) {
+    .stars {
+        font-size: 2.2rem;
+    }
+    .counter-button {
+        font-size: 1.5rem;
+        padding: .8rem;
+    }
+}
+
+.counter-button a {
+    display: block;
+    text-align: center;
+    font-weight: 800;
+    font-size: 2rem;
+    #padding: 1.5rem;
+}
+
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.action-buttons a {
+    width: 30%;
+    min-width: 15rem;
+    margin: 1rem;
+
+
+    
+}
