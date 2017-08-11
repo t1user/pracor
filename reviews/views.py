@@ -84,7 +84,6 @@ class CompanyDetailView(DetailView):
                                      'blank': blank,
                                      'label': label}
             context['rating_items'] = rating_items
-        print(context)
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
                 context['reviews'] = self.object.get_reviews()
@@ -96,6 +95,11 @@ class CompanyDetailView(DetailView):
             context['review'] = self.object.get_reviews().last()
             context['salary'] = self.object.get_salaries().last()
             context['interview'] = self.object.get_interviews().last()
+        #provide data to allow for iterating over review, salary, interview
+        items = {'review': 'oceny',
+                 'salary': 'zarobki',
+                 'interview': 'interview'}
+        context['items'] = items
         return context
 
 class CompanyCreateForm(forms.ModelForm):

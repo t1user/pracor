@@ -34,6 +34,7 @@ input[type=radio] {
 }
 
 
+
 form div label {
     cursor: pointer;
     position: relative;
@@ -43,6 +44,7 @@ form div label {
     width: 4.8rem;
     height: 4.8rem;
     background: url('img/ic_star_border_black_24px.svg') 0/4.8rem;
+    
 }
 
 

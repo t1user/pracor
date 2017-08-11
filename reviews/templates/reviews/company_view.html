@@ -18,7 +18,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
     <section>
         <div class="row">
             <div class="six columns">
-                <h1>{{ company.name }}</h1>
+                <a href="{% url 'company_page' company.pk %}"><h1>{{ company.name }}</h1></a>
                 <p>{{ company.headquarters_city | upper }}, <a href="{{ company.website }}">{{ company.website }}</a><p>
             </div>
             {% if reviews or review %}
@@ -86,21 +86,68 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
         </article>
     </div>
 </div>
+
+{% for item in items %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <section>
+                {% if item.count %}
+                {% if item.count > 1 %}
+                <a href="{% url 'company_page' company.pk item %}" class="button">Więcej ocen</a>
+                {% endif %}
+                {% endif %}
+
+                {% if item.count %}
+                <h2>Oceny firmy:</h2>
+                {% if item.count > 0 %}
+                <a href="{% url 'company_page' company.pk 'zarobki' %}" class="button">Zobacz zarobki</a>
+                {% endif %}
+                {% if count.interviews > 0 %}
+                <a href="{% url 'company_page' company.pk 'interviews' %}" class="button">Zobacz interview</a>
+                {% endif %}
+                {% endif %}
+
+                {% if review %}
+                <article>
+                    {% include "reviews/review_item.html" %}
+                </article>
+                {% endif %}
+
+                {% if reviews %}
+                {% for review in reviews %}
+                <article>
+                    {% include "reviews/review_item.html" %}
+                </article>
+                {% endfor %}
+
+                {% endif %}
+                {% if salary %}
+            </section>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 <div class="container">
     <div class="row">
         <div class="twelve columns">
             <section>
                 {% if review %}
                 <h2>Ocena firmy:</h2>
-                {% if review_count > 1 %}
-                <a href="{% url 'company_page' company.pk 'recenzje' %}">Więcej ocen</a>
-                <a href="{% url 'company_page' company.pk 'interviews' %}">Zobacz interview</a>
+                {% if count.reviews > 1 %}
+                <a href="{% url 'company_page' company.pk 'recenzje' %}" class="button">Więcej ocen</a>
                 {% endif %}
                 {% endif %}
 
                 {% if reviews %}
                 <h2>Oceny firmy:</h2>
-                <a href="{% url 'company_page' company.pk 'zarobki' %}">Zobacz zarobki</a>
+                {% if count.salaries > 0 %}
+                <a href="{% url 'company_page' company.pk 'zarobki' %}" class="button">Zobacz zarobki</a>
+                {% endif %}
+                {% if count.interviews > 0 %}
+                <a href="{% url 'company_page' company.pk 'interviews' %}" class="button">Zobacz interview</a>
+                {% endif %}
                 {% endif %}
 
                 {% if review %}
@@ -122,7 +169,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
             
             <section>
                 <h2>Zarobki:</h2>
-                {% if salary_count > 1 %}
+                {% if count.salaries > 1 %}
                 <a href="{% url 'company_page' company.pk 'zarobki' %}">Więcej danych o zarobkach</a>
                 {% endif %}
                 {% endif %}
@@ -151,7 +198,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
             <section>
                 {% if interview %}
                 <h2>Interview:</h2>
-                {% if interview_count > 1 %}
+                {% if count.interviews > 1 %}
                 <a href="{% url 'company_page' company.pk 'interview' %}">Więcej interview</a>
                 {% endif %}
                 {% endif %}
