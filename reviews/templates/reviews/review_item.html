@@ -1,19 +1,30 @@
-    
-<table>
-    <tr><td>Tytuł:</td><td>{{ review.title }}</td></tr>
-    <tr><td>Data oceny:</td><td>{{ review.date }}</td></tr>
-    <tr><td>Stanowisko:</td><td>{{ review.position }}</td></tr>
-    <tr><td>Miasto:</td><td>{{ review.city }}</td></tr>
-    <tr><td>Lat w firmie:</td><td>{{ review.years_at_company }}</td></tr>
-    <tr><td>Ocena ogólna:</td><td>{{ review.overallscore }}</td></tr>
-    <tr><td>Możliwości rozwoju:</td><td>{{ review.advancement }}</td></tr>
-    <tr><td>Równowaga praca-życie</td><td>{{ review.worklife }}</td></tr>
-    <tr><td>Zarobki:</td><td>{{ review.compensation }}</td></tr>
-    <tr><td>Atmosfera w pracy:</td><td>  {{ review.environment }}</td></tr>
-    <tr><td>Zalety:</td><td>{{ review.pros }}</td></tr>
-    <tr><td>Wady:</td><td>{{ review.cons }}</td></tr>
-    <tr><td>Uwagi:</td><td>{{ review.comment }}</td></tr>
-</table>
+<div class="row">
+    <div class="seven columns">
+        <div class="date">{{ value.date }}</div>
+        <h3><i>"{{ value.title | capfirst }}"</i></h3>
 
-<hr/>
+        <div class="background">
+            <div>{{ value.position }} |&nbsp;</div> 
+            <div>{{ value.city }} |&nbsp;</div>
+            <div>{{ value.years_at_company }} lata w firmie</div>
+        </div>
+    </div>
+    <div class="five columns">
+        {% include "reviews/top_rating.html" %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="eight columns">
+        <h5>Zalety</h5>
+        <div>{{ value.pros | capfirst | linebreaks }}</div>
+        <h5>Wady</h5>
+        <div>{{ value.cons | capfirst | linebreaks }}</div>
+        <h5>Uwagi</h5>
+        <div>{{ value.comment | capfirst | linebreaks }}</div>
+    </div>
+    <div class="four columns">
+        {% include "reviews/rating_table.html" %}
+    </div>
+</div>
 

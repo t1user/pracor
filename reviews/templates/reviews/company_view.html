@@ -21,21 +21,9 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
                 <a href="{% url 'company_page' company.pk %}"><h1>{{ company.name }}</h1></a>
                 <p>{{ company.headquarters_city | upper }}, <a href="{{ company.website }}">{{ company.website }}</a><p>
             </div>
-            {% if reviews or review %}
+            {% if items.review.count %}
             <article class="six columns">               
-                    <div class="overall">
-                        <div class="left-block">
-                            <div>
-                                {{ rating_items.overallscore.label }}
-                            </div>
-                            <div>
-                                {% include "reviews/display_stars.html" with stars=rating_items.overallscore %}
-                            </div>
-                        </div>
-                        <div class="right-block score">
-                            {{ rating_items.overallscore.rating }}
-                        </div>
-                    </div>
+                {% include "reviews/top_rating.html" %}
             </article>
             {% endif %}
         </div>
@@ -44,33 +32,21 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
                 <article class="counter">
                     <div class="counter-button">
                         Recenzje
-                        <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ count.reviews }}</a>
+                        <a href="{% url 'company_page' company.pk 'recenzje' %}">{{ items.review.count }}</a>
                     </div>
                     <div class="counter-button">
                         Zarobki
-                        <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ count.salaries }}</a>
+                        <a href="{% url 'company_page' company.pk 'zarobki' %}">{{ items.salary.count }}</a>
                     </div>
                     <div class="counter-button">
                         Interview
-                        <a href="{% url 'company_page' company.pk 'interviews' %}">{{ count.interviews }}</a>
+                        <a href="{% url 'company_page' company.pk 'interviews' %}">{{ items.interview.count }}</a>
                     </div>
                 </article>
             </div>
-            {% if review or reviews %}
+            {% if items.review.count %}
             <article class="six columns">
-                <table>
-                    {% for item, value in rating_items.items %}
-                    {% if not forloop.first %}
-                    <tr>
-                        <td>
-                            <div>{{ value.label }}</div>
-                            <div>{% include "reviews/display_stars.html" with stars=value %}</div>
-                        </td>
-                        <td class="score">{{ value.rating }}</td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                </table>
+                {% include "reviews/rating_table.html" %}
             </article>
         </div>
         {% else %}
@@ -87,48 +63,24 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
     </div>
 </div>
 
-{% for item in items %}
+
+{% for key, value in items.items %}
+{% if value.count %}
 <div class="container">
-    <div class="row">
-        <div class="twelve columns">
-            <section>
-                {% if item.count %}
-                {% if item.count > 1 %}
-                <a href="{% url 'company_page' company.pk item %}" class="button">Więcej ocen</a>
-                {% endif %}
-                {% endif %}
-
-                {% if item.count %}
-                <h2>Oceny firmy:</h2>
-                {% if item.count > 0 %}
-                <a href="{% url 'company_page' company.pk 'zarobki' %}" class="button">Zobacz zarobki</a>
-                {% endif %}
-                {% if count.interviews > 0 %}
-                <a href="{% url 'company_page' company.pk 'interviews' %}" class="button">Zobacz interview</a>
-                {% endif %}
-                {% endif %}
-
-                {% if review %}
-                <article>
-                    {% include "reviews/review_item.html" %}
-                </article>
-                {% endif %}
-
-                {% if reviews %}
-                {% for review in reviews %}
-                <article>
-                    {% include "reviews/review_item.html" %}
-                </article>
-                {% endfor %}
-
-                {% endif %}
-                {% if salary %}
-            </section>
-        </div>
-    </div>
+    <section>
+        {% include value.file with value=value.last stars=value.stars %}
+        {% if value.count > 1 %}
+                <div class="more-button">
+                    <a href="{% url 'company_page' company.pk value.name %}" class="button">Wszystkie {{ value.name }} ({{ items.review.count }}) >></a>
+                </div>
+        {% endif %}
+    </section>
 </div>
+{% endif %}
 {% endfor %}
 
+
+{% comment %}
 <div class="container">
     <div class="row">
         <div class="twelve columns">
@@ -227,5 +179,6 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
         </div>
     </div>
 </div>
-
+{% endcomment %}
 {% endblock content %}
+

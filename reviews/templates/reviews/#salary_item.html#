@@ -10,4 +10,4 @@
       <tr><td>Premia:</td><td>{{ value.bonus_input }}</td></tr>
       <tr><td>Za okres:</td><td>{{ value.get_bonus_period_display }}</td></tr>
       <tr><td>Premia Brutto/Netto:</td><td>{{ value.get_bonus_gross_net_display }}</td></tr>
-  </table>
+</table>

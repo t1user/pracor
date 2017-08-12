@@ -10,53 +10,56 @@ class Profile(models.Model):
                                 on_delete=models.CASCADE)
     contributed = models.BooleanField(default=False, editable=False)
     sex = models.CharField(max_length=1, choices=SEX)
-    career_start_year = models.PositiveIntegerField()    
+    career_start_year = models.PositiveIntegerField()
 
-    
+
 class Company(models.Model):
+
     class Meta:
-        ordering=['name']
+        ordering = ['name']
 
     name = models.CharField(max_length=100, unique=True)
     headquarters_city = models.CharField(max_length=60)
     website = models.URLField(unique=True)
-    overallscore = models.PositiveIntegerField('Rating pracodawcy', editable=False,
-                                                     default=0)
+    overallscore = models.PositiveIntegerField('Ocena ogólna', editable=False,
+                                               default=0)
     advancement = models.PositiveIntegerField('Możliwości rozwoju', editable=False,
-                                                    default=0)
+                                              default=0)
     worklife = models.PositiveIntegerField('Równowaga praca/życie', editable=False,
-                                                 default=0)
+                                           default=0)
     compensation = models.PositiveIntegerField('Zarobki', editable=False,
-                                                     default=0)
+                                               default=0)
     environment = models.PositiveIntegerField('Atmosfera w pracy', editable=False,
-                                                    default=0)
+                                              default=0)
     number_of_reviews = models.PositiveIntegerField(editable=False,
                                                     default=0)
 
-
     def get_reviews(self):
-        return  Review.objects.filter(company=self.pk)
+        return Review.objects.filter(company=self.pk)
 
     def get_salaries(self):
-        return  Salary.objects.filter(company=self.pk)
+        return Salary.objects.filter(company=self.pk)
 
     def get_interviews(self):
         return Interview.objects.filter(company=self.pk)
 
+    def get_objects(self, object):
+        self.object = object
+        return object.objects.filter(company=self.pk)
+
     def get_scores(self):
         if self.number_of_reviews != 0:
-            overallscore = round(self.overallscore/self.number_of_reviews, 1)
-            advancement = round(self.advancement/self.number_of_reviews, 1)
-            worklife = round(self.worklife/self.number_of_reviews, 1)
-            compensation = round(self.compensation/self.number_of_reviews, 1)
-            environment = round(self.environment/self.number_of_reviews, 1)
+            overallscore = round(self.overallscore / self.number_of_reviews, 1)
+            advancement = round(self.advancement / self.number_of_reviews, 1)
+            worklife = round(self.worklife / self.number_of_reviews, 1)
+            compensation = round(self.compensation / self.number_of_reviews, 1)
+            environment = round(self.environment / self.number_of_reviews, 1)
             return {'overallscore': overallscore,
                     'advancement': advancement,
                     'worklife': worklife,
                     'compensation': compensation,
                     'environment': environment,
-            }
-        
+                    }
 
     def update_scores(self):
         """
@@ -76,13 +79,14 @@ class Company(models.Model):
             self.compensation += review.compensation
             self.environment += review.environment
         self.save()
-            
+
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.pk})
+
 
 class Position(models.Model):
     STATUS_ZATRUDNIENIA = [
@@ -92,9 +96,9 @@ class Position(models.Model):
         ('D', 'Samozazatrudnienie'),
         ('E', 'Inne'),
     ]
-    
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                 on_delete=models.CASCADE)
+                             on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     position = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -102,7 +106,7 @@ class Position(models.Model):
     employment_status = models.CharField(max_length=1,
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')
-    
+
 
 class Review(Position):
     #company = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -126,10 +130,18 @@ class Review(Position):
     environment = models.PositiveIntegerField('atmosfera w pracy',
                                               choices=RATINGS, default=None)
 
+    def get_scores(self):
+        return {'overallscore': self.overallscore,
+                'advancement': self.advancement,
+                'worklife': self.worklife,
+                'compensation': self.compensation,
+                'environment': self.environment,
+                }
+
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
-    
+
     def __str__(self):
         return 'id_' + str(self.id)
 
@@ -144,7 +156,7 @@ class Salary(Position):
         ('G', 'brutto'),
         ('N', 'netto'),
     ]
-    
+
     #company = models.ForeignKey(Company, on_delete=models.CASCADE)
     #position = models.ForeignKey(Position, on_delete=models.CASCADE, blank=True)
     #position = models.OneToOneField(Position, on_delete=models.CASCADE)
@@ -156,7 +168,8 @@ class Salary(Position):
     salary_input = models.PositiveIntegerField('pensja')
     period = models.CharField('za okres',
                               max_length=1, default='M', choices=PERIOD)
-    gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
+    gross_net = models.CharField(
+        '', max_length=1, default='G', choices=GROSS_NET)
 
     bonus_input = models.PositiveIntegerField('premia', default=0)
     bonus_period = models.CharField('',
@@ -165,22 +178,22 @@ class Salary(Position):
                                        max_length=1, default='G', choices=GROSS_NET)
 
     base_monthly = models.PositiveIntegerField(blank=True,
-                                              default=0, editable=False)
+                                               default=0, editable=False)
     base_annual = models.PositiveIntegerField(blank=True,
                                               default=0, editable=False)
 
     total_monthly = models.PositiveIntegerField(blank=True,
-                                               default=0, editable=False)
+                                                default=0, editable=False)
     total_annual = models.PositiveIntegerField(blank=True,
                                                default=0, editable=False)
-    
-    
+
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
 
     def __str__(self):
         return 'id_' + str(self.id)
+
 
 class Interview(models.Model):
     HOW_GOT = [

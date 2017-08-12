@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect 
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django import forms
@@ -13,7 +13,7 @@ from .models import Company, Salary, Review, Interview
 class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
-    
+
 class CompanySearchView(View):
     form_class = CompanySearchForm
     initial = {}
@@ -35,7 +35,6 @@ class CompanySearchView(View):
                        'searchterm': searchterm,
                        'searchterm_joined': searchterm_joined})
 
-
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
@@ -44,46 +43,81 @@ class CompanySearchView(View):
                                                 kwargs={'searchterm': searchterm}))
         return render(request, self.template_name, {'form': form})
 
+
 class CompanyDetailView(DetailView):
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
 
-    def count(self, **kwargs):
-        reviews = self.object.get_reviews().count()
-        salaries = self.object.get_salaries().count()
-        interviews = self.object.get_interviews().count()
-        return {'reviews': reviews,
-                'salaries': salaries,
-                'interviews': interviews}
-    
+    def get_items(self, **kwargs):
+        name = {'review':
+                {'object': Review,
+                 'name': 'recenzje',
+                 'file': 'reviews/review_item.html'},
+                'salary':
+                {'object': Salary,
+                 'name': 'zarobki',
+                 'file': 'reviews/salary_item.html'},
+                'interview':
+                {'object': Interview,
+                 'name': 'interview',
+                 'file': 'reviews/interview_item.html'},
+                }
+        items = {}
+        for key, value in name.items():
+            object = self.object.get_objects(value['object'])
+            count = object.count()
+            last = object.last()
+            try:
+                scores = last.get_scores()
+                stars = self.get_stars(scores)
+            except:
+                stars = {}
+            name = value['name']
+            file = value['file']
+            items[key] = {'count': count,
+                          'last': last,
+                          'name': name,
+                          'file': file,
+                          'stars': stars,
+                          }
+        return items
+
+    def get_stars(self, scores):
+        """Calculate number of full, half and blank rating stars for a given dictionary of scores. The dictionary 'scores' has to be in the format:
+        {'overallscore': overallscore,
+         'advancement': advancement,
+         'worklife': worklife,
+         'compensation': compensation,
+         'environment': environment,} """
+        rating_items = {}
+        for key, value in scores.items():
+            truncated = int(value)
+            half = value - truncated
+            if 0.25 <= half < 0.75:
+                half = 1
+            else:
+                half = 0
+            if value - truncated >= 0.75:
+                truncated += 1
+            full = range(truncated)
+            blank = range(5 - truncated - half)
+            # add field names to context to allow for looping over rating
+            # items
+            label = self.object._meta.get_field(key).verbose_name
+            rating_items[key] = {'rating': value,
+                                 'full': full,
+                                 'half': half,
+                                 'blank': blank,
+                                 'label': label}
+        return rating_items
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['count'] =self.count()
-        scores =  self.object.get_scores()
-        #calculate number of full,  half and blank stars for display
-        #add rating to context
+        scores = self.object.get_scores()
         if scores:
-            rating_items = {}
-            for key, value in scores.items():
-                truncated = int(value)
-                half = value - truncated
-                if 0.25 <= half < 0.75: 
-                    half = 1
-                else:
-                    half = 0
-                if value - truncated >= 0.75:
-                    truncated += 1
-                full = range(truncated)
-                blank = range(5 - truncated - half)
-                #add field names to context to allow for looping over rating items
-                label = self.object._meta.get_field(key).verbose_name
-                rating_items[key] = {'rating': value,
-                                     'full': full,
-                                     'half': half,
-                                     'blank': blank,
-                                     'label': label}
-            context['rating_items'] = rating_items
+            context['stars'] = self.get_stars(scores=scores)
+
         if self.kwargs['item']:
             if self.kwargs['item'] == 'recenzje':
                 context['reviews'] = self.object.get_reviews()
@@ -92,17 +126,13 @@ class CompanyDetailView(DetailView):
             elif self.kwargs['item'] == 'interviews':
                 context['interviews'] = self.object.get_interviews()
         else:
-            context['review'] = self.object.get_reviews().last()
-            context['salary'] = self.object.get_salaries().last()
-            context['interview'] = self.object.get_interviews().last()
-        #provide data to allow for iterating over review, salary, interview
-        items = {'review': 'oceny',
-                 'salary': 'zarobki',
-                 'interview': 'interview'}
-        context['items'] = items
+            context['items'] = self.get_items()
+        print(context)
         return context
 
+
 class CompanyCreateForm(forms.ModelForm):
+
     class Meta:
         model = Company
         fields = ['name', 'headquarters_city', 'website']
@@ -117,20 +147,21 @@ class CompanyCreateForm(forms.ModelForm):
             url = url.replace('https', 'http')
         if not url.startswith('http://www.'):
             url = url.replace('http://', 'http://www.')
-        ### TODO check here if the website returns 200
+        # TODO check here if the website returns 200
         return url
+
 
 class CompanyCreate(CreateView):
     model = Company
     form_class = CompanyCreateForm
     initial = {'website': 'http://www.'}
-    
+
     def get(self, request, **kwargs):
         company_name_joined = self.kwargs.get('company')
         company_name = company_name_joined.replace('_', ' ').title()
         self.initial['name'] = company_name
         return super().get(request, **kwargs)
-    
+
     def form_valid(self, form):
         form.instance.headquarters_city = form.instance.headquarters_city.title()
         return super().form_valid(form)
@@ -155,22 +186,23 @@ class CompanyCreate(CreateView):
         context['unique_error'] = companies
         return self.render_to_response(context)
 
-    
+
 class CompanyUpdate(UpdateView):
     model = Company
     fields = ['name', 'headquarters_city', 'website']
     #template_name = 'reviews/company_view.html'
 
-    
+
 class CompanyDelete(DeleteView):
     model = Company
     success_url = reverse_lazy('home')
+
 
 class ReviewForm(forms.ModelForm):
 
     class Meta:
         model = Review
-        fields = ['title','position', 'city', 'years_at_company', 'advancement',
+        fields = ['title', 'position', 'city', 'years_at_company', 'advancement',
                   'worklife', 'compensation', 'environment', 'overallscore',
                   'pros', 'cons', 'comment']
 
@@ -195,6 +227,8 @@ class ReviewForm(forms.ModelForm):
             'compensation': RadioSelectModified(),
             'environment': RadioSelectModified(),
             'overallscore': RadioSelectModified(),
+            'pros': forms.Textarea(),
+            'cons': forms.Textarea(),
         }
 """
     def __init__(self, *args, **kwargs):
@@ -205,12 +239,11 @@ class ReviewForm(forms.ModelForm):
             })
 """
 
-        
-            
+
 class ReviewCreate(CreateView):
     form_class = ReviewForm
-    model = Review 
-    
+    model = Review
+
     def form_valid(self, form):
         company = get_object_or_404(Company, pk=self.kwargs['id'])
         form.instance.company = company
@@ -226,17 +259,20 @@ class ReviewCreate(CreateView):
                                     'compensation',
                                     'environment',
                                     'number_of_reviews',
-        ])
+                                    ])
         form.instance.position = form.instance.position.title()
         form.instance.city = form.instance.city.title()
         form.instance.user = self.request.user
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        print(RadioSelectModified().get_context('advancement',1, {'class':'dupa', 'wrap_label':False}))
+        print(RadioSelectModified().get_context(
+            'advancement', 1, {'class': 'dupa', 'wrap_label': False}))
         context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
-        context['radios'] = ['overallscore', 'advancement', 'compensation', 'environment', 'worklife']
+        context['company_name'] = get_object_or_404(
+            Company, pk=self.kwargs['id'])
+        context['radios'] = ['overallscore', 'advancement',
+                             'compensation', 'environment', 'worklife']
         return context
 
 
@@ -257,8 +293,10 @@ class SalaryCreate(CreateView):
     ]
 
     def form_valid(self, form):
-        form.instance.company = get_object_or_404(Company, pk=self.kwargs['id'])
-        form.instance.years_experience = 5 #stub value to be replaced with request.user.something
+        form.instance.company = get_object_or_404(
+            Company, pk=self.kwargs['id'])
+        # stub value to be replaced with request.user.something
+        form.instance.years_experience = 5
         form.instance.city = form.instance.city.title()
         form.instance.position = form.instance.position.title()
         form.instance.user = self.request.user
@@ -266,8 +304,10 @@ class SalaryCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
+        context['company_name'] = get_object_or_404(
+            Company, pk=self.kwargs['id'])
         return context
+
 
 class InterviewCreate(CreateView):
     model = Interview
@@ -282,16 +322,17 @@ class InterviewCreate(CreateView):
     ]
 
     def form_valid(self, form):
-        form.instance.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        form.instance.company = get_object_or_404(
+            Company, pk=self.kwargs['id'])
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(Company, pk=self.kwargs['id'])
+        context['company_name'] = get_object_or_404(
+            Company, pk=self.kwargs['id'])
         return context
 
 
-    
 class CompanyList(ListView):
     model = Company
     context_object_name = 'company_list'

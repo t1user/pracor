@@ -36,7 +36,7 @@ td {
     padding-right: 2rem;
 }
 
-h1 {
+h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.2rem;
     color: black;
 }
@@ -92,8 +92,23 @@ table {
 .action-buttons a {
     width: 30%;
     min-width: 15rem;
-    margin: 1rem;
-
-
-    
+    margin: 1rem;   
 }
+
+.more-button {
+    margin: 0  auto;
+}
+
+
+/* review, salary, interview block */
+.background {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.background div {
+    display: inline-block;
+}
+
+

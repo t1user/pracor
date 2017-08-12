@@ -1,0 +1,13 @@
+<table>
+    {% for item, value in stars.items %}
+    {% if not forloop.first %}
+    <tr>
+        <td>
+            <div>{{ value.label }}</div>
+            <div>{% include "reviews/display_stars.html" with stars=value %}</div>
+        </td>
+        <td class="score">{{ value.rating }}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</table>
