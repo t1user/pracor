@@ -82,7 +82,7 @@ table {
     #padding: 1.5rem;
 }
 
-
+/* action buttons including responsive*/
 .action-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -91,7 +91,7 @@ table {
 
 .action-buttons a {
     width: 30%;
-    min-width: 15rem;
+    min-width: 12rem;
     margin: 1rem;   
 }
 
@@ -99,6 +99,38 @@ table {
     margin: 0  auto;
 }
 
+.mobile {
+    display: none;
+}
+
+@media screen and (max-width: 790px) {
+.desktop {
+    display: none;
+}
+
+.mobile {
+    display: flex;
+}
+
+.material-icons {
+    vertical-align: middle;
+}
+.action-button {
+    display: none;
+}
+
+.action-button.responsive {
+    display: inline-block;
+    width: 10rem;
+    margin: 0;
+}
+
+.action-button.responsive a {
+    display: block;
+    color: black;
+}
+
+}
 
 /* review, salary, interview block */
 .background {

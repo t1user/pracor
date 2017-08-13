@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django import forms
@@ -14,10 +14,20 @@ class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
 
+class HomeView(View):
+    form_class = CompanySearchForm
+    template_name = 'reviews/home.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name,
+                      {'form': form})
+
+
 class CompanySearchView(View):
     form_class = CompanySearchForm
     initial = {}
-    template_name = 'reviews/company_search_form.html'
+    template_name = 'reviews/home.html'
     redirect_template_name = 'reviews/company_search_results.html'
     redirect_view = 'company_search'
 
@@ -48,23 +58,26 @@ class CompanyDetailView(DetailView):
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
+    item_data = {'review':
+                 {'object': Review,
+                  'name': 'recenzje',
+                  'file': 'reviews/review_item.html',
+                  },
+                 'salary':
+                 {'object': Salary,
+                     'name': 'zarobki',
+                     'file':  'reviews/salary_item.html',
+                  },
+                 'interview':
+                 {'object': Interview,
+                     'name': 'interview',
+                     'file':  'reviews/interview_item.html',
+                  },
+                 }
 
     def get_items(self, **kwargs):
-        name = {'review':
-                {'object': Review,
-                 'name': 'recenzje',
-                 'file': 'reviews/review_item.html'},
-                'salary':
-                {'object': Salary,
-                 'name': 'zarobki',
-                 'file': 'reviews/salary_item.html'},
-                'interview':
-                {'object': Interview,
-                 'name': 'interview',
-                 'file': 'reviews/interview_item.html'},
-                }
         items = {}
-        for key, value in name.items():
+        for key, value in self.item_data.items():
             object = self.object.get_objects(value['object'])
             count = object.count()
             last = object.last()
@@ -117,18 +130,34 @@ class CompanyDetailView(DetailView):
         scores = self.object.get_scores()
         if scores:
             context['stars'] = self.get_stars(scores=scores)
-
-        if self.kwargs['item']:
-            if self.kwargs['item'] == 'recenzje':
-                context['reviews'] = self.object.get_reviews()
-            elif self.kwargs['item'] == 'zarobki':
-                context['salaries'] = self.object.get_salaries()
-            elif self.kwargs['item'] == 'interviews':
-                context['interviews'] = self.object.get_interviews()
-        else:
-            context['items'] = self.get_items()
-        print(context)
+        context['items'] = self.get_items()
         return context
+
+
+class CompanyItemsView(CompanyDetailView):
+    template_name = 'reviews/company_items_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        item = self.kwargs['item']
+        if item in self.item_data:
+            item_data = self.item_data[item]
+            context['item'] = item
+            context['file'] = item_data['file']
+            context['name'] = item_data['name']
+            item_list = self.object.get_objects(item_data['object'])
+            try:
+                data = {x: self.get_stars(x.get_scores())
+                        for x in item_list}
+            except:
+                data = {x: {} for x in item_list}
+            context['data'] = data
+
+            context['buttons'] = {x: self.item_data[x]['name']
+                                  for x in self.item_data.keys() if x != item}
+            return context
+        else:
+            raise Http404
 
 
 class CompanyCreateForm(forms.ModelForm):

@@ -4,13 +4,19 @@ from .views import *
 
 
 urlpatterns = [
+    url(r'^$',
+        HomeView.as_view(), name='home'),
+
     url(r'^review/(?P<id>\d*)/?$',
         ReviewCreate.as_view(), name='review'),
 
     url(r'^search/(?P<searchterm>.*)/?$',
         CompanySearchView.as_view(), name='company_search'),
 
-    url(r'^company/(?P<pk>\d+)/(?P<item>\w+)?/?$',
+    url(r'^company/(?P<pk>\d+)/(?P<item>\w+)/?$',
+        CompanyItemsView.as_view(), name='company_items'),
+
+    url(r'^company/(?P<pk>\d+)/?$',
         CompanyDetailView.as_view(), name='company_page'),
 
     url(r'^company/create/(?P<company>.*)/?$',

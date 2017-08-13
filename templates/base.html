@@ -35,13 +35,14 @@
     </head>
     
     <body>
+      {% block nav %}
         <nav>
             <!-- brand logo -->
             <a href="{% url 'home' %}"><img src="{% static 'pictures/logo_new_white.png' %}"></a>
             <!-- searchbar  -->
             <div class="search-bar">
                 <form action="{% url 'company_search' '' %}" method="POST">
-                    <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" arial-label="wyszukaj firmę" /><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
+                    <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" /><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
                     {% csrf_token %}
                 </form>
             </div>
@@ -55,6 +56,7 @@
             <a href="javascript:void(0);" class="icon" onclick="showMenu()"><i class="material-icons">menu</i></a>
             <a href="javascript:void(0);" class="glass" onclick="showSearch"><i class="material-icons">search</i></a>
         </nav>
+        {% endblock nav %}
 
         <main>                      
                 

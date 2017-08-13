@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/company_view.css' %}">
+{% endblock css %}
+
+
+{% block title %}
+
+pracr | {{ company.name }} | {{ name }}
+
+{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <section>
+        {% include "reviews/company_header.html" %}
+    </section>
+</div>
+
+<section>
+    {% for key, value in data.items %}
+    <article class="container">
+        <div class="row">
+            <div class="twelve columns">
+                {% include file with value=key stars=value %}
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <article class="twelve columns action-buttons">
+                {% for button, name in buttons.items %}
+                <a href= {% url 'company_items' company.pk button %} class="button">{{ name }}</a>
+                {% endfor %}
+                <a href = {% url 'company_page' company.pk %} class="button button-primary">Powrót</a>
+            </article>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

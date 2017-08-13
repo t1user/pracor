@@ -7,3 +7,13 @@ function showMenu() {
         x.className = "topnav";
     }
 }
+
+function listItems() {
+    var x = document.getElementById("actionButton");
+    if (x.className === "action-button") {
+        x.className += " responsive";
+        } else {
+            x.className = "action-button";
+}
+}
+
