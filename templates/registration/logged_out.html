@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Wylogowano</h1>
+            <p>
+                <button class="button-primary" href="{% url 'login' %}">Zaloguj ponownie</button>
+                <button class="button-primary" href="{% url 'home' %}">Strona główna</button>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+

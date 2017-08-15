@@ -1,42 +1,70 @@
-{# % extends "base.html" % #}
+{% extends "base.html" %}
 
-{# % block content % #}
+{% load staticfiles %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock css %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
+{% block content %}
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
 
+            {% if form.errors %}
+            <p>Podany email lub hasło są nieprawidłowe. Spróbuj jeszcze raz...</p>
+            {% endif %}
 
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+            {% if next %}
+            {% if user.is_authenticated %}
+            <p>Nie masz dostępu do tej strony.</p>
+            {% else %}
+            <p>Ta strona wymaga zalogowania.</p>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="eight columns login">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <td><strong>e-mail:</strong></td>
+                        <td>{{ form.username }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>hasło:</strong></td>
+                        <td>{{ form.password }}</td>
+                    </tr>
+                </table>
+            
 
-...or login with
-<a href="{% url "social:begin" "linkedin-oauth2" %}">LinkedIn</a>
+                <input type="submit" value="login" class="button-primary" />
+                <input type="hidden" name="next" value="{{ next }}" />
+            </form>
+        </div>
 
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+        <div class="four columns">
+            <div class="social">
+                <div>
+                    <a href="{% url "social:begin" "linkedin-oauth2" %}">
+                        <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-{#% endblock %#}
+    <div class="row">
+        <div class="twelve columns">
+            <p>
+                <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
+                <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

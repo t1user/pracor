@@ -1,0 +1,31 @@
+
+table {
+    margin-top: 5rem;
+
+}
+
+table td {
+    border-style: none;
+}
+
+.login {
+    border-right: solid 1px gray;
+    display: flex;
+    flex-flow: column wrap;
+    align-content: center;
+
+
+}
+
+.social {
+    height: 20rem;
+    display: flex;
+    flex-flow: column wrap;
+    align-content: center;
+    justify-content: center;
+
+}
+
+.button-primary {
+    float: right;
+}

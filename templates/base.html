@@ -37,8 +37,11 @@
     <body>
       {% block nav %}
         <nav>
+            {% block logo %}
             <!-- brand logo -->
-            <a href="{% url 'home' %}"><img src="{% static 'pictures/logo_new_white.png' %}"></a>
+            <a href="{% url 'home' %}"><img src="{% static 'img/logo_new_white.png' %}"></a>
+            {% endblock %}
+            {% block searchbar %}
             <!-- searchbar  -->
             <div class="search-bar">
                 <form action="{% url 'company_search' '' %}" method="POST">
@@ -46,15 +49,22 @@
                     {% csrf_token %}
                 </form>
             </div>
+            {% endblock searchbar %}
+            {% block menu %}
             <!-- menu items -->
             <div class="topnav" id="myTopnav">
-                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'home' %}">Strona główna</a>
+                {% if not user.is_authenticated %}
                 <a href="#">Option</a>
-                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'login' %}">Zaloguj</a>
+                {% else %}
+                <a href="{% url 'logout' %}">Wyloguj</a>
+                {% endif %}
             </div>
             <!-- buttons for mobile only -->
             <a href="javascript:void(0);" class="icon" onclick="showMenu()"><i class="material-icons">menu</i></a>
             <a href="javascript:void(0);" class="glass" onclick="showSearch"><i class="material-icons">search</i></a>
+            {% endblock menu %}
         </nav>
         {% endblock nav %}
 

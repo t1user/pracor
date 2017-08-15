@@ -8,21 +8,15 @@
 
 {% block nav %}
 <div class="container full-width">
-    <div class="picture-box" style="background-image: url({% static 'pictures/city_landscape.svg' %})">
+    <div class="picture-box" style="background-image: url({% static 'img/city_landscape.svg' %})">
         <div class="row">
             <div class="twelve columns">
                 <nav>
                     <!-- brand logo -->
-                    <a href="{% url 'home' %}"><img src="{% static 'pictures/logo_new_white.png' %}"></a>
-                    <!-- menu items -->
-                    <div class="topnav" id="myTopnav">
-                        <a href="{% url 'home' %}">Home</a>
-                        <a href="#">Option</a>
-                        <a href="{% url 'login' %}">Login</a>
-                    </div>
-                    <!-- buttons for mobile only -->
-                    <a href="javascript:void(0);" class="icon" onclick="showMenu()"><i class="material-icons">menu</i></a>
-                    <a href="javascript:void(0);" class="glass" onclick="showSearch"><i class="material-icons">search</i></a>
+                    <a href="{% url 'home' %}"><img src="{% static 'img/logo_new_white.png' %}"></a>
+                    {% block menu %}
+                    {{ block.super }}
+                    {% endblock menu %}
                 </nav>
             </div>
         </div>
