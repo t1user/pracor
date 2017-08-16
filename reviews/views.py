@@ -5,6 +5,7 @@ from django import forms
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (UpdateView, DeleteView, CreateView,
                                   ListView, DetailView)
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .widgets import RadioSelectModified
 
 from .models import Company, Salary, Review, Interview
@@ -54,7 +55,7 @@ class CompanySearchView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class CompanyDetailView(DetailView):
+class CompanyDetailView(LoginRequiredMixin, DetailView):
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
@@ -180,7 +181,7 @@ class CompanyCreateForm(forms.ModelForm):
         return url
 
 
-class CompanyCreate(CreateView):
+class CompanyCreate(LoginRequiredMixin, CreateView):
     model = Company
     form_class = CompanyCreateForm
     initial = {'website': 'http://www.'}
@@ -216,13 +217,13 @@ class CompanyCreate(CreateView):
         return self.render_to_response(context)
 
 
-class CompanyUpdate(UpdateView):
+class CompanyUpdate(PermissionRequiredMixin, UpdateView):
     model = Company
     fields = ['name', 'headquarters_city', 'website']
     #template_name = 'reviews/company_view.html'
 
 
-class CompanyDelete(DeleteView):
+class CompanyDelete(PermissionRequiredMixin, DeleteView):
     model = Company
     success_url = reverse_lazy('home')
 
@@ -269,7 +270,7 @@ class ReviewForm(forms.ModelForm):
 """
 
 
-class ReviewCreate(CreateView):
+class ReviewCreate(LoginRequiredMixin, CreateView):
     form_class = ReviewForm
     model = Review
 
@@ -305,7 +306,7 @@ class ReviewCreate(CreateView):
         return context
 
 
-class SalaryCreate(CreateView):
+class SalaryCreate(LoginRequiredMixin, CreateView):
     model = Salary
     fields = [
         'position',
@@ -338,7 +339,7 @@ class SalaryCreate(CreateView):
         return context
 
 
-class InterviewCreate(CreateView):
+class InterviewCreate(LoginRequiredMixin, CreateView):
     model = Interview
     fields = [
         'position',
@@ -362,6 +363,6 @@ class InterviewCreate(CreateView):
         return context
 
 
-class CompanyList(ListView):
+class CompanyList(PermissionRequiredMixin, ListView):
     model = Company
     context_object_name = 'company_list'

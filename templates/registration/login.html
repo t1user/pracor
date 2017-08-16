@@ -11,58 +11,48 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-
             {% if form.errors %}
             <p>Podany email lub hasło są nieprawidłowe. Spróbuj jeszcze raz...</p>
             {% endif %}
 
-            {% if next %}
-            {% if user.is_authenticated %}
-            <p>Nie masz dostępu do tej strony.</p>
-            {% else %}
-            <p>Ta strona wymaga zalogowania.</p>
-            {% endif %}
-            {% endif %}
+            <h1>Logowanie</h1>
         </div>
     </div>
     <div class="row">
-        <div class="eight columns login">
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                <table>
-                    <tr>
-                        <td><strong>e-mail:</strong></td>
-                        <td>{{ form.username }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>hasło:</strong></td>
-                        <td>{{ form.password }}</td>
-                    </tr>
-                </table>
-            
+        <div class="eight columns">
+            <div class="login">
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                            <td><strong>e-mail:</strong></td>
+                            <td>{{ form.username }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>hasło:</strong></td>
+                            <td>{{ form.password }}</td>
+                        </tr>
+                        <tr>
+                            <td><input type="submit" value="login" class="button-primary" /></td>
+                        </tr>
+                    </table>
 
-                <input type="submit" value="login" class="button-primary" />
-                <input type="hidden" name="next" value="{{ next }}" />
-            </form>
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </form>
+                <p>
+                    <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
+                    <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
+                </p>
+
+            </div>
         </div>
 
         <div class="four columns">
             <div class="social">
-                <div>
-                    <a href="{% url "social:begin" "linkedin-oauth2" %}">
-                        <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
-                    </a>
-                </div>
+                <a href="{% url "social:begin" "linkedin-oauth2" %}">
+                    <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
+                </a>
             </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="twelve columns">
-            <p>
-                <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
-                <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
-            </p>
         </div>
     </div>
 </div>

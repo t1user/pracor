@@ -43,12 +43,12 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'social_django',
-    ]
+]
 
 PROJECT_APPS = [
     'users',
     'reviews',
-    ]
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
@@ -68,7 +68,7 @@ ROOT_URLCONF = 'pracr.urls'
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.linkedin.LinkedinOAuth2',
     'django.contrib.auth.backends.ModelBackend',
-    )
+)
 
 
 TEMPLATES = [
@@ -156,7 +156,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
- ]
+]
 
-# Settings for python-social-oauth
-
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
