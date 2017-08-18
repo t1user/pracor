@@ -18,9 +18,9 @@ class Company(models.Model):
     class Meta:
         ordering = ['name']
 
-    name = models.CharField(max_length=100, unique=True)
-    headquarters_city = models.CharField(max_length=60)
-    website = models.URLField(unique=True)
+    name = models.CharField('nazwa', max_length=100, unique=True)
+    headquarters_city = models.CharField('siedziba centrali', max_length=60)
+    website = models.URLField('strona www', unique=True)
     overallscore = models.PositiveIntegerField('Ocena ogólna', editable=False,
                                                default=0)
     advancement = models.PositiveIntegerField('Możliwości rozwoju', editable=False,

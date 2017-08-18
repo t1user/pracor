@@ -217,13 +217,13 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class CompanyUpdate(PermissionRequiredMixin, UpdateView):
+class CompanyUpdate(LoginRequiredMixin, UpdateView):
     model = Company
     fields = ['name', 'headquarters_city', 'website']
     #template_name = 'reviews/company_view.html'
 
 
-class CompanyDelete(PermissionRequiredMixin, DeleteView):
+class CompanyDelete(LoginRequiredMixin, DeleteView):
     model = Company
     success_url = reverse_lazy('home')
 
@@ -363,6 +363,6 @@ class InterviewCreate(LoginRequiredMixin, CreateView):
         return context
 
 
-class CompanyList(PermissionRequiredMixin, ListView):
+class CompanyList(LoginRequiredMixin, ListView):
     model = Company
     context_object_name = 'company_list'
