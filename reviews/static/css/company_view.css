@@ -82,6 +82,11 @@ table {
     #padding: 1.5rem;
 }
 
+.no-reviews {
+    display: flex;
+    justify-content: center;
+}
+
 /* action buttons including responsive*/
 .action-buttons {
     display: flex;
@@ -143,4 +148,7 @@ table {
     display: inline-block;
 }
 
+.bonus {
+    margin-bottom: 2rem;
+}
 

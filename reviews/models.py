@@ -123,7 +123,7 @@ class Review(Position):
                                                choices=RATINGS, default=None)
     advancement = models.PositiveIntegerField('możliwości rozwoju',
                                               choices=RATINGS, default=None)
-    worklife = models.PositiveIntegerField('równowaga praca-życie',
+    worklife = models.PositiveIntegerField('równowaga praca/życie',
                                            choices=RATINGS, default=None)
     compensation = models.PositiveIntegerField('zarobki',
                                                choices=RATINGS, default=None)
@@ -201,7 +201,7 @@ class Interview(models.Model):
         ('B', 'Kontakty profesjonalne'),
         ('C', 'Head-hunter'),
         ('D', 'Znajomi-rodzina'),
-        ('E', 'Sex z decydentem'),
+        ('E', 'Seks z decydentem'),
         ('F', 'Inne'),
     ]
     DIFFICULTY = [

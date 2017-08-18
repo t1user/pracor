@@ -33,7 +33,7 @@
                             <td>{{ form.password }}</td>
                         </tr>
                         <tr>
-                            <td><input type="submit" value="login" class="button-primary" /></td>
+                            <td><input type="submit" value="zaloguj" class="button-primary" /></td>
                         </tr>
                     </table>
 
@@ -49,7 +49,7 @@
 
         <div class="four columns">
             <div class="social">
-                <a href="{% url "social:begin" "linkedin-oauth2" %}">
+                <a href="{% url "social:begin" "linkedin-oauth2" %}?next={{ next }}">
                     <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
                 </a>
             </div>

@@ -1,11 +1,16 @@
-<table>
-    <tr><td>Data wpisu:</td><td>{{ value.date }}</td></tr>
-    <tr><td>Stanowisko:</td><td>{{ value.position }}</td></tr>
-    <tr><td>Departament:</td><td>{{ value.department }}</td></tr>
-    <tr><td>Droga do interview:</td><td>{{ value.get_how_got_display }}</td></tr>
-    <tr><td>Trudność:</td><td>{{ value.difficulty }}</td></tr>
-    <tr><td>Oferta?:</td><td>{{ value.got_offfer }}</td></tr>
-    <tr><td>Pytania:</td><td>  {{ value.questions }}</td></tr>
-    <tr><td>Wrażenia:</td><td>{{ value.impressions }}</td></tr>
-</table>
+<div class="row">
+    <div class="twelve columns">
+        <div class="data">{{ value.date }}</div>
+
+        <h3>Interview na stanowisko {{ value.position }} w departamencie {{ value.department }}</h3>
+
+
+
+        <table>
+            <tr><td>Droga do interview:</td><td>{{ value.get_how_got_display }}</td></tr>
+            <tr><td>Trudność:</td><td>{{ value.difficulty }}</td></tr>
+            <tr><td>Oferta?:</td><td>{{ value.got_offfer }}</td></tr>
+            <tr><td>Pytania:</td><td>  {{ value.questions }}</td></tr>
+            <tr><td>Wrażenia:</td><td>{{ value.impressions }}</td></tr>
+        </table>
 
