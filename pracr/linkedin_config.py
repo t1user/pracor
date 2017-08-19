@@ -2,7 +2,6 @@
 SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = '77eo269xhh3u7q'
 SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = 'ywsnbntpB92vHsec'
 SOCIAL_AUTH_LINKEDIN_OAUTH2_SCOPE = ['r_basicprofile', 'r_emailaddress']
-SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['key']
 #SOCIAL_AUTH_LINKEDIN_OAUTH2_FIELD_SELECTORS = ['email-address', 'headline', 'industry']
 #FIELD_SELECTORS = ['email-address',]
 #SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/home/'
@@ -52,6 +51,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
+    'pracr.social_pipeline_override.test_pipeline',
 )
 
 

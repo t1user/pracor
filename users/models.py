@@ -5,7 +5,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import six, timezone
 
 
-
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -26,6 +25,10 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email=None, password=None, **extra_fields):
         """Create and save a regular User with the given email and password."""
+        # take out userename if it's added by social-auth (modification from
+        # original method)
+        if 'username' in extra_fields:
+            del extra_fields['username']
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
@@ -52,6 +55,3 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
-    
-
- 

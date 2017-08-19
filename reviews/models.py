@@ -234,3 +234,18 @@ class Interview(models.Model):
 
     def __str__(self):
         return 'id_' + str(self.id)
+
+
+class Job(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    company_name = models.CharField(max_length=100)
+    company_id = models.PositiveIntegerField(blank=True, null=True)
+    linkedin_id = models.PositiveIntegerField(blank=True, null=True)
+    location = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
+    start_date_month = models.PositiveIntegerField(blank=True, null=True)
+    start_date_year = models.PositiveIntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return self.title + '_' + self.user.email
