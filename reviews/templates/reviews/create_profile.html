@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<style>
+    form li {
+    display: inline-block;
+    list-style: none;
+    margin: 0 2rem 0 0;    
+    }
+    .send {
+        padding: 5rem 0;
+        }
+</style>
+{% endblock css %}
+
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Rejestracja - profil</h1>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <hr/>
+                <formset>
+                    <p><i>opcjonalnie, tylko jeśli chcesz...</i></p>
+                    {{ user_form }}
+                </formset>
+                <hr/>
+                <formset>
+                    <p><i>tego potrzebujemy...</i></p>
+                {{ profile_form }}
+                </formset>
+                <hr>
+                <i>gotowe?</i>
+                <p class="send">
+                <input type="submit" value="dalej" class="button-primary">
+                </p>
+                
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+

@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django import forms
 from django.urls import reverse, reverse_lazy
@@ -8,8 +8,9 @@ from django.views.generic import (UpdateView, DeleteView, CreateView,
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .widgets import RadioSelectModified
 
-from .models import Company, Salary, Review, Interview
-
+from .models import Company, Salary, Review, Interview, Profile, Position
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
@@ -168,10 +169,8 @@ class CompanyCreateForm(forms.ModelForm):
         fields = ['name', 'headquarters_city', 'website']
 
     def clean_website(self):
-        """
-        Method cleans field: 'website'. Ensures that urls with http, https, 
-        with and without www are treated as one.
-        """
+        """Clean field: 'website', ensure that urls with http, https, 
+        with and without www are treated as same."""
         url = self.cleaned_data['website']
         if url.startswith('https'):
             url = url.replace('https', 'http')
@@ -197,11 +196,9 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form, **kwargs):
-        """
-        In case there's an attempt to create a non-unique Company,
+        """In case there's an attempt to create a non-unique Company,
         the method pulls out the instance(s) of the Company(s)
-        that already exist(s) and adds it/them to the context.
-        """
+        that already exist(s) and adds it/them to the context."""
         context = self.get_context_data(**kwargs)
         context['form'] = form
         errorlist = form.errors.as_data()
@@ -232,15 +229,13 @@ class ReviewForm(forms.ModelForm):
 
     class Meta:
         model = Review
-        fields = ['title', 'position', 'city', 'years_at_company', 'advancement',
+        fields = ['title', 'advancement',
                   'worklife', 'compensation', 'environment', 'overallscore',
                   'pros', 'cons', 'comment']
 
         labels = {
             'title': 'tytuł recenzji',
             'position': 'stanowisko',
-            'city': 'miasto',
-            'years_at_company': 'staż w firmie',
             'advancement': 'możliwości rozwoju',
             'worklife': 'równowaga praca/życie',
             'compensation': 'zarobki',
@@ -260,14 +255,6 @@ class ReviewForm(forms.ModelForm):
             'pros': forms.Textarea(),
             'cons': forms.Textarea(),
         }
-"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.Meta.fields:
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
-"""
 
 
 class ReviewCreate(LoginRequiredMixin, CreateView):
@@ -296,8 +283,6 @@ class ReviewCreate(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        print(RadioSelectModified().get_context(
-            'advancement', 1, {'class': 'dupa', 'wrap_label': False}))
         context = super().get_context_data(**kwargs)
         context['company_name'] = get_object_or_404(
             Company, pk=self.kwargs['id'])
@@ -310,7 +295,7 @@ class SalaryCreate(LoginRequiredMixin, CreateView):
     model = Salary
     fields = [
         'position',
-        'city',
+        'location',
         'years_at_company',
         'employment_status',
         'currency',
@@ -366,3 +351,48 @@ class InterviewCreate(LoginRequiredMixin, CreateView):
 class CompanyList(LoginRequiredMixin, ListView):
     model = Company
     context_object_name = 'company_list'
+
+
+class CreateProfileForm_user(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['first_name', 'last_name']
+
+class CreateProfileForm_profile(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['sex', 'career_start_year']
+
+        widgets = {
+            'sex': forms.RadioSelect()
+            }
+    
+class CreateProfileView(LoginRequiredMixin, View):
+    user_form_class = CreateProfileForm_user
+    profile_form_class = CreateProfileForm_profile
+    template_name = "reviews/create_profile.html"
+
+    def get(self, request, *args, **kwargs):
+        if request.user.last_name == '':
+            user_form = self.user_form_class()
+        else:
+            user_form = {}
+        profile_form = self.profile_form_class()
+        return render(request, self.template_name,
+                      {'user_form': user_form,
+                       'profile_form': profile_form})
+
+    def post(self, request, *args, **kwargs):
+        user_form = self.user_form_class(request.POST, instance=request.user)
+        profile_form = self.profile_form_class(request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile = profile_form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            return redirect('register_success')
+        return render(request, self.template_name,
+                          {'user_form': user_form,
+                           'profile_form': profile_form})
+        
+            

@@ -49,7 +49,7 @@ class UserCreationForm(forms.ModelForm):
                 self.error_messages['password_mismatch'],
                 code='password_mismatch',
             )
-        self.instance.username = self.cleaned_data.get('username')
+        #self.instance.username = self.cleaned_data.get('username')
         password_validation.validate_password(
             self.cleaned_data.get('password2'), self.instance)
         return password2
@@ -79,7 +79,7 @@ class Register(View):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(email=email, password=raw_password)
             login(request, user)
-            return redirect('register_success')
+            return redirect('create_profile')
 
         else:
             return render(request, self.template_name, {'form': form})

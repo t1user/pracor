@@ -5,13 +5,14 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <h1>Doświadczenia z interview w firmie: {{ company_name }}</h1>
+          <h1>{{ company_name }}</h1>
+          <h2>Doświadczenia z interview</h2>
             <form action='' method='POST'>
                 <table>
                     {{ form.as_table }}
                 </table>
                 {% csrf_token %}
-                <input type='submit' value='Wyślij'/>
+                <input type='submit' value='Wyślij' class="button-primary" />
             </form>
         </div>
     </div>

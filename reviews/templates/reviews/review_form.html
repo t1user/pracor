@@ -17,7 +17,7 @@
         <section class="eight columns">
             <article>
                 {% if form.errors %}
-                <p> style="color:red;">
+                <p class="errors">
                     Popraw błędy poniżej
                 </p>
                 {% endif %}
@@ -35,7 +35,7 @@
                         {% endfor %}
                     </fieldset>
                     {% csrf_token %}
-                    <input type='submit' class="btn btn-success" value='Wyślij'/>
+                    <input type='submit' class="button button-primary" value='Wyślij'/>
                 </form>
             </atricle>
         </section>

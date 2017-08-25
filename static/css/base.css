@@ -185,3 +185,9 @@ nav a.icon, nav a.glass {
 
 
 
+/* common formatting for all forms */
+
+.errors, .errorlist {
+    color: red;
+    list-style: none;
+}

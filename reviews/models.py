@@ -4,23 +4,43 @@ from django.conf import settings
 
 
 class Profile(models.Model):
-    SEX = [('M', 'Mężczyzna'), ('K', 'Kobieta')]
-
+    SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
+    career_year = range(2017, 1970, -1)
+    CAREER_YEAR = [(i, i) for i in career_year]
+    
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE)
     contributed = models.BooleanField(default=False, editable=False)
-    sex = models.CharField(max_length=1, choices=SEX)
-    career_start_year = models.PositiveIntegerField()
+    sex = models.CharField("płeć", max_length=1, choices=SEX, default='K', null=True)
+    career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
+                                                    choices=CAREER_YEAR,
+                                                    null=True, blank=True)
+    linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
 
 
 class Company(models.Model):
+    EMPLOYMENT = [('A', '<100'), ('B', '101-500'), ('C', '501-1000'),
+                  ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]
 
     class Meta:
         ordering = ['name']
 
+    #only three values are required to make company creattion easy for users
     name = models.CharField('nazwa', max_length=100, unique=True)
     headquarters_city = models.CharField('siedziba centrali', max_length=60)
     website = models.URLField('strona www', unique=True)
+
+    #other fiels are optional to be filled-in by admins
+    region = models.CharField('województwo', max_length=40, blank=True, null=True)
+    country = models.CharField('kraj', max_length=40, default='Polska')
+    employment = models.CharField('zatrudnienie', max_length=1,
+                                  choices=EMPLOYMENT, blank=True, null=True)
+    public = models.NullBooleanField('notowane', blank=True, null=True)
+    ownership = models.CharField('właściciele', max_length=200, blank=True, null=True)
+
+    #rating inputs - not to be edited directly, numbers have to be divided by
+    #number of reviews to get to the rating number
     overallscore = models.PositiveIntegerField('Ocena ogólna', editable=False,
                                                default=0)
     advancement = models.PositiveIntegerField('Możliwości rozwoju', editable=False,
@@ -48,6 +68,7 @@ class Company(models.Model):
         return object.objects.filter(company=self.pk)
 
     def get_scores(self):
+        """Calculates actual ratings from database fields"""
         if self.number_of_reviews != 0:
             overallscore = round(self.overallscore / self.number_of_reviews, 1)
             advancement = round(self.advancement / self.number_of_reviews, 1)
@@ -62,9 +83,8 @@ class Company(models.Model):
                     }
 
     def update_scores(self):
-        """
-        Method recalculates all scores to make them compliant with existing reviews. This is an admin method.
-        """
+        """Recalculates all scores to make them compliant with existing reviews. 
+        This is an admin method."""
         reviews = self.get_reviews()
         self.overallscore = 0
         self.advancement = 0
@@ -96,23 +116,31 @@ class Position(models.Model):
         ('D', 'Samozazatrudnienie'),
         ('E', 'Inne'),
     ]
-
+    date = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    #company_name used to store name before entry is associated with a Company database record
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    #company used to associate position with Company database record, blank before the association
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL,
+                                blank=True, null=True)
+    linkedin_id = models.PositiveIntegerField(blank=True, null=True)
+    location = models.CharField(max_length=30)
     position = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-    years_at_company = models.PositiveIntegerField()
+    start_date_month = models.PositiveIntegerField(blank=True, null=True)
+    start_date_year = models.PositiveIntegerField(blank=True, null=True)
     employment_status = models.CharField(max_length=1,
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')
 
+    def __str__(self):
+        return self.position + '_' + self.user.email
 
-class Review(Position):
-    #company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    #position = models.ForeignKey(Position, on_delete=models.CASCADE)
-    #position = models.OneToOneField(Position, on_delete=models.CASCADE)
+class Review(models.Model):
     date = models.DateTimeField(auto_now=True, editable=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL,
+                                 null=True, blank=True)
     title = models.CharField(max_length=100)
     pros = models.CharField(max_length=500)
     cons = models.CharField(max_length=500)
@@ -146,7 +174,7 @@ class Review(Position):
         return 'id_' + str(self.id)
 
 
-class Salary(Position):
+class Salary(models.Model):
     PERIOD = [
         ('M', 'miesięcznie'),
         ('R', 'rocznie'),
@@ -157,14 +185,13 @@ class Salary(Position):
         ('N', 'netto'),
     ]
 
-    #company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    #position = models.ForeignKey(Position, on_delete=models.CASCADE, blank=True)
-    #position = models.OneToOneField(Position, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True, editable=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL,
+                                 null=True, blank=True)
 
     currency = models.CharField('waluta',
                                 max_length=3, default='PLN')
-
     salary_input = models.PositiveIntegerField('pensja')
     period = models.CharField('za okres',
                               max_length=1, default='M', choices=PERIOD)
@@ -192,7 +219,7 @@ class Salary(Position):
                        kwargs={'pk': self.company.id})
 
     def __str__(self):
-        return 'id_' + str(self.id)
+        return 'id_{}_{}'.format(self.id, self.company)
 
 
 class Interview(models.Model):

@@ -16,6 +16,8 @@ aside li {
     font-weight: 300;
     }
 
+
+/* does the div come from overriden widget? */
 form div {
     overflow: hidden;
     display: inline-block;

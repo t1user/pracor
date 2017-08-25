@@ -7,6 +7,9 @@ urlpatterns = [
     url(r'^$',
         HomeView.as_view(), name='home'),
 
+    url(r'^create_profile',
+        CreateProfileView.as_view(), name='create_profile'),
+
     url(r'^review/(?P<id>\d*)/?$',
         ReviewCreate.as_view(), name='review'),
 

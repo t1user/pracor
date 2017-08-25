@@ -11,11 +11,12 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            {% if form.errors %}
-            <p>Podany email lub hasło są nieprawidłowe. Spróbuj jeszcze raz...</p>
-            {% endif %}
-
             <h1>Logowanie</h1>
+            <div class="errors">
+                {% if form.errors %}
+                <p>Podany email lub hasło są nieprawidłowe. Spróbuj jeszcze raz...</p>
+                {% endif %}
+            </div>
         </div>
     </div>
     <div class="row">
