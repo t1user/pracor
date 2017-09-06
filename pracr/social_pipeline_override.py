@@ -1,5 +1,5 @@
 from reviews.models import Position, Profile
-
+from django.urls import reverse
 
 def drop_username(*args, **kwargs):
     """Fix for a problem with username, which social_auth tries to save to user model,
@@ -10,6 +10,17 @@ def drop_username(*args, **kwargs):
 
 def save_data(**kwargs):
     """Saves data retrived from linkedinin into the database"""
+    redir=reverse('register_success')
+    print(kwargs)
+    print()
+    print('Strategy: ', kwargs['strategy'].__dict__)
+    print('Storage: ', kwargs['storage'].__dict__)
+    print('Session: ', kwargs['strategy'].__dict__['session'].__dict__)
+    print()
+    #print(request.session)
+    print()
+    kwargs['strategy'].session['next']= redir
+    kwargs['strategy'].session['linkedin_data'] = 'some data to be retrived'
     params = kwargs['response']
     print(params)
     print()

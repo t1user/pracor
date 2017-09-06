@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+import datetime
 
 
 class Profile(models.Model):
@@ -26,12 +27,12 @@ class Company(models.Model):
     class Meta:
         ordering = ['name']
 
-    #only three values are required to make company creattion easy for users
+    #only three values are required - to make company creation easy for users
     name = models.CharField('nazwa', max_length=100, unique=True)
     headquarters_city = models.CharField('siedziba centrali', max_length=60)
     website = models.URLField('strona www', unique=True)
 
-    #other fiels are optional to be filled-in by admins
+    #other fiels are optional, to be filled-in by admins
     region = models.CharField('województwo', max_length=40, blank=True, null=True)
     country = models.CharField('kraj', max_length=40, default='Polska')
     employment = models.CharField('zatrudnienie', max_length=1,
@@ -69,6 +70,7 @@ class Company(models.Model):
 
     def get_scores(self):
         """Calculates actual ratings from database fields"""
+        self.update_scores()
         if self.number_of_reviews != 0:
             overallscore = round(self.overallscore / self.number_of_reviews, 1)
             advancement = round(self.advancement / self.number_of_reviews, 1)
@@ -83,8 +85,7 @@ class Company(models.Model):
                     }
 
     def update_scores(self):
-        """Recalculates all scores to make them compliant with existing reviews. 
-        This is an admin method."""
+        """Recalculates all scores to make them compliant with existing reviews."""
         reviews = self.get_reviews()
         self.overallscore = 0
         self.advancement = 0
@@ -116,6 +117,12 @@ class Position(models.Model):
         ('D', 'Samozazatrudnienie'),
         ('E', 'Inne'),
     ]
+
+    years = range(datetime.datetime.now().year, 1970, -1)
+    YEARS = [(i, i) for i in years]
+    months = range(1, 13)
+    MONTHS = [(i, '{:02}'.format(i)) for i in months]
+ 
     date = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
@@ -127,14 +134,23 @@ class Position(models.Model):
     linkedin_id = models.PositiveIntegerField(blank=True, null=True)
     location = models.CharField(max_length=30)
     position = models.CharField(max_length=100)
-    start_date_month = models.PositiveIntegerField(blank=True, null=True)
-    start_date_year = models.PositiveIntegerField(blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    start_date_month = models.PositiveIntegerField(null=True,
+                                                   choices=MONTHS, default=None)
+    start_date_year = models.PositiveIntegerField(null=True,
+                                                  choices=YEARS, default=None)
     employment_status = models.CharField(max_length=1,
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')
 
     def __str__(self):
-        return self.position + '_' + self.user.email
+        if self.company:
+            company = str(self.company)
+        elif self.company_name:
+            company = self.company_name
+        else:
+            company = ' '
+        return self.position + ' - ' + company + ' - ' + self.user.email
 
 class Review(models.Model):
     date = models.DateTimeField(auto_now=True, editable=False)
@@ -144,7 +160,7 @@ class Review(models.Model):
     title = models.CharField(max_length=100)
     pros = models.CharField(max_length=500)
     cons = models.CharField(max_length=500)
-    comment = models.TextField()
+    comment = models.CharField(max_length=500, null=True, blank=True)
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
     overallscore = models.PositiveIntegerField('ocena ogólna',
@@ -177,6 +193,7 @@ class Review(models.Model):
 class Salary(models.Model):
     PERIOD = [
         ('M', 'miesięcznie'),
+        ('K', 'kwartalnie'),
         ('R', 'rocznie'),
         ('G', 'na godzinę'),
     ]
@@ -193,14 +210,14 @@ class Salary(models.Model):
     currency = models.CharField('waluta',
                                 max_length=3, default='PLN')
     salary_input = models.PositiveIntegerField('pensja')
-    period = models.CharField('za okres',
+    period = models.CharField('',
                               max_length=1, default='M', choices=PERIOD)
     gross_net = models.CharField(
         '', max_length=1, default='G', choices=GROSS_NET)
 
     bonus_input = models.PositiveIntegerField('premia', default=0)
     bonus_period = models.CharField('',
-                                    max_length=1, default='M', choices=PERIOD)
+                                    max_length=1, default='R', choices=PERIOD)
     bonus_gross_net = models.CharField('',
                                        max_length=1, default='G', choices=GROSS_NET)
 
@@ -238,6 +255,12 @@ class Interview(models.Model):
         (4, '4'),
         (5, '5'),
     ]
+
+    GOT_OFFER = [
+        (True, 'Tak'),
+        (False, 'Nie'),
+        ]
+    
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True, editable=False)
@@ -248,9 +271,9 @@ class Interview(models.Model):
     how_got = models.CharField('droga do interview',
                                max_length=1, choices=HOW_GOT, default=None)
     difficulty = models.PositiveIntegerField('trudność',
-                                             choices=DIFFICULTY)
-    got_offer = models.BooleanField('czy dostał ofertę',
-                                    blank=True)
+                                             choices=DIFFICULTY, default=None)
+    got_offer = models.BooleanField('czy dostał ofertę', choices=GOT_OFFER,
+                                    blank=True, default = None)
     questions = models.TextField('pytania')
     impressions = models.CharField('wrażenia',
                                    max_length=100, blank=True)

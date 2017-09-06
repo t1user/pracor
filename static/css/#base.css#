@@ -32,13 +32,6 @@ h1 {
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
 }
 
-main {
-    #width:  90%;
-    #max-width: 96rem;
-    #margin: 0 auto;
-
-}
-
 footer {
     position: absolute;
     bottom: 0;

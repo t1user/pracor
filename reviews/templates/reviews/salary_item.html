@@ -2,12 +2,9 @@
     <div class="twelve columns">
         <div class="date">{{ value.date }}</div>
 
-        <div class="background">
-            <div>{{ value.position }} |&nbsp;</div>
-            <div>{{ value.city }} |&nbsp;</div>
-            <div>{{ value.get_employment_status_display }}</div>
-        </div>
-        <h3>Zarobki</h3>
+        {% include "reviews/background.html" %}
+        
+        <h5>Zarobki zasadnicze</h5>
         <div class="salary">
             {{ value.currency }}
             {{ value.salary_input }}
@@ -15,11 +12,16 @@
             {{ value.get_gross_net_display }}
         </div>
 
-        <h3>Premia</h3>
+        <h5>Premia</h5>
         <div class="bonus">
+            {% if value.bonus_input %}
             {{ value.bonus_input }}
             {{ value.get_bonus_period_display }}
             {{ value.get_bonus_gross_net_display }}
+
+            {% else %}
+            <p>Bez premii</p>
+            {% endif %}
         </div>
     </div>
 </div>

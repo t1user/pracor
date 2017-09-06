@@ -9,21 +9,22 @@ html {
 }
 
 .container {
-    margin-top: 0;
-    margin-bottom: 0;
     box-shadow: none;
+    margin-top: 0;
 }
 
 .content {
-    padding: 2rem;
+    padding: 0rem;
+    margin-top: 1.5rem;
 }
 
 h1 {
     text-align: center;
-    color: white;
+    color: green;
     font-weight: 800;
     letter-spacing: 0.1rem;
-    margin-top: 0rem;
+    font-size: 2.8rem;
+    margin: 0 1rem;
 }
 
 nav {
@@ -35,11 +36,12 @@ nav a {
 
 .search {
     display: flex;
-    margin: 7rem 1rem 15rem 1rem;
+    margin: 5rem 1rem 10rem 1rem;
+    justify-content: center;
 }
 
 .search input {
-    width: 100%;
+    width: 70%;
     height: 5rem;
     font-size: 2.2rem;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3)
@@ -52,6 +54,7 @@ nav a {
 
 .material-icons {
     vertical-align: middle;
+    font-size: 3.5rem;
 }
 
 .errors ul {
@@ -64,8 +67,37 @@ nav a {
 }
 
 .picture-box {
-    background-repeat: repeat;
+    background-repeat: no-repeat;
     background-origin: border-box;
     background-clip: border-box;
-    background-size: contain;
+    background-size: cover;
+}
+
+
+
+@media screen and (min-width: 650px) {
+    h1 {
+        font-size: 4.5rem;
+        color: white;
+    }
+}
+
+
+@media screen and (min-width: 950px) {
+    .picture-box {
+        background-repeat: repeat;
+        background-size: contain;
+    }
+
+    .search {
+        margin: 10rem 1rem 30rem 1rem;
+    }
+
+    .content {
+        margin-top: 5rem;
+    }
+
+    h1 {
+        font-size: 6rem;
+    }
 }

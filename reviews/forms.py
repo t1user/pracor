@@ -1,25 +1,60 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Review, Salary, Company
+from .widgets import RadioSelectModified
+from django.contrib.auth import get_user_model
+
+from .models import Review, Salary, Interview, Company, Profile, Position
 
 
 class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
+    
+class CompanyCreateForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        fields = ['name', 'headquarters_city', 'website']
 
-class ReviewForm(ModelForm):
+    def clean_website(self):
+        """Clean field: 'website', ensure that urls with http, https, 
+        with and without www are treated as same."""
+        url = self.cleaned_data['website']
+        if url.startswith('https'):
+            url = url.replace('https', 'http')
+        if not url.startswith('http://www.'):
+            url = url.replace('http://', 'http://www.')
+        # TODO check here if the website returns 200
+        return url
 
+class PositionForm(forms.ModelForm):
+    class Meta:
+        model = Position
+        fields = ['position', 'department', 'location', 
+                  'start_date_year', 'start_date_month', 'employment_status']
+
+        labels = {
+            'position': 'stanowisko',
+            'department': 'departament',
+            'location': 'miasto',
+            'start_date_year': 'data rozpoczęcia',
+            'start_date_month': '',
+            'employment_status': 'rodzaj umowy',
+            }
+
+        help_text = {
+            'start_date_year': 'rok',
+            'start_date_month': 'miesiąc',
+            }
+        
+class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = [#'company',
-                  'position', 'city', 'years_at_company', 'advancement',
+        fields = ['title', 'advancement',
                   'worklife', 'compensation', 'environment', 'overallscore',
                   'pros', 'cons', 'comment']
+
         labels = {
-            #'company': 'firma',
-            'position': 'stanowisko',
-            'city': 'miasto',
-            'years_at_company': 'staż w firmie',
+            'title': 'tytuł recenzji',
             'advancement': 'możliwości rozwoju',
             'worklife': 'równowaga praca/życie',
             'compensation': 'zarobki',
@@ -27,27 +62,71 @@ class ReviewForm(ModelForm):
             'pros': 'zalety',
             'cons': 'wady',
             'ovarallscore': 'ocena ogólna',
-            'comment': 'dodatkowe uwagi',
-        }
-        help_text = {
-            #'company': 'Firma, której dotyczy recenzja',
-            'position': 'Ostatnie/obecne stanowisko w firmie',
+            'comment': 'to trzeba zmienić',
         }
 
+        widgets = {
+            'advancement': RadioSelectModified(),
+            'worklife': RadioSelectModified(),
+            'compensation': RadioSelectModified(),
+            'environment': RadioSelectModified(),
+            'overallscore': RadioSelectModified(),
+            'pros': forms.Textarea(),
+            'cons': forms.Textarea(),
+            'comment': forms.Textarea(),
+        }
 
-class SalaryForm(ModelForm):
-
+class SalaryForm(forms.ModelForm):
     class Meta:
         model = Salary
-        fields = ['company', 'position', 'city', 'years_at_company',
-                  'years_experience', 'employment_status', 'salary']
+        fields = [
+            'currency',
+            'salary_input',
+            'period',
+            'gross_net',
+            'bonus_input',
+            'bonus_period',
+            'bonus_gross_net',
+        ]
+        widgets = {
+            'salary_input': forms.NumberInput(attrs={'step': 100, 'value': 1500}),
+            'bonus_input': forms.NumberInput(attrs={'step': 1000}),
+            }
+        
 
-
-class CompanyForm(ModelForm):
-
+class InterviewForm(forms.ModelForm):
     class Meta:
-        model = Company
-        fields = ['name', 'headquarters_city', 'website']
-        initial = {
-            'website': 'http://',
-        }
+        model = Interview
+        fields = [
+            'position',
+            'department',
+            'how_got',
+            'difficulty',
+            'got_offer',
+            'questions',
+            'impressions'
+        ]
+
+        widgets = {
+            'difficulty': forms.RadioSelect(),
+            'impressions': forms.Textarea(),
+            'got_offer': forms.RadioSelect(),
+            }
+
+        help_text = {
+            'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
+            }
+
+class CreateProfileForm_user(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['first_name', 'last_name']
+
+class CreateProfileForm_profile(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['sex', 'career_start_year']
+
+        widgets = {
+            'sex': forms.RadioSelect()
+            }

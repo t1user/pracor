@@ -3,11 +3,8 @@
         <div class="date">{{ value.date }}</div>
         <h3><i>"{{ value.title | capfirst }}"</i></h3>
 
-        <div class="background">
-            <div>{{ value.position }} |&nbsp;</div> 
-            <div>{{ value.city }} |&nbsp;</div>
-            <div>{{ value.years_at_company }} lata w firmie</div>
-        </div>
+        {% include "reviews/background.html" %}
+        
     </div>
     <div class="five columns">
         {% include "reviews/top_rating.html" %}

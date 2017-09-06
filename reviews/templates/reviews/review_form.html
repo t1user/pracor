@@ -10,7 +10,7 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <h1>Recenzja firmy: {{ company_name }}</h1>
+            <h1>Recenzja firmy: {{ company.name }}</h1>
         </div>
     </div>
     <div class="row">
@@ -24,6 +24,8 @@
             </article>
             <atricle>
                 <form action='' method='POST'>
+                    {% comment %}
+                    To be removed once I figure out how I want to render forms.
                     <fieldset>
                         {% for field in form %}
                         {{ field.errors }}
@@ -34,8 +36,16 @@
                         {% endif %}
                         {% endfor %}
                     </fieldset>
+                    {% endcomment %}
+                    <fieldset>
+                        {{ form }}
+                    </fieldset>
+                    <fieldset>
+                        <h3>Dotyczy stanowiska:</h3>
+                        {{ position_form }}
+                    </fieldset>
                     {% csrf_token %}
-                    <input type='submit' class="button button-primary" value='Wyślij'/>
+                    <input type='submit' class="button-primary" value='Wyślij'/>
                 </form>
             </atricle>
         </section>

@@ -76,7 +76,7 @@ def create_entry(entry):
             return 'C'
         elif employees < 5000:
             return 'D'
-        elif emplyees < 10000:
+        elif employees < 10000:
             return 'E'
         else:
             return 'F'
@@ -87,22 +87,26 @@ def create_entry(entry):
         if 'Likwidacja' in new_name or 'Zamknięta' in new_name:
             raise ValueError
         return new_name
-            
-    try:
-        item = Company(name = clean_name(entry['Firma']),
-                        headquarters_city = entry['Miasto'],
-                        region = entry['Kraj/Region'],
-                        country = entry['Kraj'],
-                        website = entry['Strona www'],
-                        public = get_public(entry['Notowane/Nienotowane']),
-                        ownership = entry['Właściciele'],
-                        employment = get_employment(entry['Liczba zatrudnionych']),
+
+    #want to have companies without www removed silently (without loggin an error)
+    if entry['Strona www'] != 'n/a':
+        try:
+            item = Company(name = clean_name(entry['Firma']),
+                           headquarters_city = entry['Miasto'],
+                           region = entry['Kraj/Region'],
+                           country = entry['Kraj'],
+                           website = entry['Strona www'],
+                           public = get_public(entry['Notowane/Nienotowane']),
+                           ownership = entry['Właściciele'],
+                           employment = get_employment(entry['Liczba zatrudnionych']),
         )
-        item.save()
-        return 1
-    except Exception as e:
-        print('ERROR!!!!!!!!   ', entry['Firma'], entry['Strona www'], 'Error: ', e)
-        return 0
+            item.save()
+            return 1
+        except Exception as e:
+            print('ERROR!!!!!!!!   ', entry['Firma'], entry['Strona www'], 'Error: ', e)
+            return 0
+
+    return 0
 
 def test_www(entry):
     number = entry['Num']

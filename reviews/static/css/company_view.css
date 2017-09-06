@@ -82,10 +82,14 @@ table {
     #padding: 1.5rem;
 }
 
+
 .no-reviews {
-    display: flex;
-    justify-content: center;
+    padding-top: 3rem;
+    margin: 1rem;
+    text-align: center;
+    
 }
+
 
 /* action buttons including responsive*/
 .action-buttons {

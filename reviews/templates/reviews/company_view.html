@@ -14,6 +14,14 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
 {% endblock title %}
 
 {% block content %}
+
+{% comment %}
+items are reviews, salaries and iterviews accessible by
+items.review
+items.salary
+item.interview
+{% endcomment %}
+
 <div class="container">
     <section>
         {% include "reviews/company_header.html" %}
@@ -38,12 +46,13 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
             <article class="six columns">
                 {% include "reviews/rating_table.html" %}
             </article>
-        </div>
-        {% else %}
-        <div class="no-reviews">
+ 
+            {% else %}
+            <div class="no-reviews">
             <p> Firma nie ma jeszcze ocen.</p>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </section>
     <section>
         {% include "reviews/action_buttons.html" %}

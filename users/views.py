@@ -87,3 +87,8 @@ class Register(View):
 
 class RegisterSuccess(TemplateView):
     template_name = "registration/register_success.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['session_data'] = self.request.session['linkedin_data']
+        return context

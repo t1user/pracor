@@ -1,19 +1,21 @@
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django import forms
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (UpdateView, DeleteView, CreateView,
                                   ListView, DetailView)
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .widgets import RadioSelectModified
+
+from django.conf import settings
+
+
+
 
 from .models import Company, Salary, Review, Interview, Profile, Position
-from django.conf import settings
-from django.contrib.auth import get_user_model
+from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
+                    ReviewForm, SalaryForm, InterviewForm,
+                    CreateProfileForm_user, CreateProfileForm_profile)
 
-class CompanySearchForm(forms.Form):
-    company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
 
 class HomeView(View):
@@ -31,9 +33,11 @@ class CompanySearchView(View):
     initial = {}
     template_name = 'reviews/home.html'
     redirect_template_name = 'reviews/company_search_results.html'
+    #redirects back to itself
     redirect_view = 'company_search'
 
     def get(self, request, *args, **kwargs):
+        """Used to display both:  search form or search results."""
         search_results = ''
         searchterm_joined = kwargs.get('searchterm')
         searchterm = searchterm_joined.replace('_', ' ')
@@ -67,13 +71,13 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                   },
                  'salary':
                  {'object': Salary,
-                     'name': 'zarobki',
-                     'file':  'reviews/salary_item.html',
+                  'name': 'zarobki',
+                  'file':  'reviews/salary_item.html',
                   },
                  'interview':
                  {'object': Interview,
-                     'name': 'interview',
-                     'file':  'reviews/interview_item.html',
+                  'name': 'interview',
+                  'file':  'reviews/interview_item.html',
                   },
                  }
 
@@ -137,6 +141,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
 
 
 class CompanyItemsView(CompanyDetailView):
+    """Used to display lists of reviews/salaries/interviews."""
     template_name = 'reviews/company_items_view.html'
 
     def get_context_data(self, **kwargs):
@@ -160,25 +165,6 @@ class CompanyItemsView(CompanyDetailView):
             return context
         else:
             raise Http404
-
-
-class CompanyCreateForm(forms.ModelForm):
-
-    class Meta:
-        model = Company
-        fields = ['name', 'headquarters_city', 'website']
-
-    def clean_website(self):
-        """Clean field: 'website', ensure that urls with http, https, 
-        with and without www are treated as same."""
-        url = self.cleaned_data['website']
-        if url.startswith('https'):
-            url = url.replace('https', 'http')
-        if not url.startswith('http://www.'):
-            url = url.replace('http://', 'http://www.')
-        # TODO check here if the website returns 200
-        return url
-
 
 class CompanyCreate(LoginRequiredMixin, CreateView):
     model = Company
@@ -225,39 +211,143 @@ class CompanyDelete(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('home')
 
 
-class ReviewForm(forms.ModelForm):
+class ContentInput(LoginRequiredMixin, View):
+    content_form_class = ReviewForm
+    position_form_class  = PositionForm
+    model = Review
+    template_name = "reviews/review_form.html"
 
-    class Meta:
-        model = Review
-        fields = ['title', 'advancement',
-                  'worklife', 'compensation', 'environment', 'overallscore',
-                  'pros', 'cons', 'comment']
+    def get(self, request, *args, **kwargs):
+        content_form = self.content_form_class()
+        position_form = self.position_form_class()
+        return render(request, self.template_name,
+                      {'content_form': content_form,
+                       'position_form': position_form})
 
-        labels = {
-            'title': 'tytuł recenzji',
-            'position': 'stanowisko',
-            'advancement': 'możliwości rozwoju',
-            'worklife': 'równowaga praca/życie',
-            'compensation': 'zarobki',
-            'environment': 'atmosfera w pracy',
-            'pros': 'zalety',
-            'cons': 'wady',
-            'ovarallscore': 'ocena ogólna',
-            'comment': 'dodatkowe uwagi',
-        }
-
-        widgets = {
-            'advancement': RadioSelectModified(),
-            'worklife': RadioSelectModified(),
-            'compensation': RadioSelectModified(),
-            'environment': RadioSelectModified(),
-            'overallscore': RadioSelectModified(),
-            'pros': forms.Textarea(),
-            'cons': forms.Textarea(),
-        }
+    def post(self, request, *args, **kwargs):
+        content_form = self.content_form_class(request.POST)
+        position_form = self.position_form_class(request.POST)
+        if content_form.is_valid() and position_form.is_valid():
+            content_form.save()
+            position_form.save()
+            return redirect('register_success')
+        return render(request, self.template_name,
+                          {'content_form': content_form,
+                           'position_form': position_form})
 
 
-class ReviewCreate(LoginRequiredMixin, CreateView):
+class ContentCreateAbstract(LoginRequiredMixin, CreateView):
+    """
+    Creates custom CreateView class to be inherited by views creating
+    Reviews and Salaries. On top of standard CreateView functionality
+    allows for rendering and processing of an additional form, 
+    which creates or recalls correct Position object.
+    """
+    position_form_class = PositionForm
+
+    def get_context_data(self, **kwargs):
+        """
+        Adds to context Company object as well as second
+        form called 'position_form'.
+        """
+        context = super().get_context_data(**kwargs)
+        self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        context['company'] = self.company
+        context['form'].instance.company = self.company
+        if 'position_form' not in kwargs and self.two_forms():
+            position_form = self.get_position_form()
+            position_form.instance.company = self.company
+            context['position_form'] = position_form
+        return context
+
+    def get_position_instance(self):
+        """
+        If user has a position associated with the Company
+        they're trying to review, this instance should be 
+        associated with the review.
+        """
+        try:
+            position_instance = Position.objects.filter(company=self.company,
+                                                        user=self.request.user)
+            return position_instance[0]
+        except:
+            return None
+
+    def two_forms(self):
+        if self.get_position_instance():
+            return False
+        else:
+            return True
+        
+    def get_position_form(self):
+        """
+        Return an instance of position_form. Method mirrors
+        standard get_form().
+        """
+        return self.position_form_class(**self.get_form_kwargs())
+    
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST request, instantiating two forms with passed POST
+        data and  validating it. is_valid and is_invalid methods 
+        have been overriden as well to handle two forms instead 
+        of one.
+        """
+        self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        form = self.get_form()
+        if self.two_forms():
+            position_form = self.get_position_form()
+            if form.is_valid() and position_form.is_valid():
+                return self.form_valid(form=form,
+                                       position_form=position_form)
+            else:
+                return self.form_invalid(form=form,
+                                         position_form=position_form)
+        else:
+            return self.form_valid(form=form)
+            
+    def form_valid(self, form, **kwargs):
+        """
+        Extends the standard method to save position_form. 
+        """
+ 
+        form.instance.user = self.request.user
+        form.instance.company = self.company
+        if self.two_forms():
+            position_form = kwargs['position_form']
+            position_form.instance.user = self.request.user
+            position_form.instance.company = self.company
+            position = position_form.save()
+            form.instance.position = position
+        else:
+            form.instance.position = self.get_position_instance()
+        #last two items are direct quotes from super(),
+        #broght here only for more explicity
+        self.object = form.save()
+        return HttpResponseRedirect(self.get_success_url())
+            
+    def form_invalid(self, form, position_form):
+        """
+        Override to enable for handling of both forms. If only one form,
+        use superclass.
+        """
+        if self.two_forms():
+            return self.render_to_response(self.get_context_data(form=form,
+                                            position_form=position_form))
+        else:
+            return super().form_valid(form)
+
+
+
+class ReviewCreate(ContentCreateAbstract):
+    form_class = ReviewForm
+    template_name = "reviews/review_form.html"
+    
+class SalaryCreate(ContentCreateAbstract):
+    form_class = SalaryForm
+    template_name = "reviews/salary_form.html"
+    
+class ReviewCreateOld(LoginRequiredMixin, CreateView):
     form_class = ReviewForm
     model = Review
 
@@ -277,8 +367,8 @@ class ReviewCreate(LoginRequiredMixin, CreateView):
                                     'environment',
                                     'number_of_reviews',
                                     ])
-        form.instance.position = form.instance.position.title()
-        form.instance.city = form.instance.city.title()
+        #form.instance.position = form.instance.position.title()
+        #form.instance.city = form.instance.city.title()
         form.instance.user = self.request.user
         return super().form_valid(form)
 
@@ -286,26 +376,14 @@ class ReviewCreate(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['company_name'] = get_object_or_404(
             Company, pk=self.kwargs['id'])
-        context['radios'] = ['overallscore', 'advancement',
-                             'compensation', 'environment', 'worklife']
+        #context['radios'] = ['overallscore', 'advancement',
+        #                     'compensation', 'environment', 'worklife']
         return context
 
 
-class SalaryCreate(LoginRequiredMixin, CreateView):
+class SalaryCreateOld(LoginRequiredMixin, CreateView):
+    form_class = SalaryForm
     model = Salary
-    fields = [
-        'position',
-        'location',
-        'years_at_company',
-        'employment_status',
-        'currency',
-        'salary_input',
-        'period',
-        'gross_net',
-        'bonus_input',
-        'bonus_period',
-        'bonus_gross_net',
-    ]
 
     def form_valid(self, form):
         form.instance.company = get_object_or_404(
@@ -325,16 +403,8 @@ class SalaryCreate(LoginRequiredMixin, CreateView):
 
 
 class InterviewCreate(LoginRequiredMixin, CreateView):
+    form_class = InterviewForm
     model = Interview
-    fields = [
-        'position',
-        'department',
-        'how_got',
-        'difficulty',
-        'got_offer',
-        'questions',
-        'impressions'
-    ]
 
     def form_valid(self, form):
         form.instance.company = get_object_or_404(
@@ -352,20 +422,6 @@ class CompanyList(LoginRequiredMixin, ListView):
     model = Company
     context_object_name = 'company_list'
 
-
-class CreateProfileForm_user(forms.ModelForm):
-    class Meta:
-        model = get_user_model()
-        fields = ['first_name', 'last_name']
-
-class CreateProfileForm_profile(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['sex', 'career_start_year']
-
-        widgets = {
-            'sex': forms.RadioSelect()
-            }
     
 class CreateProfileView(LoginRequiredMixin, View):
     user_form_class = CreateProfileForm_user

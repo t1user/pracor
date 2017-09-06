@@ -22,18 +22,19 @@
             <h1>Rejestracja - profil</h1>
             <form action="" method="POST">
                 {% csrf_token %}
-                <hr/>
                 <formset>
-                    <p><i>opcjonalnie, tylko jeśli chcesz...</i></p>
-                    {{ user_form }}
+
+                  {{ user_form }}
+
                 </formset>
-                <hr/>
+
                 <formset>
-                    <p><i>tego potrzebujemy...</i></p>
+
                 {{ profile_form }}
+
                 </formset>
-                <hr>
-                <i>gotowe?</i>
+
+
                 <p class="send">
                 <input type="submit" value="dalej" class="button-primary">
                 </p>

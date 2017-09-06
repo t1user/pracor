@@ -1,18 +1,43 @@
 {% extends "base.html" %}
 
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/review_form.css' %}">
+{% endblock css %}
+
+
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <h1>Zarobki dla firmy: {{ company_name }}</h1>
-            <form action='' method='POST'>
-                <table>
-                    {{ form.as_table }}
-                </table>
-                {% csrf_token %}
-                <input type='submit' value='Wyślij'/>
-            </form>
+            <h1>Zarobki dla firmy: {{ company.name }}</h1>
         </div>
+    </div>
+    <div class="row">
+        <section class="eight columns">
+            <article>
+                <form action='' method='POST'>
+                    <fieldset>
+                        {{ form }}
+                    </fieldset>
+                    <fieldset>
+                        <h4>Dotyczy stanowiska:</h4>
+                        {{ position_form }}
+                    </fieldset>
+                    {% csrf_token %}
+                    <input type='submit' value='Wyślij' class="button-primary">
+                </form>
+            </article>
+        </section>
+        <aside class="four columns">
+            <h4>Zasady wypełniania</h4>
+            <ul>
+                <li>Punkt 1</li>
+                <li>Punkt 2</li>
+                <li>Punkt 3</li>
+            </ul>
+        </aside>
     </div>
 </div>
 {% endblock content %}

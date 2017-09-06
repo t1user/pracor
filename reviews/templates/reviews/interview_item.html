@@ -2,15 +2,15 @@
     <div class="twelve columns">
         <div class="data">{{ value.date }}</div>
 
-        <h3>Interview na stanowisko {{ value.position }} w departamencie {{ value.department }}</h3>
+        <h3>Raport z interview</h3>
 
-
-
-        <table>
+        <table style='margin-top:2rem;'>
+            <tr><td>Stanowisko</td><td>{{ value.position }}</td></tr>
+            <tr><td>Departament</td><td>{{ value.department }}</td></tr>
             <tr><td>Droga do interview:</td><td>{{ value.get_how_got_display }}</td></tr>
-            <tr><td>Trudność:</td><td>{{ value.difficulty }}</td></tr>
-            <tr><td>Oferta?:</td><td>{{ value.got_offfer }}</td></tr>
-            <tr><td>Pytania:</td><td>  {{ value.questions }}</td></tr>
-            <tr><td>Wrażenia:</td><td>{{ value.impressions }}</td></tr>
+            <tr><td>Trudność:</td><td>{{ value.difficulty }} z 5 (1-bardzo łatwo, 5-bardzo trudno)</td></tr>
+            <tr><td>Czy dostał ofertę:</td><td>{{ value.got_offer|yesno:"Tak,Nie" }}</td></tr>
+            <tr><td>Pytania:</td><td>  {{ value.questions|linebreaks }}</td></tr>
+            <tr><td>Wrażenia:</td><td>{{ value.impressions|linebreaks }}</td></tr>
         </table>
 

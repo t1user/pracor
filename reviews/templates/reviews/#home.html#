@@ -42,7 +42,7 @@
                     </div>
                     <div class="errors">
                         {{ form.company_name.errors }}
-                    </div>
+n                    </div>
                 </form>
             </div>
         </div>
