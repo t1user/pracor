@@ -12,7 +12,7 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE)
     contributed = models.BooleanField(default=False, editable=False)
-    sex = models.CharField("płeć", max_length=1, choices=SEX, default='K', null=True)
+    sex = models.CharField("płeć", max_length=1, choices=SEX, default=None, null=True)
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)
@@ -128,11 +128,12 @@ class Position(models.Model):
                              on_delete=models.CASCADE)
     #company_name used to store name before entry is associated with a Company database record
     company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_linkedin_id=models.CharField(max_length=25, null=True)
     #company used to associate position with Company database record, blank before the association
     company = models.ForeignKey(Company, on_delete=models.SET_NULL,
                                 blank=True, null=True)
     linkedin_id = models.PositiveIntegerField(blank=True, null=True)
-    location = models.CharField(max_length=30)
+    location = models.CharField(max_length=50)
     position = models.CharField(max_length=100)
     department = models.CharField(max_length=100, blank=True, null=True)
     start_date_month = models.PositiveIntegerField(null=True,
@@ -160,14 +161,14 @@ class Review(models.Model):
     title = models.CharField(max_length=100)
     pros = models.CharField(max_length=500)
     cons = models.CharField(max_length=500)
-    comment = models.CharField(max_length=500, null=True, blank=True)
+    comment = models.CharField(max_length=500, blank=True)
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
-    overallscore = models.PositiveIntegerField('ocena ogólna',
+    overallscore = models.PositiveIntegerField('ocena og&oacute;lna',
                                                choices=RATINGS, default=None)
     advancement = models.PositiveIntegerField('możliwości rozwoju',
                                               choices=RATINGS, default=None)
-    worklife = models.PositiveIntegerField('równowaga praca/życie',
+    worklife = models.PositiveIntegerField('r&oacute;wnowaga praca/życie',
                                            choices=RATINGS, default=None)
     compensation = models.PositiveIntegerField('zarobki',
                                                choices=RATINGS, default=None)
@@ -211,15 +212,18 @@ class Salary(models.Model):
                                 max_length=3, default='PLN')
     salary_input = models.PositiveIntegerField('pensja')
     period = models.CharField('',
-                              max_length=1, default='M', choices=PERIOD)
+                              max_length=1, default='M', choices=PERIOD,
+                              blank=True)
     gross_net = models.CharField(
-        '', max_length=1, default='G', choices=GROSS_NET)
+        '', max_length=1, default='G', choices=GROSS_NET, blank=True)
 
     bonus_input = models.PositiveIntegerField('premia', default=0)
     bonus_period = models.CharField('',
-                                    max_length=1, default='R', choices=PERIOD)
+                                    max_length=1, default='R', choices=PERIOD,
+                                    blank=True)
     bonus_gross_net = models.CharField('',
-                                       max_length=1, default='G', choices=GROSS_NET)
+                                       max_length=1, default='G', choices=GROSS_NET,
+                                       blank=True)
 
     base_monthly = models.PositiveIntegerField(blank=True,
                                                default=0, editable=False)

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Skojarz firmę</h1>
+            {{ objects }}
+            <p>Według linkedin pracujesz obecnie w
+                {% for item in objects %}
+                {% if forloop.last and not forloop.first %}
+                i
+                {% endif %}
+                <strong>{{ item }}</strong>
+                {% if forloop.first and not forloop.last %}
+                ,
+                {% endif %}
+                {% if not forloop.last and not forloop.first %}
+                ,
+                {% endif %}
+                {% endfor %}
+                .
+            </p>
+            
+            <h4>Wybierz właściwą firmę z bazy danych lub wprowadź brakujące dane</h4>
+            <form>
+                {% for item in objects %}
+                <h5>Firma: {{ item }}</h5>
+                {{ item.count }}
+                    {% for option in item %}
+                    <input type="radio" value="{{ option }}">{{ option }}</radio>
+                    {% endfor %}
+                {% endfor %}
+                {% csrf_token %}
+                <br>
+                <button type="submit" class="button-primary">Dalej</button>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

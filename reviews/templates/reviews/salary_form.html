@@ -18,16 +18,19 @@
         <section class="eight columns">
             <article>
                 <form action='' method='POST'>
-                    <fieldset>
-                        {{ form }}
-                    </fieldset>
-                    <fieldset>
-                        <h4>Dotyczy stanowiska:</h4>
-                        {{ position_form }}
-                    </fieldset>
+
+                    {% include "reviews/render_form.html" with form=form %}
+
+                    {% if position_form %}
+                    <h4>Dotyczy stanowiska:</h4>
+
+                    {% include "reviews/render_form.html" with form=position_form %}
+
+                    {% endif %}
                     {% csrf_token %}
                     <input type='submit' value='Wyślij' class="button-primary">
                 </form>
+                <div class="required"><i>*Pola wymagane</i></div>
             </article>
         </section>
         <aside class="four columns">

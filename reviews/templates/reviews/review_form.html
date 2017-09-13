@@ -24,29 +24,19 @@
             </article>
             <atricle>
                 <form action='' method='POST'>
-                    {% comment %}
-                    To be removed once I figure out how I want to render forms.
-                    <fieldset>
-                        {% for field in form %}
-                        {{ field.errors }}
-                        {{ field.label_tag }}
-                        {{ field }}
-                        {% if field.help_text %}
-                        <p class="help">{{ field.help_text|safe }}</p>
-                        {% endif %}
-                        {% endfor %}
-                    </fieldset>
-                    {% endcomment %}
-                    <fieldset>
-                        {{ form }}
-                    </fieldset>
-                    <fieldset>
-                        <h3>Dotyczy stanowiska:</h3>
-                        {{ position_form }}
-                    </fieldset>
+
+                    {% include "reviews/render_form.html" with form=form %}
+                    
+                    {% if position_form %}
+                    <h4>Dotyczy stanowiska:</h4>
+
+                    {% include "reviews/render_form.html" with form=position_form %}
+
+                    {% endif %}
                     {% csrf_token %}
                     <input type='submit' class="button-primary" value='Wyślij'/>
                 </form>
+                <div class="required"><i>*Pola wymagane</i></div>
             </atricle>
         </section>
         <aside class="four columns">

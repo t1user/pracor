@@ -23,13 +23,11 @@ pracr | {{ company.name }} | {{ name }}
 
 <section>
     {% for key, value in data.items %}
+
     <article class="container">
-        <div class="row">
-            <div class="twelve columns">
-                {% include file with value=key stars=value %}
-            </div>
-        </div>
+      {% include file with value=key stars=value %}
     </article>
+    
     {% endfor %}
 </section>
 

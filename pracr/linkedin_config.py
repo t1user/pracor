@@ -1,6 +1,7 @@
+from .linkedin_creds import (SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY,
+                            SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET)
 
-SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = '77eo269xhh3u7q'
-SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = 'ywsnbntpB92vHsec'
+
 SOCIAL_AUTH_LINKEDIN_OAUTH2_SCOPE = ['r_basicprofile', 'r_emailaddress']
 #SOCIAL_AUTH_LINKEDIN_OAUTH2_FIELD_SELECTORS = ['email-address', 'headline', 'industry']
 #FIELD_SELECTORS = ['email-address',]

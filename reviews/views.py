@@ -152,7 +152,7 @@ class CompanyItemsView(CompanyDetailView):
             context['item'] = item
             context['file'] = item_data['file']
             context['name'] = item_data['name']
-            item_list = self.object.get_objects(item_data['object'])
+            item_list = self.object.get_objects(item_data['object']).order_by('-date')
             try:
                 data = {x: self.get_stars(x.get_scores())
                         for x in item_list}
@@ -290,8 +290,8 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
         """
         Handles POST request, instantiating two forms with passed POST
         data and  validating it. is_valid and is_invalid methods 
-        have been overriden as well to handle two forms instead 
-        of one.
+        have been overriden to handle two forms instead 
+        of one. two_forms returns True if the second form is required.
         """
         self.company = get_object_or_404(Company, pk=self.kwargs['id'])
         form = self.get_form()
@@ -424,6 +424,10 @@ class CompanyList(LoginRequiredMixin, ListView):
 
     
 class CreateProfileView(LoginRequiredMixin, View):
+    """
+    View with two forms to fill in missing data in User model and Profile.
+    Currently not in use because name is not neccessary.
+    """
     user_form_class = CreateProfileForm_user
     profile_form_class = CreateProfileForm_profile
     template_name = "reviews/create_profile.html"
@@ -452,3 +456,24 @@ class CreateProfileView(LoginRequiredMixin, View):
                            'profile_form': profile_form})
         
             
+class LinkedinCreateProfile(LoginRequiredMixin, View):
+    """
+    Presents forms to a user logged in with linkedin so that they can 
+    associate their linkedin position with a Company from the database.
+    """
+    company_form = CompanyCreateForm
+    template_name = "reviews/linkedin_associate.html"
+    
+    def get(self, request, *args, **kwargs):
+        companies = request.session.get('companies')
+        objects = {}
+        for company in companies:
+            try:
+                company_db = Company.objects.filter(name__icontains=company)
+            except:
+                pass
+            objects[company] = company_db
+        return render(request, self.template_name,
+                      {'objects': objects})
+    
+        

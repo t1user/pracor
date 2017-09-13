@@ -1,7 +1,7 @@
 <div class="row">
     <div class="seven columns">
-        <div class="date">{{ value.date }}</div>
-        <h3><i>"{{ value.title | capfirst }}"</i></h3>
+        <div class="date"><i>{{ value.date|date:"j E Y" }}</i></div>
+        <h3>"{{ value.title|capfirst }}"</h3>
 
         {% include "reviews/background.html" %}
         
@@ -12,15 +12,17 @@
 </div>
 
 <div class="row">
-    <div class="eight columns">
+    <div class="seven columns">
         <h5>Zalety</h5>
-        <div>{{ value.pros | capfirst | linebreaks }}</div>
+        <div>{{ value.pros|capfirst|linebreaks }}</div>
         <h5>Wady</h5>
-        <div>{{ value.cons | capfirst | linebreaks }}</div>
-        <h5>Uwagi</h5>
-        <div>{{ value.comment | capfirst | linebreaks }}</div>
+        <div>{{ value.cons|capfirst|linebreaks }}</div>
+        {% if value.comment %}
+        <h5>Co należy zmienić?</h5>
+        <div>{{ value.comment|capfirst|linebreaks }}</div>
+        {% endif %}
     </div>
-    <div class="four columns">
+    <div class="five columns">
         {% include "reviews/rating_table.html" %}
     </div>
 </div>

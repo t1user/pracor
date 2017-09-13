@@ -9,6 +9,9 @@ urlpatterns = [
     url(r'^create_profile',
         CreateProfileView.as_view(), name='create_profile'),
 
+    url(r'^linkedin_associate',
+        LinkedinCreateProfile.as_view(), name='linkedin_associate'),
+
     url(r'^review/(?P<id>\d*)/?$',
         ReviewCreate.as_view(), name='review'),
 

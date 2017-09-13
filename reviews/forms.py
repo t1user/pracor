@@ -36,15 +36,22 @@ class PositionForm(forms.ModelForm):
             'position': 'stanowisko',
             'department': 'departament',
             'location': 'miasto',
-            'start_date_year': 'data rozpoczęcia',
-            'start_date_month': '',
+            'start_date_year': 'rok',
+            'start_date_month': 'miesiąc',
             'employment_status': 'rodzaj umowy',
             }
 
-        help_text = {
+        widgets = {
+            'start_date_year': forms.Select(attrs={'class':'inline'}),
+            'start_date_month': forms.Select(attrs={'class':'inline'}),
+            }
+        
+        """
+        help_texts = {
             'start_date_year': 'rok',
             'start_date_month': 'miesiąc',
             }
+        """
         
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -62,7 +69,7 @@ class ReviewForm(forms.ModelForm):
             'pros': 'zalety',
             'cons': 'wady',
             'ovarallscore': 'ocena ogólna',
-            'comment': 'to trzeba zmienić',
+            'comment': 'co należy zmienić?',
         }
 
         widgets = {
@@ -89,8 +96,15 @@ class SalaryForm(forms.ModelForm):
             'bonus_gross_net',
         ]
         widgets = {
-            'salary_input': forms.NumberInput(attrs={'step': 100, 'value': 1500}),
-            'bonus_input': forms.NumberInput(attrs={'step': 1000}),
+            'currency': forms.TextInput(attrs={'size': 3}),
+            'salary_input': forms.NumberInput(attrs={'step': 100, 'value': 1500,
+                                                     'class': 'inline'}),
+            'period': forms.Select(attrs={'class': 'inline'}),
+            'gross_net': forms.Select(attrs={'class': 'inline'}),
+            
+            'bonus_input': forms.NumberInput(attrs={'step': 1000, 'class': 'inline'}),
+            'bonus_period': forms.Select(attrs={'class': 'inline'}),
+            'bonus_gross_net': forms.Select(attrs={'class': 'inline'}),
             }
         
 
@@ -113,7 +127,7 @@ class InterviewForm(forms.ModelForm):
             'got_offer': forms.RadioSelect(),
             }
 
-        help_text = {
+        help_texts = {
             'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
             }
 

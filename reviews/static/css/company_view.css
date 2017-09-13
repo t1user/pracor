@@ -1,3 +1,6 @@
+/* This file is a TOTAL MESS*/
+/* It needs a MAJOR cleanup */
+
 
 @media screen and (min-width: 600px) {
 .stars {
@@ -14,7 +17,6 @@ table .stars {
 
 .overall {
     display: inline-flex;
-    #padding: 2rem;
 }
 
 .left-block {
@@ -42,7 +44,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 table {
-    #margin-top: 3.5rem;
     table-layout: fixed;
 
 }
@@ -51,7 +52,6 @@ table {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-
 }
 
 .counter-button {
@@ -79,7 +79,6 @@ table {
     text-align: center;
     font-weight: 800;
     font-size: 2rem;
-    #padding: 1.5rem;
 }
 
 
@@ -138,8 +137,9 @@ table {
     display: block;
     color: black;
 }
-
 }
+
+
 
 /* review, salary, interview block */
 .background {
@@ -155,4 +155,3 @@ table {
 .bonus {
     margin-bottom: 2rem;
 }
-

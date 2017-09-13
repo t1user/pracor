@@ -25,14 +25,14 @@ aside li {
 
 /* start formatting rating stars */
 /* does the div come from overriden widget? */
-form div {
+form div.rating_stars {
     overflow: hidden;
     display: inline-block;
     direction: rtl;
 }
 
 
-form div input[type=radio] {
+form div.rating_stars input[type=radio] {
     float: right;
     width: 48px;
     height: 48px;
@@ -43,7 +43,7 @@ form div input[type=radio] {
 
 
 
-form div label {
+form div.rating_stars label {
     cursor: pointer;
     position: relative;
     float: right;
@@ -56,8 +56,8 @@ form div label {
 }
 
 
-form div label:hover,
-form div label:hover ~ label,
+form div.rating_stars label:hover,
+form div.rating_stars label:hover ~ label,
 input[type=radio]:checked,
 input[type=radio]:checked ~ label {
     background-position: 0 0;
@@ -79,3 +79,17 @@ form li {
 }
 /*end styling radios */
 
+
+.required {
+    color: red;
+}
+
+
+label[for=id_start_date_year]:before {
+    content: "Data rozpoczęcia:\A";
+    white-space: pre;
+}
+
+.inline {
+    display: inline-block;
+}
