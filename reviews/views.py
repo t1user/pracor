@@ -14,7 +14,8 @@ from django.conf import settings
 from .models import Company, Salary, Review, Interview, Profile, Position
 from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
                     ReviewForm, SalaryForm, InterviewForm,
-                    CreateProfileForm_user, CreateProfileForm_profile)
+                    CreateProfileForm_user, CreateProfileForm_profile,
+                    CompanySelectForm)
 
 
 
@@ -179,12 +180,36 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.headquarters_city = form.instance.headquarters_city.title()
-        return super().form_valid(form)
+        # this is typically done in superclass, doing it here gives access to newly created object
+        self.object = form.save()
+        # this is used if sent here by LinkedInAssociateView
+        new_names = self.request.session.get('new_names')
+        if new_names:
+            current_company = self.kwargs.get('company')
+            for name in new_names:
+                if current_company == name[1]:
+                    position = Position.objects.get(company_name=current_company)
+                    print(self.object)
+                    print(self.object.id)
+                    position.company = self.object
+                    position.save(update_fields=['company'])
+                    new_names.remove(name)
+            try:
+                new_name = new_names.pop()
+                self.success_url = new_name[1]
+            except:
+                pass
+        # calling superclass is unnessesary as all it does is self.object=form.save()
+        # (done above) plus the redirect below
+        return HttpResponseRedirect(self.get_success_url())
+
 
     def form_invalid(self, form, **kwargs):
-        """In case there's an attempt to create a non-unique Company,
+        """
+        In case there's an attempt to create a non-unique Company,
         the method pulls out the instance(s) of the Company(s)
-        that already exist(s) and adds it/them to the context."""
+        that already exist(s) and adds it/them to the context.
+        """
         context = self.get_context_data(**kwargs)
         context['form'] = form
         errorlist = form.errors.as_data()
@@ -212,6 +237,9 @@ class CompanyDelete(LoginRequiredMixin, DeleteView):
 
 
 class ContentInput(LoginRequiredMixin, View):
+    """
+    This class is not in use.
+    """
     content_form_class = ReviewForm
     position_form_class  = PositionForm
     model = Review
@@ -328,8 +356,8 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
             
     def form_invalid(self, form, position_form):
         """
-        Override to enable for handling of both forms. If only one form,
-        use superclass.
+        Override to enable for handling of two forms. If only one form,
+        superclass used.
         """
         if self.two_forms():
             return self.render_to_response(self.get_context_data(form=form,
@@ -461,19 +489,69 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
     Presents forms to a user logged in with linkedin so that they can 
     associate their linkedin position with a Company from the database.
     """
-    company_form = CompanyCreateForm
+    form_class = CompanySelectForm
     template_name = "reviews/linkedin_associate.html"
     
     def get(self, request, *args, **kwargs):
-        companies = request.session.get('companies')
-        objects = {}
+        # we are redirected here by social_pipeline_override.py
+        # session should have unassociated company names
+        # companies is tuple of (position.id, company_name)
+        companies = request.session['companies']
+        names = [name[1] for name in companies]
+        print('from session: ', companies)
+        candidates = {}
+        new_names = []
         for company in companies:
-            try:
-                company_db = Company.objects.filter(name__icontains=company)
-            except:
-                pass
-            objects[company] = company_db
+            print('iteration: ', company)
+            company_db = Company.objects.filter(name__icontains=company[1])
+            if company_db.count() > 0:
+                # candidates are companies that have database entries similar
+                # to their names, user is suggested to chose an association
+                candidates[company[1]] = (company[1], company_db) 
+            else:
+                # new names are names that haven't been found in the database
+                # so potentially they have to be appended, user will be given 
+                # an option to get redirected to a form creating new company
+                new_names.append(company)
+        forms = {}
+        if candidates:
+            print(candidates)
+            request.session['candidates'] = [c for c in candidates.keys()]
+            for candidate, options in candidates.items():
+                print('candidate: ', candidate)
+                print('options: ', options)
+                forms[candidate] = self.form_class(companies=options[1], prefix=candidate)
+        else:
+            request.session['new_names'] = new_names
+        print('companies: ', companies, 'candidates: ', candidates, 'new_names: ', new_names, 'forms: ', forms)
         return render(request, self.template_name,
-                      {'objects': objects})
+                      {'companies': names,
+                       'candidates': candidates,
+                       'new_names': new_names,
+                       'forms': forms})
+
+    def post(self, request, *args, **kwargs):
+        candidates = request.session['candidates']
+        forms = {}
+        valid = True
+        for candidate in candidates:
+            form = self.form_class(request.POST,
+                                   companies=Company.objects.filter(name__icontains=candidate),
+                                   prefix=candidate)
+            if not form.is_valid():
+                valid = False
+            forms[candidate] = form
+        if valid:
+            for name, form in forms.items():
+               print('name:', name, 'option:', form)
+               position = Position.objects.get(user=request.user, company_name=name)
+               position.company = form.cleaned_data.get('company_name')
+               position.save(update_fields=['company'])
+            return redirect('home')
+        else:
+            print(forms)
+            return render(request, self.template_name,
+                          {'forms': forms})
+                
     
         

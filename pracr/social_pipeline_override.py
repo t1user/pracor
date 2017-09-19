@@ -95,11 +95,18 @@ def save_data(**kwargs):
 
     #find unassociated positions
     try:
+        # select Positions that don't have any associated Company
         unassociated = Position.objects.filter(user=user, company__isnull=True)
-        companies= [position.company_name for position in unassociated]
-        session['companies'] = companies
-        session['next'] = reverse('linkedin_associate')
+        # write unassociated company names to session and after pipeline
+        # finishes redirect to association view
+        companies= [(position.id, position.company_name) for position in unassociated]
+        # redirect to association view only if there are any unassociated companies
+        if companies:
+            session['companies'] = companies
+            session['next'] = reverse('linkedin_associate')
     except:
+        # no unassociated Positions have been found so just proceed with standard
+        # flow
         pass
 
 

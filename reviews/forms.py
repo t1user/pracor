@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .widgets import RadioSelectModified
+from .widgets import RadioSelectModified, RadioReversed
 from django.contrib.auth import get_user_model
 
 from .models import Review, Salary, Interview, Company, Profile, Position
@@ -9,6 +9,26 @@ from .models import Review, Salary, Interview, Company, Profile, Position
 class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
+
+class CompanySelectForm(forms.Form):
+    """
+    Creates a RadioSelect with options given in kwarg 'companies' plus empty_label.
+    """
+    #queryset is a required parameter, so here an empty queryset is passed
+    company_name = forms.ModelChoiceField(widget=RadioReversed(),
+                                          queryset=Company.objects.none(),
+                                          empty_label='Na liście nie ma firmy, w której pracuję',
+                                          label='',
+                                          )
+    
+    def __init__(self, *args, **kwargs):
+        self.companies = kwargs.pop('companies')
+        super().__init__(*args, **kwargs)
+        self.fields['company_name'].queryset = self.companies
+
+
+
+    
     
 class CompanyCreateForm(forms.ModelForm):
     class Meta:
@@ -17,7 +37,7 @@ class CompanyCreateForm(forms.ModelForm):
 
     def clean_website(self):
         """Clean field: 'website', ensure that urls with http, https, 
-        with and without www are treated as same."""
+        with and without www are treated as the same."""
         url = self.cleaned_data['website']
         if url.startswith('https'):
             url = url.replace('https', 'http')
