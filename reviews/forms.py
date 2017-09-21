@@ -9,9 +9,29 @@ from .models import Review, Salary, Interview, Company, Profile, Position
 class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
-
 class CompanySelectForm(forms.Form):
+    company_name = forms.ChoiceField(widget=forms.RadioSelect(), label='')
+    position = forms.CharField(max_length=30, widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        self.companies = kwargs.pop('companies')
+        super().__init__(*args, **kwargs)
+        self.fields['company_name'].choices = (list(self.companies) +
+            [('None', 'Na liście nie ma firmy, w której pracuję')])
+"""
+    def clean_company_name(self):
+        data = self.cleaned_data.get('company_name')
+        if data in QS_CHOICES:
+            try:
+                data = MyModel.objects.get(id=data)
+            except MyModel.DoesNotExist:
+                raise forms.ValidationError('foo')
+        return data
+"""
+
+class CompanySelectFormOld(forms.Form):
     """
+    NOT IN USE.
     Creates a RadioSelect with options given in kwarg 'companies' plus empty_label.
     """
     #queryset is a required parameter, so here an empty queryset is passed

@@ -14,25 +14,16 @@
         <div class="twelve columns">
             <h1>Twoja praca</h1>
             <p>Według Twojego profilu pracujesz w:
-            {% for item in companies %}
-            {% if forloop.last and not forloop.first %}
-            i
-            {% endif %}
-            <strong>{{ item }}</strong>
-            {% if forloop.first and not forloop.last %}
-            ,
-            {% endif %}
-            {% if not forloop.last and not forloop.first %}
-            ,
-            {% endif %}
-            {% endfor %}
-            .
+                {% for item in companies %}
+                {% if not forloop.first %}, {% endif %}
+                <strong>{{ item }}</strong>
+                {% endfor %}
+                . Dopasuj pracodawcę do pozycji w naszej bazie danych.
             </p>
 
             {% if candidates %}
             <h4>Wybierz z listy firmę, w której pracujesz.</h4>
             <form method="POST">
-                {{ forms }}
                 {% for name, form in forms.items %}
                 <h5>Dotyczy firmy:<strong> {{ name }} </strong></h5>
                 {{ form }}
@@ -40,7 +31,7 @@
                 {% csrf_token %}
                 <button type="submit" class="button-primary">Dalej</button>
             </form>
-            {% endif %}
+            {% else %}
             {% if new_names %}
             <p>Poniżej możesz dodać brakujące firmy do naszej bazy danych.</p>
             <h4>Kliknij na nazwę, żeby dodać firmę do bazy danych</h4>
@@ -50,6 +41,7 @@
             </h2>
             {% endfor %}
 
+            {% endif %}
             {% endif %}
         </div>
     </div>

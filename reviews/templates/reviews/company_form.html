@@ -26,9 +26,16 @@
             {% if unique_error %}
             <h2>Istniejące firmy:</h2>
             <ul>
+                {% if request.session.new_names %}
+                <p>(klinknij link poniżej, żeby wrócić do strony wyboru)</p>
+                {% for company in unique_error %}
+                <li><a href="{% url 'linkedin_associate' %}">{{ company.name }}</a></li>
+                {% endfor %}
+                {% else %}
                 {% for company in unique_error %}
                 <li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
                 {% endfor %}
+                {% endif %}
             </ul>
             {% endif %}
         </div>

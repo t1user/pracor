@@ -90,5 +90,5 @@ class RegisterSuccess(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['session_data'] = self.request.session['linkedin_data']
+        #context['session_data'] = self.request.session['linkedin_data']
         return context

@@ -184,8 +184,10 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         self.object = form.save()
         # this is used if sent here by LinkedInAssociateView
         new_names = self.request.session.get('new_names')
+        print(new_names)
         if new_names:
             current_company = self.kwargs.get('company')
+            print(current_company)
             for name in new_names:
                 if current_company == name[1]:
                     position = Position.objects.get(company_name=current_company)
@@ -193,7 +195,10 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
                     print(self.object.id)
                     position.company = self.object
                     position.save(update_fields=['company'])
+                    print(name)
                     new_names.remove(name)
+                    print('new names after remove: ', self.request.session['new_names'])
+                    self.request.session['new_names'] = new_names
             try:
                 new_name = new_names.pop()
                 self.success_url = new_name[1]
@@ -495,7 +500,7 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         # we are redirected here by social_pipeline_override.py
         # session should have unassociated company names
-        # companies is tuple of (position.id, company_name)
+        # companies is a list of tuples of (position.id, company_name)
         companies = request.session['companies']
         names = [name[1] for name in companies]
         print('from session: ', companies)
@@ -507,22 +512,32 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
             if company_db.count() > 0:
                 # candidates are companies that have database entries similar
                 # to their names, user is suggested to chose an association
-                candidates[company[1]] = (company[1], company_db) 
+                # candidates[company_name] = (position_id, company_name, company_db)
+                candidates[company[1]] = (company[0], company[1], company_db) 
             else:
                 # new names are names that haven't been found in the database
                 # so potentially they have to be appended, user will be given 
                 # an option to get redirected to a form creating new company
                 new_names.append(company)
+                pass
+        request.session['new_names'] = new_names
         forms = {}
         if candidates:
             print(candidates)
-            request.session['candidates'] = [c for c in candidates.keys()]
-            for candidate, options in candidates.items():
+            form_choices = {}
+            # company_tuple is a tuple of (position_id, company_name, company_db)
+            for candidate, company_tuple in candidates.items():
+                # will be used as choices parameter on the form
+                choices = [(company.pk, company.name) for company in company_tuple[2]]
                 print('candidate: ', candidate)
-                print('options: ', options)
-                forms[candidate] = self.form_class(companies=options[1], prefix=candidate)
-        else:
-            request.session['new_names'] = new_names
+                print('options: ', companies)
+                forms[candidate] = self.form_class(companies=choices,
+                                                   prefix=candidate,
+                                                   initial={'position': company_tuple[0]})
+                form_choices[candidate] = choices
+            request.session['form_choices'] = form_choices
+        #else:
+            #request.session['new_names'] = new_names
         print('companies: ', companies, 'candidates: ', candidates, 'new_names: ', new_names, 'forms: ', forms)
         return render(request, self.template_name,
                       {'companies': names,
@@ -531,23 +546,43 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
                        'forms': forms})
 
     def post(self, request, *args, **kwargs):
-        candidates = request.session['candidates']
+        form_choices = request.session['form_choices']
         forms = {}
         valid = True
-        for candidate in candidates:
+        for candidate, choices in form_choices.items():
             form = self.form_class(request.POST,
-                                   companies=Company.objects.filter(name__icontains=candidate),
+                                   companies=choices,
                                    prefix=candidate)
             if not form.is_valid():
                 valid = False
             forms[candidate] = form
         if valid:
+            new_names = []
             for name, form in forms.items():
-               print('name:', name, 'option:', form)
-               position = Position.objects.get(user=request.user, company_name=name)
-               position.company = form.cleaned_data.get('company_name')
-               position.save(update_fields=['company'])
-            return redirect('home')
+                company_pk = form.cleaned_data.get('company_name')
+                if company_pk == 'None':
+                    company_pk = None
+                position_pk = form.cleaned_data.get('position')
+                position = Position.objects.get(pk=position_pk)
+                print(company_pk is None)
+                if company_pk:
+                    print('I am inside')
+                    company = Company.objects.get(pk=company_pk)
+                    position.company = company
+                    position.save(update_fields=['company'])
+                else:
+                    new_names.append((position.id, name))
+ 
+            
+            if request.session.get('new_names') or new_names:
+                request.session['new_names'] += new_names
+
+            print('new_names: ', request.session.get('new_names'))                
+            if request.session['new_names']:
+                index = len(request.session['new_names']) - 1
+                return redirect('company_create', company=request.session['new_names'][index][1])
+            else:
+                return redirect('home')
         else:
             print(forms)
             return render(request, self.template_name,
