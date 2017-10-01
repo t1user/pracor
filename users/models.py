@@ -3,6 +3,11 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
+from reviews.models import Profile
 
 
 class UserManager(BaseUserManager):
@@ -55,3 +60,13 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

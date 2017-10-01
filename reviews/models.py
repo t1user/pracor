@@ -19,6 +19,8 @@ class Profile(models.Model):
     linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
     linkedin_url = models.URLField(null=True, blank=True)
 
+    
+
 
 class Company(models.Model):
     EMPLOYMENT = [('A', '<100'), ('B', '101-500'), ('C', '501-1000'),

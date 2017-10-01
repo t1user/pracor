@@ -3,8 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (UpdateView, DeleteView, CreateView,
-                                  ListView, DetailView)
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+                                  ListView, DetailView, TemplateView)
+from django.contrib.auth.mixins import (LoginRequiredMixin, PermissionRequiredMixin,
+                                        UserPassesTestMixin)
 
 from django.conf import settings
 
@@ -17,6 +18,27 @@ from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
                     CreateProfileForm_user, CreateProfileForm_profile,
                     CompanySelectForm)
 
+
+class AccessBlocker(UserPassesTestMixin):
+    """
+    Works with UserPassesTestMixin to block access to certain views for users
+    who haven't contributed to the site yet. Redirection site (login_url) 
+    should explain what kind of contribution user has to make to get 
+    full access.
+    """
+    login_url = reverse_lazy('please_contribute')
+    
+    def test_func(self):
+        return self.request.user.profile.contributed
+
+class PleaseContributeView(LoginRequiredMixin, TemplateView):
+    """
+    User redirected to this view if blocked from viewing a view that
+    requires contribution. The template should explain what contribution
+    is required to get full access.
+    """
+    
+    template_name = 'reviews/please_contribute.html'
 
 
 class HomeView(View):
@@ -141,7 +163,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class CompanyItemsView(CompanyDetailView):
+class CompanyItemsView(CompanyDetailView, AccessBlocker):
     """Used to display lists of reviews/salaries/interviews."""
     template_name = 'reviews/company_items_view.html'
 
@@ -357,6 +379,9 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
         #last two items are direct quotes from super(),
         #broght here only for more explicity
         self.object = form.save()
+        # give user full access to views that require contribution to the site
+        self.request.user.profile.contributed = True
+        self.request.user.profile.save(update_fields = ['contributed'])
         return HttpResponseRedirect(self.get_success_url())
             
     def form_invalid(self, form, position_form):
@@ -477,7 +502,8 @@ class CreateProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         user_form = self.user_form_class(request.POST, instance=request.user)
-        profile_form = self.profile_form_class(request.POST)
+        profile = Profile.objects.get(user=request.user)
+        profile_form = self.profile_form_class(request.POST, instance=profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile = profile_form.save(commit=False)

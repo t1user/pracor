@@ -81,17 +81,9 @@ def save_data(**kwargs):
     #Do this to accounts newly associated with linkedin:
     if new_association:
         # add linkedin id and url to user profile (fuck knows why, but maybe useful one day)
-        try:
-            profile = Profile.objects.get(user=user)
-            profile.linkedin_id = params['id']
-            profile.linkedin_url = params['apiStandardProfileRequest']['url']
-            profile.save(update_fields=['linkedin_id', 'linkedin_url'])
-        except:
-            # this should never happen, but if the Position still doesn't exist, just create it
-            profile = Profile(user=user,
-                              linkedin_id = params['id'],
-                              linkedin_url = params['apiStandardProfileRequest']['url'])
-            profile.save()
+        user.profile.linkedin_id = params['id']
+        user.profile.linkedin_url = params['apiStandardProfileRequest']['url']
+        user.profile.save(update_fields=['linkedin_id', 'linkedin_url'])
 
     #find unassociated positions
     try:

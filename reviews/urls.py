@@ -6,6 +6,9 @@ urlpatterns = [
     url(r'^$',
         HomeView.as_view(), name='home'),
 
+    url(r'^please_contribute/?$',
+        PleaseContributeView.as_view(), name='please_contribute'),
+
     url(r'^create_profile',
         CreateProfileView.as_view(), name='create_profile'),
 
