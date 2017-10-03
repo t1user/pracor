@@ -135,7 +135,7 @@ class Position(models.Model):
     company = models.ForeignKey(Company, on_delete=models.SET_NULL,
                                 blank=True, null=True)
     linkedin_id = models.PositiveIntegerField(blank=True, null=True)
-    location = models.CharField(max_length=50)
+    location = models.CharField(max_length=50, null=True)
     position = models.CharField(max_length=100)
     department = models.CharField(max_length=100, blank=True, null=True)
     start_date_month = models.PositiveIntegerField(null=True,

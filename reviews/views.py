@@ -6,11 +6,9 @@ from django.views.generic import (UpdateView, DeleteView, CreateView,
                                   ListView, DetailView, TemplateView)
 from django.contrib.auth.mixins import (LoginRequiredMixin, PermissionRequiredMixin,
                                         UserPassesTestMixin)
+from django.core.paginator import (Paginator, EmptyPage, PageNotAnInteger)
 
 from django.conf import settings
-
-
-
 
 from .models import Company, Salary, Review, Interview, Profile, Position
 from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
@@ -30,6 +28,15 @@ class AccessBlocker(UserPassesTestMixin):
     
     def test_func(self):
         return self.request.user.profile.contributed
+
+class SuperuserAccessBlocker(UserPassesTestMixin):
+    """
+    Limits access to the view to superusers only.
+    """
+    raise_exception = True
+    
+    def test_func(self):
+        return self.request.user.is_superuser
 
 class PleaseContributeView(LoginRequiredMixin, TemplateView):
     """
@@ -166,6 +173,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
 class CompanyItemsView(CompanyDetailView, AccessBlocker):
     """Used to display lists of reviews/salaries/interviews."""
     template_name = 'reviews/company_items_view.html'
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -176,6 +184,19 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
             context['file'] = item_data['file']
             context['name'] = item_data['name']
             item_list = self.object.get_objects(item_data['object']).order_by('-date')
+            if self.paginate_by and (len(item_list) > self.paginate_by):
+                context['is_paginated'] = True
+                paginator = Paginator(item_list, self.paginate_by)
+                page = self.request.GET.get('page')
+                try:
+                    items = paginator.page(page)
+                except PageNotAnInteger:
+                    items = paginator.page(1)
+                except EmptyPage:
+                    items = paginator.page(paginator.num_page)
+                item_list = items
+                context['page_obj'] = item_list
+                context['paginator'] = paginator
             try:
                 data = {x: self.get_stars(x.get_scores())
                         for x in item_list}
@@ -252,13 +273,13 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class CompanyUpdate(LoginRequiredMixin, UpdateView):
+class CompanyUpdate(LoginRequiredMixin, SuperuserAccessBlocker, UpdateView):
     model = Company
     fields = ['name', 'headquarters_city', 'website']
     #template_name = 'reviews/company_view.html'
 
 
-class CompanyDelete(LoginRequiredMixin, DeleteView):
+class CompanyDelete(LoginRequiredMixin, SuperuserAccessBlocker, DeleteView):
     model = Company
     success_url = reverse_lazy('home')
 
@@ -476,9 +497,10 @@ class InterviewCreate(LoginRequiredMixin, CreateView):
         return context
 
 
-class CompanyList(LoginRequiredMixin, ListView):
+class CompanyList(LoginRequiredMixin, SuperuserAccessBlocker, ListView):
     model = Company
     context_object_name = 'company_list'
+    paginate_by = 20
 
     
 class CreateProfileView(LoginRequiredMixin, View):

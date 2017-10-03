@@ -68,13 +68,24 @@ def save_data(**kwargs):
                                     company_name=position['company']['name'],
                                     linkedin_id=position['id'],
                                     company_linkedin_id=position['company'].get('id'),
-                                    location=trans_location(position['location']['name']),
+                                    location=trans_location(position['location'].get('name')),
                                     position=position['title'],
                                     start_date_month=position[
                                         'startDate']['month'],
                                     start_date_year=position[
                                         'startDate']['year'],
             )
+            # linkedin doesn't provide this field in standard api call
+            # unless a way is found to access this field, this should
+            # be removed (together with associate_by_email function)
+            web_site = position['company'].get('website-url')
+            print('web-site from linkedin: ', web_site)
+            if web_site:
+                # try to match the company in the db by website
+                company =  associate_by_email(web_site)
+                if company:
+                    new_position.company = company
+            print('new position: ', new_position)
             new_position.save()
 
 
@@ -113,7 +124,18 @@ def save_data(**kwargs):
     #THIS IS THE WAY TO GET ACCESS TO SESSION
     kwargs['strategy'].session
     """
- 
+
+def associate_by_email(web_site):
+    """
+    If a linkedin company has a website-url, try to associate it with the database by website.
+    """
+    print('inside associate by email')
+    try:
+        company = Company.objects.get(website=web_site)
+        print('associated company: ', company)
+        return company
+    except Company.DoesNotExist:
+        pass
 
 
 def trans_location(location):

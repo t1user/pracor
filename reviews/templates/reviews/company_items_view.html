@@ -25,10 +25,14 @@ pracr | {{ company.name }} | {{ name }}
     {% for key, value in data.items %}
 
     <article class="container">
-      {% include file with value=key stars=value %}
+        {% include file with value=key stars=value %}
     </article>
     
     {% endfor %}
+</section>
+
+<section>
+    {% include 'reviews/paginator.html' %}
 </section>
 
 <section>
@@ -43,5 +47,7 @@ pracr | {{ company.name }} | {{ name }}
         </div>
     </div>
 </section>
+
+
 
 {% endblock %}
