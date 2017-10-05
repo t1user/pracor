@@ -3,7 +3,8 @@ from django.forms import ModelForm
 from .widgets import RadioSelectModified, RadioReversed
 from django.contrib.auth import get_user_model
 
-from .models import Review, Salary, Interview, Company, Profile, Position
+from .models import Review, Salary, Interview, Company, Position
+from users.models import Profile
 
 
 class CompanySearchForm(forms.Form):

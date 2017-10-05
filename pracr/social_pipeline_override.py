@@ -1,4 +1,4 @@
-from reviews.models import Position, Profile
+from reviews.models import Position
 from django.urls import reverse
 
 import pprint

@@ -4,24 +4,6 @@ from django.conf import settings
 import datetime
 
 
-class Profile(models.Model):
-    SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
-    career_year = range(2017, 1970, -1)
-    CAREER_YEAR = [(i, i) for i in career_year]
-    
-    user = models.OneToOneField(settings.AUTH_USER_MODEL,
-                                on_delete=models.CASCADE)
-    contributed = models.BooleanField(default=False, editable=False)
-    sex = models.CharField("płeć", max_length=1, choices=SEX, default=None, null=True)
-    career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
-                                                    choices=CAREER_YEAR,
-                                                    null=True, blank=True)
-    linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
-    linkedin_url = models.URLField(null=True, blank=True)
-
-    
-
-
 class Company(models.Model):
     EMPLOYMENT = [('A', '<100'), ('B', '101-500'), ('C', '501-1000'),
                   ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]

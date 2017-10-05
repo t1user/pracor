@@ -10,7 +10,7 @@ from django.core.paginator import (Paginator, EmptyPage, PageNotAnInteger)
 
 from django.conf import settings
 
-from .models import Company, Salary, Review, Interview, Profile, Position
+from .models import Company, Salary, Review, Interview, Position
 from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
                     ReviewForm, SalaryForm, InterviewForm,
                     CreateProfileForm_user, CreateProfileForm_profile,
@@ -524,13 +524,13 @@ class CreateProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         user_form = self.user_form_class(request.POST, instance=request.user)
-        profile = Profile.objects.get(user=request.user)
-        profile_form = self.profile_form_class(request.POST, instance=profile)
+        #profile = Profile.objects.get(user=request.user)
+        profile_form = self.profile_form_class(request.POST, instance=request.user.profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
-            profile = profile_form.save(commit=False)
-            profile.user = request.user
-            profile.save()
+            #profile = profile_form.save(commit=False)
+            #profile.user = request.user
+            profile_form.save()
             return redirect('register_success')
         return render(request, self.template_name,
                           {'user_form': user_form,

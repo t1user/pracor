@@ -3,11 +3,8 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, timezone
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
-
-from reviews.models import Profile
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -62,11 +59,22 @@ class User(AbstractUser):
     objects = UserManager()
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+class Profile(models.Model):
+    SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
+    career_year = range(2017, 1970, -1)
+    CAREER_YEAR = [(i, i) for i in career_year]
+    
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE)
+    contributed = models.BooleanField(default=False, editable=False)
+    sex = models.CharField("płeć", max_length=1, choices=SEX, null=True, default=None)
+    career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
+                                                    choices=CAREER_YEAR,
+                                                    null=True, blank=True)
+    linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    def __str__(self):
+        return self.user.email
+    
+
