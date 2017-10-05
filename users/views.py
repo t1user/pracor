@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from .models import User
 from django.views import View
 from django.views.generic import TemplateView
 from django import forms
@@ -7,6 +6,11 @@ from django.contrib.auth import (
     login, authenticate, get_user_model, password_validation,)
 
 from django.utils.translation import ugettext, ugettext_lazy as _
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from .forms import CreateProfileForm_user, CreateProfileForm_profile
+from .models import User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -92,3 +96,40 @@ class RegisterSuccess(TemplateView):
         context = super().get_context_data(**kwargs)
         #context['session_data'] = self.request.session['linkedin_data']
         return context
+
+
+    
+class CreateProfileView(LoginRequiredMixin, View):
+    """
+    View with two forms to fill in missing data in User model and Profile.
+    Currently not in use because name is not neccessary.
+    """
+    user_form_class = CreateProfileForm_user
+    profile_form_class = CreateProfileForm_profile
+    template_name = "reviews/create_profile.html"
+
+    def get(self, request, *args, **kwargs):
+        if request.user.last_name == '':
+            user_form = self.user_form_class()
+        else:
+            user_form = {}
+        profile_form = self.profile_form_class()
+        return render(request, self.template_name,
+                      {'user_form': user_form,
+                       'profile_form': profile_form})
+
+    def post(self, request, *args, **kwargs):
+        user_form = self.user_form_class(request.POST, instance=request.user)
+        #profile = Profile.objects.get(user=request.user)
+        profile_form = self.profile_form_class(request.POST, instance=request.user.profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            #profile = profile_form.save(commit=False)
+            #profile.user = request.user
+            profile_form.save()
+            return redirect('register_success')
+        return render(request, self.template_name,
+                          {'user_form': user_form,
+                           'profile_form': profile_form})
+        
+            

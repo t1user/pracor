@@ -1,1 +1,0 @@
-tomek@tomek-VirtualBox.2531:1507130385

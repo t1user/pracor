@@ -1,10 +1,9 @@
 from django import forms
 from django.forms import ModelForm
 from .widgets import RadioSelectModified, RadioReversed
-from django.contrib.auth import get_user_model
 
 from .models import Review, Salary, Interview, Company, Position
-from users.models import Profile
+
 
 
 class CompanySearchForm(forms.Form):
@@ -46,8 +45,6 @@ class CompanySelectFormOld(forms.Form):
         self.companies = kwargs.pop('companies')
         super().__init__(*args, **kwargs)
         self.fields['company_name'].queryset = self.companies
-
-
 
     
     
@@ -170,18 +167,4 @@ class InterviewForm(forms.ModelForm):
 
         help_texts = {
             'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
-            }
-
-class CreateProfileForm_user(forms.ModelForm):
-    class Meta:
-        model = get_user_model()
-        fields = ['first_name', 'last_name']
-
-class CreateProfileForm_profile(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['sex', 'career_start_year']
-
-        widgets = {
-            'sex': forms.RadioSelect()
             }

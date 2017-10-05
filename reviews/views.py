@@ -13,7 +13,6 @@ from django.conf import settings
 from .models import Company, Salary, Review, Interview, Position
 from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
                     ReviewForm, SalaryForm, InterviewForm,
-                    CreateProfileForm_user, CreateProfileForm_profile,
                     CompanySelectForm)
 
 
@@ -502,41 +501,7 @@ class CompanyList(LoginRequiredMixin, SuperuserAccessBlocker, ListView):
     context_object_name = 'company_list'
     paginate_by = 20
 
-    
-class CreateProfileView(LoginRequiredMixin, View):
-    """
-    View with two forms to fill in missing data in User model and Profile.
-    Currently not in use because name is not neccessary.
-    """
-    user_form_class = CreateProfileForm_user
-    profile_form_class = CreateProfileForm_profile
-    template_name = "reviews/create_profile.html"
-
-    def get(self, request, *args, **kwargs):
-        if request.user.last_name == '':
-            user_form = self.user_form_class()
-        else:
-            user_form = {}
-        profile_form = self.profile_form_class()
-        return render(request, self.template_name,
-                      {'user_form': user_form,
-                       'profile_form': profile_form})
-
-    def post(self, request, *args, **kwargs):
-        user_form = self.user_form_class(request.POST, instance=request.user)
-        #profile = Profile.objects.get(user=request.user)
-        profile_form = self.profile_form_class(request.POST, instance=request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            #profile = profile_form.save(commit=False)
-            #profile.user = request.user
-            profile_form.save()
-            return redirect('register_success')
-        return render(request, self.template_name,
-                          {'user_form': user_form,
-                           'profile_form': profile_form})
-        
-            
+                
 class LinkedinCreateProfile(LoginRequiredMixin, View):
     """
     Presents forms to a user logged in with linkedin so that they can 
@@ -635,6 +600,5 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
             print(forms)
             return render(request, self.template_name,
                           {'forms': forms})
-                
     
         
