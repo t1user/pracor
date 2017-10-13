@@ -5,11 +5,13 @@ import datetime
 
 
 class Company(models.Model):
+    class Meta:
+        verbose_name = "Firma"
+        verbose_name_plural = "Firmy"
+        ordering = ['name']
+        
     EMPLOYMENT = [('A', '<100'), ('B', '101-500'), ('C', '501-1000'),
                   ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]
-
-    class Meta:
-        ordering = ['name']
 
     #only three values are required - to make company creation easy for users
     name = models.CharField('nazwa', max_length=100, unique=True)
@@ -36,7 +38,7 @@ class Company(models.Model):
                                                default=0)
     environment = models.PositiveIntegerField('Atmosfera w pracy', editable=False,
                                               default=0)
-    number_of_reviews = models.PositiveIntegerField(editable=False,
+    number_of_reviews = models.PositiveIntegerField('Liczba ocen', editable=False,
                                                     default=0)
 
     def get_reviews(self):
@@ -94,6 +96,10 @@ class Company(models.Model):
 
 
 class Position(models.Model):
+    class Meta:
+        verbose_name = "Stanowisko"
+        verbose_name_plural = "Stanowiska"
+        
     STATUS_ZATRUDNIENIA = [
         ('A', 'Pełen etat'),
         ('B', 'Część etatu'),
@@ -108,8 +114,8 @@ class Position(models.Model):
     MONTHS = [(i, '{:02}'.format(i)) for i in months]
  
     date = models.DateTimeField(auto_now=True, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                             on_delete=models.SET_NULL)
     #company_name used to store name before entry is associated with a Company database record
     company_name = models.CharField(max_length=100, null=True, blank=True)
     company_linkedin_id=models.CharField(max_length=25, null=True)
@@ -138,21 +144,27 @@ class Position(models.Model):
         return self.position + ' - ' + company + ' - ' + self.user.email
 
 class Review(models.Model):
-    date = models.DateTimeField(auto_now=True, editable=False)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    position = models.ForeignKey(Position, on_delete=models.SET_NULL,
+    class Meta:
+        verbose_name = "Recenzja"
+        verbose_name_plural = "Recenzje"
+        
+    date = models.DateTimeField('data', auto_now=True, editable=False)
+    company = models.ForeignKey(Company, verbose_name='firma',
+                                on_delete=models.CASCADE)
+    position = models.ForeignKey(Position, verbose_name='stanowisko',
+                                 on_delete=models.SET_NULL,
                                  null=True, blank=True)
-    title = models.CharField(max_length=100)
-    pros = models.CharField(max_length=500)
-    cons = models.CharField(max_length=500)
-    comment = models.CharField(max_length=500, blank=True)
+    title = models.CharField('tytuł', max_length=100)
+    pros = models.CharField('zalety', max_length=500)
+    cons = models.CharField('wady', max_length=500)
+    comment = models.CharField('co należy zmienić', max_length=500, blank=True)
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
-    overallscore = models.PositiveIntegerField('ocena og&oacute;lna',
+    overallscore = models.PositiveIntegerField('ocena ogólna',
                                                choices=RATINGS, default=None)
     advancement = models.PositiveIntegerField('możliwości rozwoju',
                                               choices=RATINGS, default=None)
-    worklife = models.PositiveIntegerField('r&oacute;wnowaga praca/życie',
+    worklife = models.PositiveIntegerField('równowaga praca/życie',
                                            choices=RATINGS, default=None)
     compensation = models.PositiveIntegerField('zarobki',
                                                choices=RATINGS, default=None)
@@ -172,10 +184,14 @@ class Review(models.Model):
                        kwargs={'pk': self.company.id})
 
     def __str__(self):
-        return 'id_' + str(self.id)
+        return 'id_' + str(self.id) + ' - ' + self.company.name + ' - ' + self.title
 
 
 class Salary(models.Model):
+    class Meta:
+        verbose_name = "Zarobki"
+        verbose_name_plural = "Zarobki"
+
     PERIOD = [
         ('M', 'miesięcznie'),
         ('K', 'kwartalnie'),
@@ -273,7 +289,7 @@ class Interview(models.Model):
     def __str__(self):
         return 'id_' + str(self.id)
 
-
+"""
 class Job(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
@@ -287,3 +303,4 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title + '_' + self.user.email
+"""

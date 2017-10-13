@@ -60,14 +60,18 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
+    class Meta:
+        verbose_name = "Profil"
+        verbose_name_plural = "Profile"
+        
     SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
     career_year = range(2017, 1970, -1)
     CAREER_YEAR = [(i, i) for i in career_year]
     
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
-                                on_delete=models.CASCADE)
-    contributed = models.BooleanField(default=False, editable=False)
-    sex = models.CharField("płeć", max_length=1, choices=SEX, null=True, default=None)
+                                on_delete=models.CASCADE, editable=False)
+    contributed = models.BooleanField('Zrobił wpis', default=False)
+    sex = models.CharField("płeć", max_length=1, choices=SEX, null=True, blank=True, default=None)
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)

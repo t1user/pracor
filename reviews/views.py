@@ -71,7 +71,9 @@ class CompanySearchView(View):
         searchterm_joined = kwargs.get('searchterm')
         searchterm = searchterm_joined.replace('_', ' ')
         if searchterm:
-            search_results = Company.objects.filter(name__icontains=searchterm)
+            search_results = Company.objects.filter(name__unaccent__icontains=searchterm)
+            #search_results = Company.objects.filter(name__search=searchterm)
+            #search_results = Company.objects.filter(name__iregex=r"\y{0}\y".format(searchterm))
             self.template_name = self.redirect_template_name
         form = self.form_class(initial=self.initial)
         return render(request, self.template_name,

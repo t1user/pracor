@@ -60,7 +60,7 @@ def create_entry(entry):
     def get_public(item):
         """Helper function to convert public/private staus into boolean
         value defined in the database"""
-        if entry == 'Niegiełdowe':
+        if item == 'Niegiełdowe':
             return False
         else:
             return True
