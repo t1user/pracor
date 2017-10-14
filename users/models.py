@@ -71,7 +71,7 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE, editable=False)
     contributed = models.BooleanField('Zrobił wpis', default=False)
-    sex = models.CharField("płeć", max_length=1, choices=SEX, null=True, blank=True, default=None)
+    sex = models.CharField("płeć", max_length=1, choices=SEX, null=True, default=None)
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)

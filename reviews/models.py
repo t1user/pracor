@@ -40,6 +40,10 @@ class Company(models.Model):
                                               default=0)
     number_of_reviews = models.PositiveIntegerField('Liczba ocen', editable=False,
                                                     default=0)
+    approved = models.BooleanField('Zatwierdzone', default=False)
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
+                                 on_delete=models.SET_NULL,
+                                 null=True, blank=True, editable=False)
 
     def get_reviews(self):
         return Review.objects.filter(company=self.pk)
@@ -150,14 +154,14 @@ class Review(models.Model):
         
     date = models.DateTimeField('data', auto_now=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE, editable=False)
     position = models.ForeignKey(Position, verbose_name='stanowisko',
                                  on_delete=models.SET_NULL,
-                                 null=True, blank=True)
+                                 null=True, blank=True, editable=False)
     title = models.CharField('tytuł', max_length=100)
-    pros = models.CharField('zalety', max_length=500)
-    cons = models.CharField('wady', max_length=500)
-    comment = models.CharField('co należy zmienić', max_length=500, blank=True)
+    pros = models.TextField('zalety', max_length=500)
+    cons = models.TextField('wady', max_length=500)
+    comment = models.TextField('co należy zmienić', max_length=500, blank=True)
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
     overallscore = models.PositiveIntegerField('ocena ogólna',
@@ -170,6 +174,11 @@ class Review(models.Model):
                                                choices=RATINGS, default=None)
     environment = models.PositiveIntegerField('atmosfera w pracy',
                                               choices=RATINGS, default=None)
+    approved = models.BooleanField('Zatwierdzone', default=False)
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
+                                 on_delete=models.SET_NULL,
+                                 null=True, blank=True, editable=False)
+
 
     def get_scores(self):
         return {'overallscore': self.overallscore,
@@ -185,6 +194,7 @@ class Review(models.Model):
 
     def __str__(self):
         return 'id_' + str(self.id) + ' - ' + self.company.name + ' - ' + self.title
+
 
 
 class Salary(models.Model):
@@ -203,10 +213,12 @@ class Salary(models.Model):
         ('N', 'netto'),
     ]
 
-    date = models.DateTimeField(auto_now=True, editable=False)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    position = models.ForeignKey(Position, on_delete=models.SET_NULL,
-                                 null=True, blank=True)
+    date = models.DateTimeField('data', auto_now=True, editable=False)
+    company = models.ForeignKey(Company, verbose_name= 'firma',
+                                on_delete=models.CASCADE, editable=False)
+    position = models.ForeignKey(Position, verbose_name="stanowisko",
+                                 on_delete=models.SET_NULL,
+                                 null=True, blank=True, editable=False)
 
     currency = models.CharField('waluta',
                                 max_length=3, default='PLN')
@@ -225,15 +237,23 @@ class Salary(models.Model):
                                        max_length=1, default='G', choices=GROSS_NET,
                                        blank=True)
 
-    base_monthly = models.PositiveIntegerField(blank=True,
+    base_monthly = models.PositiveIntegerField('Pensja zasadnicza miesięcznie',
+                                               blank=True,
                                                default=0, editable=False)
-    base_annual = models.PositiveIntegerField(blank=True,
+    base_annual = models.PositiveIntegerField('Pensja zasadnicza rocznie',
+                                              blank=True,
                                               default=0, editable=False)
 
-    total_monthly = models.PositiveIntegerField(blank=True,
+    total_monthly = models.PositiveIntegerField('Pensja całkowita miesięcznie',
+                                                blank=True,
                                                 default=0, editable=False)
-    total_annual = models.PositiveIntegerField(blank=True,
+    total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
+                                               blank=True,
                                                default=0, editable=False)
+    approved = models.BooleanField('Zatwierdzone', default=False)
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
+                                 on_delete=models.SET_NULL,
+                                 null=True, blank=True, editable=False)
 
     def get_absolute_url(self):
         return reverse('company_page',
@@ -276,11 +296,15 @@ class Interview(models.Model):
                                max_length=1, choices=HOW_GOT, default=None)
     difficulty = models.PositiveIntegerField('trudność',
                                              choices=DIFFICULTY, default=None)
-    got_offer = models.BooleanField('czy dostał ofertę', choices=GOT_OFFER,
-                                    blank=True, default = None)
+    got_offer = models.NullBooleanField('czy dostał ofertę', choices=GOT_OFFER,
+                                    blank=True,  default = None)
     questions = models.TextField('pytania')
     impressions = models.CharField('wrażenia',
                                    max_length=100, blank=True)
+    approved = models.BooleanField('Zatwierdzone', default=False)
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
+                                 on_delete=models.SET_NULL,
+                                 null=True, blank=True, editable=False)
 
     def get_absolute_url(self):
         return reverse('company_page',

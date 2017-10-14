@@ -1,11 +1,11 @@
 from django.contrib import admin
+from django.db import models
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
-from .models import Profile
-
-from .models import User
-
-
+from .models import User, Profile
+from social_django.models import UserSocialAuth
+from reviews.models import Position, Review, Salary, Interview
+from django.forms import Textarea, TextInput
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -20,16 +20,40 @@ class ProfileInline(admin.StackedInline):
             }),
         )
 
+class SocialDjangoInline(admin.StackedInline):
+    model = UserSocialAuth
+    extra = 0
+    readonly_fields = ('provider', 'uid', 'extra_data')
+
+    def has_add_permission(self, request):
+        return False
+
+class PositionInline(admin.StackedInline):
+    model = Position
+    extra = 0
+    raw_id_fields = ('company',)
+
+class ReviewInline(PositionInline):
+    model = Review
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size': 60})},
+        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':60})}
+        }
+
+
+class SalaryInline(PositionInline):
+    model = Salary
+
+class InterviewInline(PositionInline):
+    model = Interview
 
     
-
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no email field."""
 
-    inlines = (ProfileInline, )
-
-    
+    inlines = (ProfileInline, SocialDjangoInline, PositionInline,
+               ReviewInline, SalaryInline, InterviewInline)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {
@@ -50,13 +74,24 @@ class UserAdmin(DjangoUserAdmin):
         }),
     )
 
-    list_display = ('email', 'first_name', 'last_name', 'is_staff',)
+    list_display = ('email', 'first_name', 'last_name', 'get_contributed', 'get_social', 'is_staff',)
     search_fields = ( 'email', 'first_name', 'last_name')
     ordering = ('email',)
 
-"""
+    def get_contributed(self, obj):
+        return obj.profile.contributed
+    get_contributed.short_description = "Zrobił wpis"
+
+    def get_social(self, obj):
+        return UserSocialAuth.objects.get(user=obj).provider
+    get_social.short_description = "login zewnętrzny"
+
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
+    """
+    For benefit of editors who do not have permission to edit users.
+    """
     readonly_fields = ('user',)
     radio_fields = {'sex': admin.HORIZONTAL}
     fieldsets = (
@@ -70,5 +105,3 @@ class ProfileAdmin(admin.ModelAdmin):
         )
 
 
-
-"""
