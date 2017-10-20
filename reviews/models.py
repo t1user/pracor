@@ -4,7 +4,21 @@ from django.conf import settings
 import datetime
 
 
-class Company(models.Model):
+class ApprovableModel(models.Model):
+    """
+    Abstract model providing features for entry approval in the admin module.
+    """
+    approved = models.NullBooleanField('Zatwierdzone', default=None, null=True, blank=True)
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
+                                 on_delete=models.SET_NULL,
+                                 null=True, blank=True, editable=False)
+    reviewed_date = models.DateField('Data przeglądu', null=True, blank=True)
+    
+    
+    class Meta:
+        abstract = True
+
+class Company(ApprovableModel):
     class Meta:
         verbose_name = "Firma"
         verbose_name_plural = "Firmy"
@@ -18,7 +32,8 @@ class Company(models.Model):
     headquarters_city = models.CharField('siedziba centrali', max_length=60)
     website = models.URLField('strona www', unique=True)
 
-    #other fiels are optional, to be filled-in by admins
+    #other fields are optional, to be filled-in by admins
+    date = models.DateField('Data dodania do bazy', auto_now_add=True, editable=False)
     region = models.CharField('województwo', max_length=40, blank=True, null=True)
     country = models.CharField('kraj', max_length=40, default='Polska')
     employment = models.CharField('zatrudnienie', max_length=1,
@@ -40,10 +55,6 @@ class Company(models.Model):
                                               default=0)
     number_of_reviews = models.PositiveIntegerField('Liczba ocen', editable=False,
                                                     default=0)
-    approved = models.BooleanField('Zatwierdzone', default=False)
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
-                                 on_delete=models.SET_NULL,
-                                 null=True, blank=True, editable=False)
 
     def get_reviews(self):
         return Review.objects.filter(company=self.pk)
@@ -117,7 +128,7 @@ class Position(models.Model):
     months = range(1, 13)
     MONTHS = [(i, '{:02}'.format(i)) for i in months]
  
-    date = models.DateTimeField(auto_now=True, editable=False)
+    date = models.DateTimeField(auto_now_add=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              on_delete=models.SET_NULL)
     #company_name used to store name before entry is associated with a Company database record
@@ -147,12 +158,12 @@ class Position(models.Model):
             company = ' '
         return self.position + ' - ' + company + ' - ' + self.user.email
 
-class Review(models.Model):
+class Review(ApprovableModel):
     class Meta:
         verbose_name = "Recenzja"
         verbose_name_plural = "Recenzje"
         
-    date = models.DateTimeField('data', auto_now=True, editable=False)
+    date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
     position = models.ForeignKey(Position, verbose_name='stanowisko',
@@ -174,10 +185,7 @@ class Review(models.Model):
                                                choices=RATINGS, default=None)
     environment = models.PositiveIntegerField('atmosfera w pracy',
                                               choices=RATINGS, default=None)
-    approved = models.BooleanField('Zatwierdzone', default=False)
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
-                                 on_delete=models.SET_NULL,
-                                 null=True, blank=True, editable=False)
+    
 
 
     def get_scores(self):
@@ -197,7 +205,7 @@ class Review(models.Model):
 
 
 
-class Salary(models.Model):
+class Salary(ApprovableModel):
     class Meta:
         verbose_name = "Zarobki"
         verbose_name_plural = "Zarobki"
@@ -213,7 +221,7 @@ class Salary(models.Model):
         ('N', 'netto'),
     ]
 
-    date = models.DateTimeField('data', auto_now=True, editable=False)
+    date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name= 'firma',
                                 on_delete=models.CASCADE, editable=False)
     position = models.ForeignKey(Position, verbose_name="stanowisko",
@@ -250,10 +258,6 @@ class Salary(models.Model):
     total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
                                                blank=True,
                                                default=0, editable=False)
-    approved = models.BooleanField('Zatwierdzone', default=False)
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
-                                 on_delete=models.SET_NULL,
-                                 null=True, blank=True, editable=False)
 
     def get_absolute_url(self):
         return reverse('company_page',
@@ -263,7 +267,7 @@ class Salary(models.Model):
         return 'id_{}_{}'.format(self.id, self.company)
 
 
-class Interview(models.Model):
+class Interview(ApprovableModel):
     HOW_GOT = [
         ('A', 'Ogłoszenie'),
         ('B', 'Kontakty profesjonalne'),
@@ -287,7 +291,7 @@ class Interview(models.Model):
     
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now=True, editable=False)
+    date = models.DateTimeField(auto_now_add=True, editable=False)
     position = models.CharField('stanowisko',
                                 max_length=100, blank=True)
     department = models.CharField('departament',
@@ -297,14 +301,10 @@ class Interview(models.Model):
     difficulty = models.PositiveIntegerField('trudność',
                                              choices=DIFFICULTY, default=None)
     got_offer = models.NullBooleanField('czy dostał ofertę', choices=GOT_OFFER,
-                                    blank=True,  default = None)
+                                        blank=True, null=True, default=None)
     questions = models.TextField('pytania')
     impressions = models.CharField('wrażenia',
                                    max_length=100, blank=True)
-    approved = models.BooleanField('Zatwierdzone', default=False)
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
-                                 on_delete=models.SET_NULL,
-                                 null=True, blank=True, editable=False)
 
     def get_absolute_url(self):
         return reverse('company_page',
@@ -313,18 +313,3 @@ class Interview(models.Model):
     def __str__(self):
         return 'id_' + str(self.id)
 
-"""
-class Job(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=100)
-    company_id = models.PositiveIntegerField(blank=True, null=True)
-    linkedin_id = models.PositiveIntegerField(blank=True, null=True)
-    location = models.CharField(max_length=100)
-    title = models.CharField(max_length=100)
-    start_date_month = models.PositiveIntegerField(blank=True, null=True)
-    start_date_year = models.PositiveIntegerField(blank=True, null=True)
-
-    def __str__(self):
-        return self.title + '_' + self.user.email
-"""

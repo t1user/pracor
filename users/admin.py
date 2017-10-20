@@ -19,11 +19,14 @@ class ProfileInline(admin.StackedInline):
             'fields': ('linkedin_id', 'linkedin_url'),
             }),
         )
+    list_filter = ('contributed',)
 
 class SocialDjangoInline(admin.StackedInline):
     model = UserSocialAuth
     extra = 0
     readonly_fields = ('provider', 'uid', 'extra_data')
+    list_filter = ('provider',)
+    
 
     def has_add_permission(self, request):
         return False
@@ -77,6 +80,7 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'get_contributed', 'get_social', 'is_staff',)
     search_fields = ( 'email', 'first_name', 'last_name')
     ordering = ('email',)
+
 
     def get_contributed(self, obj):
         return obj.profile.contributed

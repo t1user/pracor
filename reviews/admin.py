@@ -1,57 +1,64 @@
 from django.contrib import admin
 from django.db import models
-from django.forms import Textarea, TextInput
+from django.forms import Textarea, TextInput, RadioSelect
 from .models import Company, Review, Salary, Position, Interview
+from django.utils import timezone
 
 admin.site.site_header = 'pracr - administracja'
 
-myModels = [Position, Interview]
+myModels = [Position]
 
 admin.site.register(myModels)
 
 class ModelAdminModified(admin.ModelAdmin):
+    list_filter = ('approved',)
+    approval = ('Akceptacja', {
+        'fields': ('approved', 'reviewer', 'reviewed_date'),
+    })
+
+    
     def save_model(self, request, obj, form, change):
-        """Adds user as reviewer if the instance has been approved."""
-        if obj.approved == True and not obj.reviewer:
-            obj.reviewer = request.user
+        """Adds user as reviewer and review date if the instance has been modified."""
+        obj.reviewer = request.user
+        obj.reviewed_date = timezone.now()
         super().save_model(request, obj, form, change)
 
+class ItemInline(admin.TabularInline):
+    classes = ('collapse',)
+    extra = 0
+    exclude = ('approved', 'reviewer', 'reviewed_date',)
 
-
-class ReviewInline(admin.TabularInline):
+class ReviewInline(ItemInline):
     model = Review
-    classes = ('collapse',)
-    extra = 0
 
-class SalaryInline(admin.TabularInline):
+class SalaryInline(ItemInline):
     model = Salary
-    classes = ('collapse',)
-    extra = 0
 
-class InterviewInline(admin.TabularInline):
+class InterviewInline(ItemInline):
     model = Interview
-    classes = ('collapse',)
-    extra = 0
 
 @admin.register(Company)
 class CompanyAdmin(ModelAdminModified):
     readonly_fields = ('overallscore', 'advancement', 'worklife', 'compensation',
-                       'environment', 'number_of_reviews', 'reviewer')
+                       'environment', 'number_of_reviews', 'reviewer', 'date', 'reviewed_date')
     actions = ['update_scores']
     search_fields = ['name']
     list_display = ['name', 'headquarters_city', 'website', 'number_of_reviews',
                     'approved', 'reviewer']
     inlines = (ReviewInline, SalaryInline, InterviewInline, )
-    list_filter = ('approved', )
+
     
     fieldsets = (
         (None, {
-            'fields': ('name', ('headquarters_city', 'website'), )
+            'fields': ('name', ('headquarters_city', 'website'),
+                       'date',
+                       )
                        }),
          ('Dodatkowe informacje', {
              'classes': ('collapse',),
              'fields': ('region', 'country', 'employment', 'public', 'ownership')
              }),
+        ModelAdminModified.approval,
          ('Oceny', {
              'classes': ('collapse',), 
              'fields': ('overallscore', 'advancement', 'worklife', 'compensation',
@@ -66,20 +73,31 @@ class CompanyAdmin(ModelAdminModified):
 
 @admin.register(Review)
 class ReviewAdmin(ModelAdminModified):
-    list_filter = ('approved',)
     list_display = ('id', 'title', 'company', 'approved', 'reviewer')
     list_display_links = ('id', 'title',)
-    readonly_fields = ('date', 'id', 'reviewer')
+    readonly_fields = ('date', 'id', 'overallscore',
+                       'worklife', 'advancement', 'compensation',
+                       'environment', 'reviewer', 'reviewed_date')
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': 60})},
         models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':60})}
         }
+
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'pros', 'cons', 'comment',
+                       ('overallscore', 'advancement', 'worklife', 'compensation',
+                        'environment',), 'date',
+                       )}),
+        ModelAdminModified.approval,
+        )
+            
     
 @admin.register(Salary)
 class SalaryAdmin(ModelAdminModified):
     readonly_fields = ('date', 'company', 'position', 'base_monthly',
-                       'base_annual', 'total_monthly', 'total_annual', 'reviewer',)
-    list_filter = ('approved', 'reviewer')
+                       'base_annual', 'total_monthly', 'total_annual', 'reviewer',
+                       'reviewer', 'reviewed_date')
     fieldsets = (
         (None, {
             'fields': ('date', 'company', 'position','currency',),
@@ -91,16 +109,22 @@ class SalaryAdmin(ModelAdminModified):
          ('Dane wyliczone', {
              'fields': (('base_monthly', 'base_annual',), ('total_monthly', 'total_annual'))
              }),
+        ModelAdminModified.approval,
          )
-"""    
+  
 @admin.register(Interview)
 class InterviewAdmin(admin.ModelAdmin):
     radio_fields = {'got_offer': admin.HORIZONTAL}
-"""
+    readonly_fields = ('date', 'company', 'reviewer', 'reviewed_date')
+    fieldsets = (
+        (None, {
+            'fields': ('date', 'company', 'position', 'department', 'how_got', 'difficulty',
+                       'got_offer', 'questions', 'impressions'),}),
+        ModelAdminModified.approval,
+        )
 
 @admin.register(admin.models.LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('get_change_message', 'object_repr', 'action_time', 'user', 'action_flag')
-    list_filter = ('user',)
 
 
