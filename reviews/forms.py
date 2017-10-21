@@ -156,13 +156,15 @@ class InterviewForm(forms.ModelForm):
             'difficulty',
             'got_offer',
             'questions',
-            'impressions'
+            'impressions',
+            'rating',
         ]
 
         widgets = {
             'difficulty': forms.RadioSelect(),
             'impressions': forms.Textarea(),
             'got_offer': forms.RadioSelect(),
+            'rating': RadioSelectModified(),
             }
 
         help_texts = {

@@ -77,7 +77,8 @@ class ReviewAdmin(ModelAdminModified):
     list_display_links = ('id', 'title',)
     readonly_fields = ('date', 'id', 'overallscore',
                        'worklife', 'advancement', 'compensation',
-                       'environment', 'reviewer', 'reviewed_date')
+                       'environment', 'reviewer', 'reviewed_date', 'company',
+                       'position',)
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': 60})},
         models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':60})}
@@ -85,9 +86,12 @@ class ReviewAdmin(ModelAdminModified):
 
     fieldsets = (
         (None, {
+            'fields': ('date', 'company', 'position'),
+            }),
+        (None, {
             'fields': ('title', 'pros', 'cons', 'comment',
                        ('overallscore', 'advancement', 'worklife', 'compensation',
-                        'environment',), 'date',
+                        'environment',),
                        )}),
         ModelAdminModified.approval,
         )
@@ -97,7 +101,9 @@ class ReviewAdmin(ModelAdminModified):
 class SalaryAdmin(ModelAdminModified):
     readonly_fields = ('date', 'company', 'position', 'base_monthly',
                        'base_annual', 'total_monthly', 'total_annual', 'reviewer',
-                       'reviewer', 'reviewed_date')
+                       'reviewer', 'reviewed_date', 'company', 'position')
+    list_display = ('id', 'company', 'approved', 'reviewer')
+    search_fields = ['company__name']
     fieldsets = (
         (None, {
             'fields': ('date', 'company', 'position','currency',),
@@ -113,13 +119,16 @@ class SalaryAdmin(ModelAdminModified):
          )
   
 @admin.register(Interview)
-class InterviewAdmin(admin.ModelAdmin):
+class InterviewAdmin(ModelAdminModified):
+    list_display = ('id', 'company', 'rating', 'approved', 'reviewer')
+    list_display_links = ('id', 'company')
+    search_fields = ['company__name']
     radio_fields = {'got_offer': admin.HORIZONTAL}
-    readonly_fields = ('date', 'company', 'reviewer', 'reviewed_date')
+    readonly_fields = ('date', 'company', 'reviewer', 'reviewed_date', 'rating')
     fieldsets = (
         (None, {
             'fields': ('date', 'company', 'position', 'department', 'how_got', 'difficulty',
-                       'got_offer', 'questions', 'impressions'),}),
+                       'got_offer', 'questions', 'impressions', 'rating'),}),
         ModelAdminModified.approval,
         )
 

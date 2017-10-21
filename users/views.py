@@ -132,4 +132,17 @@ class CreateProfileView(LoginRequiredMixin, View):
                           {'user_form': user_form,
                            'profile_form': profile_form})
         
-            
+
+class LoginErrorView(View):
+    """
+    Redirected to if there's a social auth login error and the error is not
+    caught by the middleware. Currently happens when debug is off.
+    """
+
+    template_name = "registration/login_error.html"
+
+    def get(self, request, *args, **kwargs):
+        print(kwargs)
+        return render(request,self.template_name)
+
+        

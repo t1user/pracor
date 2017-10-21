@@ -14,6 +14,7 @@ from .models import Company, Salary, Review, Interview, Position
 from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
                     ReviewForm, SalaryForm, InterviewForm,
                     CompanySelectForm)
+from pprint import pprint
 
 
 class AccessBlocker(UserPassesTestMixin):
@@ -92,6 +93,11 @@ class CompanySearchView(View):
 
 
 class CompanyDetailView(LoginRequiredMixin, DetailView):
+    """
+    Displays Company details with last item of each Review, Salary, Interview. 
+    Is inherited by CompanyItemsView, which displays lists of all items 
+    (Review, Salary, Interview).
+    """
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
@@ -107,21 +113,29 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                   },
                  'interview':
                  {'object': Interview,
-                  'name': 'interview',
+                  'name': 'Interview',
                   'file':  'reviews/interview_item.html',
                   },
                  }
 
     def get_items(self, **kwargs):
+        """
+        Items are one last Review, Salary, Interview with 
+        accompanying data (template file name, total number of each items, 
+        stars, etc). The method is called by get_conext to add the items
+        to the context for rendering.
+        """
         items = {}
         for key, value in self.item_data.items():
+            # reminder: self.object is Company instance
             object = self.object.get_objects(value['object'])
             count = object.count()
             last = object.last()
             try:
                 scores = last.get_scores()
                 stars = self.get_stars(scores)
-            except:
+            except Exception as e:
+                print(e)
                 stars = {}
             name = value['name']
             file = value['file']
@@ -134,27 +148,26 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         return items
 
     def get_stars(self, scores):
-        """Calculate number of full, half and blank rating stars for a given dictionary of scores. The dictionary 'scores' has to be in the format:
+        """
+        Create a dictionary with the number of full, half and blank rating stars for 
+        a given dictionary of scores. 
+        The dictionary 'scores' has to be in the format:
         {'overallscore': overallscore,
          'advancement': advancement,
          'worklife': worklife,
          'compensation': compensation,
-         'environment': environment,} """
+         'environment': environment,} 
+        """
         rating_items = {}
         for key, value in scores.items():
-            truncated = int(value)
-            half = value - truncated
-            if 0.25 <= half < 0.75:
-                half = 1
-            else:
-                half = 0
-            if value - truncated >= 0.75:
-                truncated += 1
-            full = range(truncated)
-            blank = range(5 - truncated - half)
+            (full, half, blank) = self.count_stars(value)
             # add field names to context to allow for looping over rating
             # items
-            label = self.object._meta.get_field(key).verbose_name
+            try:
+                label = self.object._meta.get_field(key).verbose_name
+            except:
+                #this is for Interview.rating
+                label = key
             rating_items[key] = {'rating': value,
                                  'full': full,
                                  'half': half,
@@ -162,12 +175,35 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                                  'label': label}
         return rating_items
 
+    def count_stars(self, value):
+        """
+        Performs actual stars calculations. Used for Reviews and Interviews.
+        """
+        truncated = int(value)
+        half = value - truncated
+        if 0.25 <= half < 0.75:
+            half = 1
+        else:
+            half = 0
+        if value - truncated >= 0.75:
+            truncated += 1
+        # full and blank are iterators to allow for looping in templates
+        full = range(truncated)
+        blank = range(5 - truncated - half)
+        return (full, half, blank)
+
+    
     def get_context_data(self, **kwargs):
+        """
+        Adds number of stars for Company ratings.
+        """
         context = super().get_context_data(**kwargs)
+        # get_scores() is a model method
         scores = self.object.get_scores()
         if scores:
             context['stars'] = self.get_stars(scores=scores)
         context['items'] = self.get_items()
+        #pprint(context)
         return context
 
 
@@ -177,6 +213,10 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
     paginate_by = 5
 
     def get_context_data(self, **kwargs):
+        """"
+        Method first determines what item (review/salary/interview) is required 
+        and pulls relevant data. Then activates paginator and returns data to context.
+        """
         context = super().get_context_data(**kwargs)
         item = self.kwargs['item']
         if item in self.item_data:

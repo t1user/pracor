@@ -16,15 +16,7 @@
     </div>
     <div class="row">
         <section class="eight columns">
-            <article>
-                <form action='' method='POST'>
-                    <formset>
-                        {{ form }}
-                    </formset>
-                    {% csrf_token %}
-                    <input type='submit' value='Wyślij' class="button-primary" />
-                </form>
-            </article>
+            {% include "reviews/item_form_section.html" %}
         </section>
         <aside class="four columns">
             <h4>Zasady opisywania interview</h4>

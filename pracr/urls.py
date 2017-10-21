@@ -20,9 +20,14 @@ from django.contrib.auth.views import LoginView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    
     url(r'^', include('social_django.urls', namespace='social')),
+    
+    # has to be before auth, as redifines login
     url(r'^login/', LoginView.as_view(redirect_authenticated_user=True), name='login'),
     url(r'^', include('django.contrib.auth.urls')),
+    
     url(r'^', include('reviews.urls')),
+    
     url(r'^', include('users.urls')),
 ]

@@ -15,29 +15,9 @@
     </div>
     <div class="row">
         <section class="eight columns">
-            <article>
-                {% if form.errors %}
-                <p class="errors">
-                    Popraw błędy poniżej
-                </p>
-                {% endif %}
-            </article>
-            <atricle>
-                <form action='' method='POST'>
 
-                    {% include "reviews/render_form.html" with form=form %}
-                    
-                    {% if position_form %}
-                    <h4>Dotyczy stanowiska:</h4>
-
-                    {% include "reviews/render_form.html" with form=position_form %}
-
-                    {% endif %}
-                    {% csrf_token %}
-                    <input type='submit' class="button-primary" value='Wyślij'/>
-                </form>
-                <div class="required"><i>*Pola wymagane</i></div>
-            </atricle>
+            {% include "reviews/item_form_section.html" %}
+            
         </section>
         <aside class="four columns">
             <h4>Zasady pisania recenzji</h4>

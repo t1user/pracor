@@ -1,9 +1,12 @@
 <div class="row">
     <div class="twelve columns">
-        <div class="data">{{ value.date }}</div>
+      <div class="data">{{ value.date }}</div>
 
-        <h3>Raport z interview</h3>
 
+        <h3>Rozmowa na stanowisko: {{ value.position|capfirst }}</h3>
+        {% include "reviews/display_stars.html" with stars=stars.rating %}
+
+        
         <table style='margin-top:2rem;'>
             <tr><td>Stanowisko</td><td>{{ value.position }}</td></tr>
             <tr><td>Departament</td><td>{{ value.department }}</td></tr>

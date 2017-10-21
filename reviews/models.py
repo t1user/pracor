@@ -8,6 +8,7 @@ class ApprovableModel(models.Model):
     """
     Abstract model providing features for entry approval in the admin module.
     """
+
     approved = models.NullBooleanField('Zatwierdzone', default=None, null=True, blank=True)
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
                                  on_delete=models.SET_NULL,
@@ -162,6 +163,8 @@ class Review(ApprovableModel):
     class Meta:
         verbose_name = "Recenzja"
         verbose_name_plural = "Recenzje"
+
+    RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
         
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
@@ -174,7 +177,6 @@ class Review(ApprovableModel):
     cons = models.TextField('wady', max_length=500)
     comment = models.TextField('co należy zmienić', max_length=500, blank=True)
 
-    RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
     overallscore = models.PositiveIntegerField('ocena ogólna',
                                                choices=RATINGS, default=None)
     advancement = models.PositiveIntegerField('możliwości rozwoju',
@@ -287,7 +289,10 @@ class Interview(ApprovableModel):
     GOT_OFFER = [
         (True, 'Tak'),
         (False, 'Nie'),
+        (None, 'Nieznane'),
         ]
+
+    RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
     
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE)
@@ -302,14 +307,20 @@ class Interview(ApprovableModel):
                                              choices=DIFFICULTY, default=None)
     got_offer = models.NullBooleanField('czy dostał ofertę', choices=GOT_OFFER,
                                         blank=True, null=True, default=None)
-    questions = models.TextField('pytania')
-    impressions = models.CharField('wrażenia',
-                                   max_length=100, blank=True)
+    questions = models.TextField('pytania', null=True, blank=True)
+    impressions = models.TextField('wrażenia',
+                                   max_length=100, blank=True, null=True)
+    rating = models.PositiveIntegerField('Ocena', choices=RATINGS, default=None)
 
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
 
+    def get_scores(self):
+        """"Used by method calculating number of rating stars for display."""
+        return {'rating': self.rating,
+                }
+
     def __str__(self):
-        return 'id_' + str(self.id)
+        return 'id_' + str(self.id) + '_' + str(self.company)
 
