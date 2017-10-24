@@ -1,4 +1,5 @@
 /* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
+
 function showMenu() {
     var x = document.getElementById("myTopnav");
     if (x.className === "topnav") {
@@ -8,12 +9,28 @@ function showMenu() {
     }
 }
 
-var m = document.querySelector('main')
+/* show searchbar on mobile */
+function showSearch() {
+  var x = document.getElementById("mobile-searchbar");
+    if (x.className === "search-mobile") {
+        x.className += " responsive";
+    } else {
+        x.className = "search-mobile";
+    }
 
+}
+
+
+/* switch off menu and searchbar on click outside */
+var m = document.querySelector('main')
 m.addEventListener("click", function() {
   var x = document.getElementById("myTopnav");
+  var y = document.getElementById("mobile-searchbar");
   if (x.className === "topnav responsive") {
     x.className = "topnav";
+};
+  if (y.className === "search-mobile responsive") {
+    y.className = "search-mobile";
 };
 }
 )
@@ -27,4 +44,5 @@ function listItems() {
             x.className = "action-button";
 }
 }
+
 

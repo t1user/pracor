@@ -1,20 +1,50 @@
+{% load staticfiles %}
+
+{% load reviews_extras %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+{% endblock css %}
+
 <div class="row">
     <div class="twelve columns">
-      <div class="data">{{ value.date }}</div>
-
-
-        <h3>Rozmowa na stanowisko: {{ value.position|capfirst }}</h3>
-        {% include "reviews/display_stars.html" with stars=stars.rating %}
-
-        
-        <table style='margin-top:2rem;'>
-            <tr><td>Stanowisko</td><td>{{ value.position }}</td></tr>
-            <tr><td>Departament</td><td>{{ value.department }}</td></tr>
-            <tr><td>Droga do interview:</td><td>{{ value.get_how_got_display }}</td></tr>
-            <tr><td>Trudność:</td><td>{{ value.difficulty }} z 5 (1-bardzo łatwo, 5-bardzo trudno)</td></tr>
-            <tr><td>Czy dostał ofertę:</td><td>{{ value.got_offer|yesno:"Tak,Nie" }}</td></tr>
-            <tr><td>Pytania:</td><td>  {{ value.questions|linebreaks }}</td></tr>
-            <tr><td>Wrażenia:</td><td>{{ value.impressions|linebreaks }}</td></tr>
-        </table>
+        <div class="data">{{ value.date|date:"j E Y" }}</div>
+        <h3>Interview: {{ value.position|capfirst }}</h3>
+        {% if value.department %}
+        <div>Departament: {{ value.department }}</div>
+        {% endif %}
     </div>
 </div>
+<div class="row interview-ratings">
+    <div class="six columns">
+                {% include "reviews/display_stars.html" with stars=stars.rating %}
+    </div>
+    <div class ="six columns">
+        <div class="interview-icons">
+            {% if value.got_offer %}
+            <i class="fa fa-check-circle-o fa-lg" aria-hidden="true"></i>
+            {% else %}
+            <i class="fa fa-times-circle-o fa-lg" aria-hidden="true"></i>
+            {% endif %}
+            {{ value.got_offer|yesno:"Oferta,Bez oferty" }}
+        </div>
+        <div class="interview-icons">
+            <i class=" fa fa-thermometer-{{ value.difficulty|thermometer }} fa-lg thermo"></i>
+            {{ value.difficulty|difficulty }}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="twelve columns">
+        {% if value.questions %}
+        <h5>Pytania:</h5>
+        <div>{{ value.questions|linebreaks }}</div>
+        {% endif %}
+        {% if value.impressions %}
+        <h5>Wrażenia:</h5>
+        <div>{{ value.impressions|linebreaks }}</div>
+        {% endif %}
+        <div><i>Jak trafił/a do firmy: {{ value.get_how_got_display }}</i></div>
+    </div>
+</div>
+

@@ -39,12 +39,12 @@ class InterviewInline(ItemInline):
 
 @admin.register(Company)
 class CompanyAdmin(ModelAdminModified):
-    readonly_fields = ('overallscore', 'advancement', 'worklife', 'compensation',
-                       'environment', 'number_of_reviews', 'reviewer', 'date', 'reviewed_date')
+    readonly_fields = ('number_of_reviews', 'count_salaries', 'count_interviews',
+                       'reviewer', 'date', 'reviewed_date', 'get_ratings')
     actions = ['update_scores']
     search_fields = ['name']
     list_display = ['name', 'headquarters_city', 'website', 'number_of_reviews',
-                    'approved', 'reviewer']
+                    'count_salaries', 'count_interviews', 'approved', 'reviewer']
     inlines = (ReviewInline, SalaryInline, InterviewInline, )
 
     
@@ -61,11 +61,22 @@ class CompanyAdmin(ModelAdminModified):
         ModelAdminModified.approval,
          ('Oceny', {
              'classes': ('collapse',), 
-             'fields': ('overallscore', 'advancement', 'worklife', 'compensation',
-                         'environment', 'number_of_reviews')
+             'fields': ('get_ratings', 'number_of_reviews')
              }),
          )
 
+    def count_salaries(self, obj):
+        return obj.get_salaries().count()
+    count_salaries.short_description = "Liczba zarobków"
+
+    def count_interviews(self, obj):
+        return obj.get_interviews().count()
+    count_interviews.short_description = "Liczba interview"
+
+    def get_ratings(self, obj):
+        return obj.get_scores_strings()
+    get_ratings.short_description = "Oceny"
+    
     def update_scores(self, request, queryset):
         for item in queryset:
             item.update_scores()
@@ -120,15 +131,15 @@ class SalaryAdmin(ModelAdminModified):
   
 @admin.register(Interview)
 class InterviewAdmin(ModelAdminModified):
-    list_display = ('id', 'company', 'rating', 'approved', 'reviewer')
+    list_display = ('id', 'company', 'rating',  'got_offer', 'approved', 'reviewer')
     list_display_links = ('id', 'company')
     search_fields = ['company__name']
-    radio_fields = {'got_offer': admin.HORIZONTAL}
+    radio_fields = {'difficulty': admin.HORIZONTAL}
     readonly_fields = ('date', 'company', 'reviewer', 'reviewed_date', 'rating')
     fieldsets = (
         (None, {
-            'fields': ('date', 'company', 'position', 'department', 'how_got', 'difficulty',
-                       'got_offer', 'questions', 'impressions', 'rating'),}),
+            'fields': ('date', 'company', 'position', 'department', 'how_got', 'got_offer',
+                       'difficulty', 'questions', 'impressions', 'rating'),}),
         ModelAdminModified.approval,
         )
 

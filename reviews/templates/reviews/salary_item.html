@@ -1,3 +1,5 @@
+{% load humanize %}
+
 <div class="row">
     <div class="twelve columns">
         <div class="date">{{ value.date|date:"j E Y" }}</div>
@@ -7,21 +9,19 @@
         <h5>Zarobki zasadnicze</h5>
         <div class="salary">
             {{ value.currency }}
-            {{ value.salary_input }}
+            {{ value.salary_input|intcomma }}
             {{ value.get_period_display }}
             {{ value.get_gross_net_display }}
         </div>
-
+        
+        {% if value.bonus_input %}
         <h5>Premia</h5>
         <div class="bonus">
-            {% if value.bonus_input %}
-            {{ value.bonus_input }}
-            {{ value.get_bonus_period_display }}
-            {{ value.get_bonus_gross_net_display }}
-
-            {% else %}
-            <p>Bez premii</p>
-            {% endif %}
+          {{ value.currency }}
+          {{ value.bonus_input|intcomma }}
+          {{ value.get_bonus_period_display }}
+          {{ value.get_bonus_gross_net_display }}
         </div>
+        {% endif %}
     </div>
 </div>

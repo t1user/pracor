@@ -86,6 +86,16 @@ class Company(ApprovableModel):
                     'environment': environment,
                     }
 
+    def get_scores_strings(self):
+        """Returns human readable string of scores (e.g. for admin)"""
+        scores = self.get_scores()
+        string = ""
+        for key, value in scores.items():
+            string += "{:<25}: {:>4}\n".format(
+                str(self._meta.get_field(key).verbose_name), value)
+        return string
+        
+
     def update_scores(self):
         """Recalculates all scores to make them compliant with existing reviews."""
         reviews = self.get_reviews()
@@ -173,9 +183,9 @@ class Review(ApprovableModel):
                                  on_delete=models.SET_NULL,
                                  null=True, blank=True, editable=False)
     title = models.CharField('tytuł', max_length=100)
-    pros = models.TextField('zalety', max_length=500)
-    cons = models.TextField('wady', max_length=500)
-    comment = models.TextField('co należy zmienić', max_length=500, blank=True)
+    pros = models.TextField('zalety')
+    cons = models.TextField('wady')
+    comment = models.TextField('co należy zmienić', blank=True)
 
     overallscore = models.PositiveIntegerField('ocena ogólna',
                                                choices=RATINGS, default=None)
@@ -239,7 +249,7 @@ class Salary(ApprovableModel):
     gross_net = models.CharField(
         '', max_length=1, default='G', choices=GROSS_NET, blank=True)
 
-    bonus_input = models.PositiveIntegerField('premia', default=0)
+    bonus_input = models.PositiveIntegerField('premia', default=0, blank=True)
     bonus_period = models.CharField('',
                                     max_length=1, default='R', choices=PERIOD,
                                     blank=True)
@@ -276,20 +286,20 @@ class Interview(ApprovableModel):
         ('C', 'Head-hunter'),
         ('D', 'Znajomi-rodzina'),
         ('E', 'Seks z decydentem'),
+        ('F', 'Targi/prezentacje'),
         ('F', 'Inne'),
     ]
     DIFFICULTY = [
-        (1, '1'),
-        (2, '2'),
-        (3, '3'),
-        (4, '4'),
-        (5, '5'),
+        (1, 'B. łatwo'),
+        (2, 'Łatwo'),
+        (3, 'Średnio'),
+        (4, 'Trudno'),
+        (5, 'B. trudno'),
     ]
 
     GOT_OFFER = [
         (True, 'Tak'),
         (False, 'Nie'),
-        (None, 'Nieznane'),
         ]
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
@@ -298,18 +308,16 @@ class Interview(ApprovableModel):
                                 on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True, editable=False)
     position = models.CharField('stanowisko',
-                                max_length=100, blank=True)
+                                max_length=100)
     department = models.CharField('departament',
                                   max_length=100, blank=True)
     how_got = models.CharField('droga do interview',
                                max_length=1, choices=HOW_GOT, default=None)
     difficulty = models.PositiveIntegerField('trudność',
                                              choices=DIFFICULTY, default=None)
-    got_offer = models.NullBooleanField('czy dostał ofertę', choices=GOT_OFFER,
-                                        blank=True, null=True, default=None)
+    got_offer = models.BooleanField('dostał ofertę',)
     questions = models.TextField('pytania', null=True, blank=True)
-    impressions = models.TextField('wrażenia',
-                                   max_length=100, blank=True, null=True)
+    impressions = models.TextField('wrażenia')
     rating = models.PositiveIntegerField('Ocena', choices=RATINGS, default=None)
 
     def get_absolute_url(self):

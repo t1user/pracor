@@ -66,8 +66,13 @@ table {
 
 @media screen and (max-width: 900px) {
     .stars {
-        font-size: 2.2rem;
+        font-size: 3.5rem;
     }
+
+    .fa {
+        font-size: 1.2rem;
+    }
+    
     .counter-button {
         font-size: 1.5rem;
         padding: .8rem;
@@ -154,4 +159,36 @@ table {
 
 .bonus {
     margin-bottom: 2rem;
+}
+
+.fa {
+    margin: 1rem 1rem 0 0rem;
+}
+
+
+/* formatting for interviews */
+
+.interview-ratings .stars {
+    font-size: 3rem;
+}
+
+.fa-check-circle-o {
+    color:  #0CAA41;
+}
+
+.fa-times-circle-o {
+    color: #EB4133;
+}
+
+.thermo {
+    color: #e6b800;
+}
+
+.interview-icons {
+    display: inline;
+    margin-right: 3rem;
+}
+
+.interview-ratings {
+    margin: 1rem 0;
 }

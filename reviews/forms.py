@@ -147,6 +147,12 @@ class SalaryForm(forms.ModelForm):
         
 
 class InterviewForm(forms.ModelForm):
+    # this override is necessary as otherwise 'required' attr is not properly generated
+    got_offer = forms.TypedChoiceField(required=True, label="Czy dostałaś/eś ofertę?",
+                                   choices=((True, 'Tak'), (False, 'Nie')),
+                                   widget=forms.RadioSelect(
+                                       choices=((True, 'Tak'), (False, 'Nie'))),
+                                   )
     class Meta:
         model = Interview
         fields = [
@@ -163,10 +169,10 @@ class InterviewForm(forms.ModelForm):
         widgets = {
             'difficulty': forms.RadioSelect(),
             'impressions': forms.Textarea(),
-            'got_offer': forms.RadioSelect(),
+            #'got_offer': forms.RadioSelect(),
             'rating': RadioSelectModified(),
             }
 
-        help_texts = {
+        """help_texts = {
             'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
-            }
+            }"""

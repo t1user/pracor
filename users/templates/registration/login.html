@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% load staticfiles %}
+{% load static %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/login.css' %}">
+<link rel="stylesheet" href="{% static 'css/login_css.css' %}">
 {% endblock css %}
 
 {% block content %}
@@ -24,39 +24,30 @@
         </div>
     </div>
     <div class="row">
-        <div class="eight columns">
-            <div class="login">
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <table>
-                        <tr>
-                            <td><strong>e-mail:</strong></td>
-                            <td>{{ form.username }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>hasło:</strong></td>
-                            <td>{{ form.password }}</td>
-                        </tr>
-                        <tr>
-                            <td><input type="submit" value="zaloguj" class="button-primary" /></td>
-                        </tr>
-                    </table>
-
-                    <input type="hidden" name="next" value="{{ next }}" />
-                </form>
-                <p>
-                    <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
-                    <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
-                </p>
-
-            </div>
-        </div>
-
         <div class="four columns">
             <div class="social">
                 <a href="{% url "social:begin" "linkedin-oauth2" %}?next={{ next }}">
                     <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
                 </a>
+            </div>
+        </div>
+        <div class="eight columns">
+            <div class="login">
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div><strong>e-mail:</strong></div>
+                    <div>{{ form.username }}</div>
+                    <div><strong>hasło:</strong></div>
+                    <div>{{ form.password }}</div>
+                    <input type="submit" value="zaloguj" class="button-primary" />
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </form>
+                <p>
+                  <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
+                  <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
+
+                </p>
+
             </div>
         </div>
     </div>

@@ -96,16 +96,29 @@ class ProfileAdmin(admin.ModelAdmin):
     """
     For benefit of editors who do not have permission to edit users.
     """
-    readonly_fields = ('user',)
+    readonly_fields = ('user', 'date_joined', 'last_login')
+    list_display = ('user', 'sex','date_joined', 'last_login', 'contributed',)
     radio_fields = {'sex': admin.HORIZONTAL}
     fieldsets = (
         (None, {
             'fields': (('user', 'contributed'), 'sex', 'career_start_year',)
+            }),
+        (None, {
+            'fields': ('date_joined', 'last_login',)
             }),
         ('Pola linkedin', {
             'classes': ('collapse',),
             'fields': ('linkedin_id', 'linkedin_url'),
             }),
         )
+
+    def date_joined(self, obj):
+        return obj.user.date_joined
+    date_joined.short_description = "data dołączenia"
+
+    def last_login(self, obj):
+        return obj.user.last_login
+    last_login.short_description = "ostatnie logowanie"
+        
 
 
