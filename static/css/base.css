@@ -163,28 +163,16 @@ nav a.icon, nav a.glass {
 
 .search-mobile {
     display: none;
-    #position: absolute;
-    #top: 6rem;
-    #width: 100%;
-    #background-color: #d9d9d9;
-    #background-color: #e6e6e6;
-    #background-color: white;
-    #padding: 0rem 1rem;
-    #z-index: 2;
-    #box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-    
 }
 
 .search-mobile form {
     margin: 0 2rem;
     padding-top: 1rem;
-    #box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-    #background-color: #d9d9d9;
-
 }
 
 .search-mobile form input {
     width: 80%;
+    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
 }
 
 .search-mobile.responsive {
@@ -201,7 +189,9 @@ nav a.icon, nav a.glass {
         background-color: #d9d9d9;
         background-color: #e6e6e6;
         padding: 0rem 1rem;
-        z-index: 4;
+        z-index: 2;
+        box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+
     }
     
     .topnav.responsive a {

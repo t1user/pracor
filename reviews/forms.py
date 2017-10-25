@@ -122,6 +122,7 @@ class ReviewForm(forms.ModelForm):
         }
 
 class SalaryForm(forms.ModelForm):
+    #period = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'inline',}))
     class Meta:
         model = Salary
         fields = [
@@ -135,17 +136,29 @@ class SalaryForm(forms.ModelForm):
         ]
         widgets = {
             'currency': forms.TextInput(attrs={'size': 3}),
-            'salary_input': forms.NumberInput(attrs={'step': 100, 'value': 1500,
+            'salary_input': forms.NumberInput(attrs={'step': 100, 'value': 2000,
                                                      'class': 'inline'}),
             'period': forms.Select(attrs={'class': 'inline'}),
             'gross_net': forms.Select(attrs={'class': 'inline'}),
             
             'bonus_input': forms.NumberInput(attrs={'step': 1000, 'class': 'inline'}),
-            'bonus_period': forms.Select(attrs={'class': 'inline'}),
+            'bonus_period': forms.Select(attrs={'class': 'inline',}),
             'bonus_gross_net': forms.Select(attrs={'class': 'inline'}),
             }
         
 
+    def __init__(self, *args, **kwargs):
+        """
+        Override to avoid displaying 'required' asterics next to
+        certain fields.
+        """
+        super().__init__(*args, **kwargs)
+        self.fields['period'].required = False
+        self.fields['gross_net'].required = False
+        self.fields['bonus_period'].required = False
+        self.fields['bonus_gross_net'].required = False
+
+        
 class InterviewForm(forms.ModelForm):
     # this override is necessary as otherwise 'required' attr is not properly generated
     got_offer = forms.TypedChoiceField(required=True, label="Czy dostałaś/eś ofertę?",

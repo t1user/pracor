@@ -36,12 +36,10 @@
                     {% csrf_token %}
                     <div class="errors">
                         {{ form.non_field_errors }}
+                        {{ form.company_name.errors }}
                     </div>
                     <div class="search">
-                        <input type="search" placeholder="Wyszukaj firmę..." name="company_name" aria-label="wyszukaj firmę"/><button type="submit" class="button-primary"><i class="material-icons">search</i></button>
-                    </div>
-                    <div class="errors">
-                        {{ form.company_name.errors }}
+                        <input type="search" placeholder="Wyszukaj firmę..." name="company_name" aria-label="wyszukaj firmę" required/><button type="submit" class="button-primary"><i class="material-icons">search</i></button>
                     </div>
                 </form>
             </div>

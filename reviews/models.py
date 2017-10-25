@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.conf import settings
 import datetime
+from django.db.models import Avg
 
 
 class ApprovableModel(models.Model):
@@ -58,33 +59,50 @@ class Company(ApprovableModel):
                                                     default=0)
 
     def get_reviews(self):
-        return Review.objects.filter(company=self.pk)
+        return Review.objects.filter(company=self.pk).exclude(approved=False)
 
     def get_salaries(self):
-        return Salary.objects.filter(company=self.pk)
+        return Salary.objects.filter(company=self.pk).exclude(approved=False)
 
     def get_interviews(self):
-        return Interview.objects.filter(company=self.pk)
+        return Interview.objects.filter(company=self.pk).exclude(approved=False)
 
     def get_objects(self, object):
         self.object = object
-        return object.objects.filter(company=self.pk)
+        return object.objects.filter(company=self.pk).exclude(approved=False)
 
+    def count_reviews(self):
+        return self.get_reviews().count()
+    """
     def get_scores(self):
-        """Calculates actual ratings from database fields"""
+        Calculates actual ratings from database fields
         self.update_scores()
-        if self.number_of_reviews != 0:
-            overallscore = round(self.overallscore / self.number_of_reviews, 1)
-            advancement = round(self.advancement / self.number_of_reviews, 1)
-            worklife = round(self.worklife / self.number_of_reviews, 1)
-            compensation = round(self.compensation / self.number_of_reviews, 1)
-            environment = round(self.environment / self.number_of_reviews, 1)
+        count = self.count_reviews()
+        if count != 0:
+            overallscore = round(self.overallscore / count, 1)
+            advancement = round(self.advancement / count, 1)
+            worklife = round(self.worklife / count, 1)
+            compensation = round(self.compensation / count, 1)
+            environment = round(self.environment / count, 1)
             return {'overallscore': overallscore,
                     'advancement': advancement,
                     'worklife': worklife,
                     'compensation': compensation,
                     'environment': environment,
                     }
+    """
+
+    def get_scores(self):
+        reviews = self.get_reviews()
+        output = {}
+        for item in ('overallscore',
+                     'advancement',
+                     'worklife',
+                     'compensation',
+                     'environment',):
+            output[item] = reviews.aggregate(score=Avg(item))['score']
+        return output
+    
 
     def get_scores_strings(self):
         """Returns human readable string of scores (e.g. for admin)"""
@@ -245,32 +263,39 @@ class Salary(ApprovableModel):
     salary_input = models.PositiveIntegerField('pensja')
     period = models.CharField('',
                               max_length=1, default='M', choices=PERIOD,
-                              blank=True)
+                              )
     gross_net = models.CharField(
-        '', max_length=1, default='G', choices=GROSS_NET, blank=True)
+        '', max_length=1, default='G', choices=GROSS_NET)
 
-    bonus_input = models.PositiveIntegerField('premia', default=0, blank=True)
+    bonus_input = models.PositiveIntegerField('premia', default=0,
+                                              blank=True, null=True)
     bonus_period = models.CharField('',
                                     max_length=1, default='R', choices=PERIOD,
-                                    blank=True)
+                                    )
     bonus_gross_net = models.CharField('',
                                        max_length=1, default='G', choices=GROSS_NET,
-                                       blank=True)
+                                       )
 
     base_monthly = models.PositiveIntegerField('Pensja zasadnicza miesięcznie',
-                                               blank=True,
                                                default=0, editable=False)
     base_annual = models.PositiveIntegerField('Pensja zasadnicza rocznie',
-                                              blank=True,
                                               default=0, editable=False)
 
     total_monthly = models.PositiveIntegerField('Pensja całkowita miesięcznie',
-                                                blank=True,
                                                 default=0, editable=False)
     total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
-                                               blank=True,
                                                default=0, editable=False)
 
+    @staticmethod
+    def convert(currency='PLN', period='M', gross_net='G', value=1):
+
+        def convert_to_gross(value):
+            pass
+        
+        if gross_net == 'N':
+            convert_to_gross(value)
+        
+    
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})

@@ -116,33 +116,6 @@ table {
     display: none;
 }
 
-@media screen and (max-width: 790px) {
-.desktop {
-    display: none;
-}
-
-.mobile {
-    display: flex;
-}
-
-.material-icons {
-    vertical-align: middle;
-}
-.action-button {
-    display: none;
-}
-
-.action-button.responsive {
-    display: inline-block;
-    width: 10rem;
-    margin: 0;
-}
-
-.action-button.responsive a {
-    display: block;
-    color: black;
-}
-}
 
 
 
@@ -186,9 +159,52 @@ table {
 
 .interview-icons {
     display: inline;
-    margin-right: 3rem;
+    margin-right: 2rem;
 }
+
+.difficulty-text {
+    display: table-cell;
+ }
 
 .interview-ratings {
     margin: 1rem 0;
+}
+
+
+@media screen and (max-width: 790px) {
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: flex;
+    }
+
+    .material-icons {
+        vertical-align: middle;
+    }
+    .action-button {
+        display: none;
+    }
+
+    .action-button.responsive {
+        display: inline-block;
+        width: 10rem;
+        margin: 0;
+    }
+
+    .action-button.responsive a {
+        display: block;
+        color: black;
+    }
+
+
+    .interview-icons {
+        margin-right: 1rem;
+    }
+
+    .difficulty-text {
+        max-width: 11rem;
+    }
+
 }

@@ -45,7 +45,7 @@
             <!-- searchbar  -->
             <div class="search-bar">
                 <form action="{% url 'company_search' '' %}" method="POST">
-                    <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" /><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
+                    <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
                     {% csrf_token %}
                 </form>
             </div>
@@ -70,7 +70,7 @@
         <!-- searchbar for mobile only -->
         <div id="mobile-searchbar" class="search-mobile">
             <form action="{% url 'company_search' '' %}" method="POST">
-                <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" /><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
+                <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
                 {% csrf_token %}
             </form>
         </div>

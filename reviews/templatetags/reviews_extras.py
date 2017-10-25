@@ -26,10 +26,10 @@ def thermo(obj):
 @register.filter('difficulty')
 def diff(obj):
     dictionary = {
-        1: 'Bardzo łatwo',
-        2: 'Łatwo',
-        3: 'Średnia trudność',
-        4: 'Trudno',
-        5: 'Bardzo trudno',
+        1: 'Bardzo łatwa rozmowa',
+        2: 'Łatwa rozmowa',
+        3: 'Średnio-trudna rozmowa',
+        4: 'Trudna rozmowa',
+        5: 'Bardzo trudna rozmowa',
     }
     return dictionary[obj]
