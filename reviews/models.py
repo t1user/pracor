@@ -100,7 +100,7 @@ class Company(ApprovableModel):
                      'worklife',
                      'compensation',
                      'environment',):
-            output[item] = reviews.aggregate(score=Avg(item))['score']
+            output[item] = round(reviews.aggregate(score=Avg(item))['score'], 1)
         return output
     
 

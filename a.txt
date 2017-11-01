@@ -1,0 +1,41 @@
+
+net = gross - zus - z9*(gross - zus - ch) - PIT - k - z7*(gross- zus- ch) 
+
+PIT = (gross - zus - ch  - ku) * rate_1
+
+net = gross - zus - z9 * (gross - zus - ch) - (gross - zus - ch - ku) * rate_1 - k - z7*(grozz - zus - ch)
+
+net = gross - zus - z1 * (gross - zus - ch * gross) - (gross - ku - zus - ch * gross) * rate_1 - k - z *(gross - zus - ch * gross)
+
+net = gross
+    - (e + r) * gross
+    - z1 * (gross - (e+r) * gross - ch * gross)
+    - (gross - ku - (e+r) * gross - ch * gross) * rate_1
+    - k
+    - z * (gross - (e+r) * gross - ch * gross)
+
+
+net = gross
+    - (e + r) * gross
+    - z1 * gross
+    + z1 * (e+r) * gross
+    + z1 * ch * gross
+    - rate_1 * gross
+    + rate_1 * ku
+    + rate_1 * (e+r) * gross
+    + rate_1 * ch * gross
+    - k
+    - z * gross
+    + z * (e+r) * gross
+    + z * ch * gross
+
+
+
+net = gross * (1 - (e+r) - z1 + z1*(e+r) + z1 * ch - rate_1 + rate_1 *(e+r) + rate_1 * ch - z
+            + z*(e+r) + z*ch) +
+            + rate1*ku - k
+
+net = gross * (1 -(e+r)*(1-z1-rate_1-z) - z1 - rate_1 - z + ch*(z1 + rate_1 + z)) + rate_1*ku - k
+
+gross = (net - rate_1*ku + k) / (1 - (e+r)*(1-z1-rate_1-z) - z1 - rate_1 - z + ch*(z1 + rate_1 + z))
+
