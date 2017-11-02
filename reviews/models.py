@@ -288,12 +288,51 @@ class Salary(ApprovableModel):
 
     @staticmethod
     def convert(currency='PLN', period='M', gross_net='G', value=1):
+        """
+        Converts numbers input in different formats to comparable basis.
+        """
+        zus = 0.0976 + 0.015 #stawka emerytalna + rentowa
+        ch = 0.0245 #stawka chorobowa
+        z7 = 0.0775 #stawka ub. zdrowotnego odliczana od podatku
+        z9 = 0.09 #stawka ub. zdrowotnego placona
+        z = z9 - z7 #stawka zdrowotna nieodliczalna od podatku
+        ku = 111.25 * 12 #koszty uzyskania przychodu
+        kw = 556.02 #roczna kwota wolna od podatku
+        step = 85528 #próg podatkowy
+        limit_zus = 127890 #próg powyżej, którego nie płaci się zus
+        r_1 = 0.18 #stawka podatku do progu podatkowego (step)
+        r_2 = 0.32 #stawka powyzej progu podatkowego
+        tax_1 = 15395.04 #podatek płacony przy brutto=step
 
-        def convert_to_gross(value):
-            pass
+        def gross_to_net(B):
+            """
+            Przelicza ROCZNE przychody brutto na dochód netto przy standardowej 
+            umowie o pracę. Wynik zaokrąglony do najbliższej 100zl.
+            """
+            base = B * (1 - zus - ch) - ku
+            if base < step:
+                N = B*(1 - zus - ch)*(1 - z - r_1) + ku*r_1 + kw
+            elif B <= limit_zus:
+                N = B*(1 - zus - ch)*(1 - z - r_2) + (ku + step)*r_2 - tax_1 + kw
+            else:
+                N = 86620 + (B - limit_zus)*(1 - ch)*(1 - z - r_2)
+                return round(N/100, 0) * 100
+
+        def net_to_gross(N):
+            """
+            Przelicza ROCZNE dochody netto na przychód brutto przy standardowej
+            umowie o pracę. Wynik zaokrąglony do najbliższej 100zl.
+            """
+            B = (N - ku*r_1 - kw) / ((1 - zus - ch)*(1 - z - r_1))
+            base = B * (1 - zus - ch) - ku
+            if base >= step:
+                B = (N + tax_1 - kw - (ku + step)*r_2)/((1 - zus - ch)*(1 - z - r_2))
+                if B > limit_zus: 
+                    B = ((N - 86620)/((1 - ch)*(1 - z - r_2))) + limit_zus
+            return round(B/100, 0) * 100
         
         if gross_net == 'N':
-            convert_to_gross(value)
+            return net_to_gross(value)
         
     
     def get_absolute_url(self):
