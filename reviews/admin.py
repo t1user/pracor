@@ -40,7 +40,7 @@ class InterviewInline(ItemInline):
 @admin.register(Company)
 class CompanyAdmin(ModelAdminModified):
     readonly_fields = ('number_of_reviews', 'count_salaries', 'count_interviews',
-                       'reviewer', 'date', 'reviewed_date', 'get_ratings')
+                       'reviewer', 'date', 'reviewed_date', 'get_ratings', 'slug')
     actions = ['update_scores']
     search_fields = ['name']
     list_display = ['name', 'headquarters_city', 'website', 'number_of_reviews',
@@ -51,7 +51,7 @@ class CompanyAdmin(ModelAdminModified):
     fieldsets = (
         (None, {
             'fields': ('name', ('headquarters_city', 'website'),
-                       'date',
+                       'slug', 'date',
                        )
                        }),
          ('Dodatkowe informacje', {
@@ -65,6 +65,7 @@ class CompanyAdmin(ModelAdminModified):
              }),
          )
 
+    
     def count_salaries(self, obj):
         return obj.get_salaries().count()
     count_salaries.short_description = "Liczba zarobków"

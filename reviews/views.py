@@ -103,7 +103,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'company'
     item_data = {'review':
                  {'object': Review,
-                  'name': 'recenzje',
+                  'name': 'opinie',
                   'file': 'reviews/review_item.html',
                   },
                  'salary':
@@ -113,11 +113,27 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                   },
                  'interview':
                  {'object': Interview,
-                  'name': 'Interview',
+                  'name': 'rozmowy',
                   'file':  'reviews/interview_item.html',
                   },
                  }
 
+    def get(self, request, *args, **kwargs):
+        """
+        Override get() to make sure the view has been called with correct slug.
+        If not, redirect.
+        """
+        obj = self.get_object()
+        # this is required only for CompanyItemsView, which inherits from this one
+        item = self.kwargs.get('item', None)
+        if self.kwargs.get('slug') != obj.slug:
+            if item is None:
+                return redirect(obj)
+            else:
+                return redirect('company_items', pk=obj.pk, slug=obj.slug, item=item)
+        else:
+            return super().get(self, request, *args, **kwargs)
+    
     def get_items(self, **kwargs):
         """
         Items are one last Review, Salary, Interview with 
@@ -219,6 +235,13 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
         """
         context = super().get_context_data(**kwargs)
         item = self.kwargs['item']
+
+        #translate from Polish word in url to English word used in code
+        translation_dict = {'opinie': 'review',
+                             'zarobki': 'salary',
+                             'rozmowy': 'interview'}
+        item = translation_dict[item]
+
         if item in self.item_data:
             item_data = self.item_data[item]
             context['item'] = item

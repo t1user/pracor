@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.conf import settings
 import datetime
 from django.db.models import Avg
-
+from django.utils.text import slugify
+from unidecode import unidecode
 
 class ApprovableModel(models.Model):
     """
@@ -35,7 +36,7 @@ class Company(ApprovableModel):
     website = models.URLField('strona www', unique=True)
 
     #other fields are optional, to be filled-in by admins
-    date = models.DateField('Data dodania do bazy', auto_now_add=True, editable=False)
+    date = models.DateField('data dodania do bazy', auto_now_add=True, editable=False)
     region = models.CharField('województwo', max_length=40, blank=True, null=True)
     country = models.CharField('kraj', max_length=40, default='Polska')
     employment = models.CharField('zatrudnienie', max_length=1,
@@ -43,6 +44,7 @@ class Company(ApprovableModel):
     public = models.NullBooleanField('notowane', blank=True, null=True)
     ownership = models.CharField('właściciele', max_length=200, blank=True, null=True)
 
+    slug = models.SlugField(null=True, max_length=100, editable=False)
     #rating inputs - not to be edited directly, numbers have to be divided by
     #number of reviews to get to the rating number
     overallscore = models.PositiveIntegerField('Ocena ogólna', editable=False,
@@ -100,7 +102,11 @@ class Company(ApprovableModel):
                      'worklife',
                      'compensation',
                      'environment',):
-            output[item] = round(reviews.aggregate(score=Avg(item))['score'], 1)
+            output[item] = reviews.aggregate(score=Avg(item))['score']
+            if output[item] is None:
+                output[item] = 0
+            else:
+                output[item] = round(output[item], 1)
         return output
     
 
@@ -134,9 +140,13 @@ class Company(ApprovableModel):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unidecode(self.name))
+        super().save(*args, **kwargs)
+    
     def get_absolute_url(self):
         return reverse('company_page',
-                       kwargs={'pk': self.pk})
+                       kwargs={'pk': self.pk, 'slug': self.slug})
 
 
 class Position(models.Model):

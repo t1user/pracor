@@ -1,7 +1,7 @@
 <div class="row">
   <div class="seven columns">
-    <a href="{% url 'company_page' company.pk %}"><h1>{{ company.name }}</h1></a>
-    <p>{{ company.headquarters_city | upper }}, <a href="{{ company.website }}" target="_blank">{{ company.website }}</a><p>
+    <a href="{{ company.get_absolute_url }}"><h1>{{ company.name }}</h1></a>
+    <a href="{{ company.website }}" target="_blank">{{ company.website }}</a><p>
   </div>
   {% if items.review.count %}
   <article class="five columns">               

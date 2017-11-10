@@ -29,16 +29,16 @@ item.interview
             <div class="seven columns">
                 <article class="counter">
                     <div class="counter-button">
-                        Recenzje
-                        <a href="{% url 'company_items' company.pk 'review' %}">{{ items.review.count }}</a>
+                        Opinie
+                        <a href="{% url 'company_items' company.pk 'opinie' company.slug %}">{{ items.review.count }}</a>
                     </div>
                     <div class="counter-button">
                         Zarobki
-                        <a href="{% url 'company_items' company.pk 'salary' %}">{{ items.salary.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'zarobki' company.slug %}">{{ items.salary.count }}</a>
                     </div>
                     <div class="counter-button">
-                        Interview
-                        <a href="{% url 'company_items' company.pk 'interview' %}">{{ items.interview.count }}</a>
+                        Rozmowy
+                        <a href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">{{ items.interview.count }}</a>
                     </div>
                 </article>
             </div>
@@ -49,7 +49,7 @@ item.interview
  
             {% else %}
             <div class="no-reviews">
-            <p> Firma nie ma jeszcze ocen.</p>
+            <p> Firma nie ma jeszcze opinii.</p>
             </div>
             {% endif %}
         </div>
@@ -67,7 +67,7 @@ item.interview
         {% include value.file with value=value.last stars=value.stars %}
         {% if value.count > 1 %}
                 <div class="more-button">
-                    <a href="{% url 'company_items' company.pk key %}" class="button">Wszystkie {{ value.name }} ({{ value.count }}) >></a>
+                    <a href="{% url 'company_items' company.pk key company.slug %}" class="button">Wszystkie {{ value.name }} ({{ value.count }}) >></a>
                 </div>
         {% endif %}
     </section>

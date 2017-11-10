@@ -8,7 +8,7 @@
             <h1>Wyniki wyszukiwania dla: '{{ searchterm }}'</h1>
             {% for item in search_results %}
             <p>
-                <a href= {% url 'company_page' item.pk %}>{{ item }}</a>
+              <a href= {{ item.get_absolute_url }}>{{ item }}</a>
             </p>
             {% endfor %}
             <br>

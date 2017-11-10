@@ -1,9 +1,9 @@
 <div class="row">
     <!-- This is visible on desktop -->
     <article class="twelve columns action-buttons desktop">
-        <a href= {% url 'review' company.pk %} class="button button-primary">Dodaj recenzję</a>
+        <a href= {% url 'review' company.pk %} class="button button-primary">Dodaj opinię</a>
         <a href = {% url 'salary' company.pk %} class="button button-primary">Dodaj zarobki</a>
-        <a href = {% url 'interview' company.pk %} class="button button-primary">Dodaj interview</a>
+        <a href = {% url 'interview' company.pk %} class="button button-primary">Dodaj rozmowę</a>
     </article>
 
   <!-- This is visible on mobile -->
@@ -11,9 +11,9 @@
       <a href ="javascript:void(0)" class="button button-primary" onclick="listItems()">Dodaj <i class="material-icons">menu</i></a>
       <!-- Those options are activated by js after button press -->
       <div id="actionButton" class="action-button">
-          <a href= {% url 'review' company.pk %} class="button">Recenzję</a>
+          <a href= {% url 'review' company.pk %} class="button">Opinię</a>
           <a href = {% url 'salary' company.pk %} class="button">Zarobki</a>
-          <a href = {% url 'interview' company.pk %} class="button">Interview</a>
+          <a href = {% url 'interview' company.pk %} class="button">Rozmowę</a>
       </div>
   </aritcle>
 </div>
