@@ -96,7 +96,8 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
     """
     Displays Company details with last item of each Review, Salary, Interview. 
     Is inherited by CompanyItemsView, which displays lists of all items 
-    (Review, Salary, Interview).
+    (Review, Salary, Interview). Company objects are looked up by pk, slug
+    is added at the end of url for seo, but is not used for lookup.
     """
     model = Company
     template_name = 'reviews/company_view.html'
@@ -238,9 +239,10 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
 
         #translate from Polish word in url to English word used in code
         translation_dict = {'opinie': 'review',
-                             'zarobki': 'salary',
-                             'rozmowy': 'interview'}
-        item = translation_dict[item]
+                            'zarobki': 'salary',
+                            'rozmowy': 'interview'}
+        #if item is a Polish word, translate it, otherwise don't change
+        item = translation_dict.get(item, item)
 
         if item in self.item_data:
             item_data = self.item_data[item]

@@ -9,7 +9,8 @@
 <div class="row">
     <div class="twelve columns">
         <div class="data">{{ value.date|date:"j E Y" }}</div>
-        <h3>Interview: {{ value.position|capfirst }}</h3>
+        <h5>Rozmowa kwalifikacyjna na stanowisko:</h5>
+        <h3>{{ value.position|capfirst }}</h3>
         {% if value.department %}
         <div>Departament: {{ value.department }}</div>
         {% endif %}
