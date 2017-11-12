@@ -25,7 +25,10 @@
         <!-- Normalize and Skeleton -->
         <link rel="stylesheet" href="{% static 'css/normalize.css' %}"/>
         <link rel="stylesheet" href="{% static 'css/skeleton.css' %}"/>
-         
+
+        <!-- jQuery UI -->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+        
         <!-- Custom project css -->
         <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
 
@@ -45,7 +48,7 @@
             <!-- searchbar  -->
             <div class="search-bar">
                 <form action="{% url 'company_search' '' %}" method="POST">
-                    <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
+                    <input type="search" id="search" placeholder="Wyszukaj firmę..." name="company_name" class="search-field auto-search" aria-label="wyszukaj firmę" autocomplete="off" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
                     {% csrf_token %}
                 </form>
             </div>
@@ -70,7 +73,7 @@
         <!-- searchbar for mobile only -->
         <div id="mobile-searchbar" class="search-mobile">
             <form action="{% url 'company_search' '' %}" method="POST">
-                <input type="search" placeholder="wyszukaj firmę" name="company_name" class="search-field" aria-label="wyszukaj firmę" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
+                <input type="search" placeholder="Wyszukaj firmę..." name="company_name" class="search-field auto-search" aria-label="wyszukaj firmę" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
                 {% csrf_token %}
             </form>
         </div>
@@ -90,6 +93,9 @@
             Tu będzie footer.
             
         </footer>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript">
+</script> <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
         <script src="{% static 'js/scripts.js' %}"></script>
     </body>
 </html>

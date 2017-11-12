@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse, reverse_lazy
@@ -68,11 +68,24 @@ class CompanySearchView(View):
 
     def get(self, request, *args, **kwargs):
         """Used to display both:  search form or search results."""
+        if request.is_ajax():
+            search_results = self.get_results(request.GET.get('term',''))
+            options = []
+            for item in search_results:
+                search_item = {}
+                search_item['id'] = item.pk
+                search_item['label'] = item.name
+                search_item['value'] = item.name
+                options.append(search_item)
+            print(options)
+            return JsonResponse(options, safe=False)
+                                         
+        
         search_results = ''
         searchterm_joined = kwargs.get('searchterm')
         searchterm = searchterm_joined.replace('_', ' ')
         if searchterm:
-            search_results = Company.objects.filter(name__unaccent__icontains=searchterm)
+            search_results = self.get_results(searchterm)
             #search_results = Company.objects.filter(name__search=searchterm)
             #search_results = Company.objects.filter(name__iregex=r"\y{0}\y".format(searchterm))
             self.template_name = self.redirect_template_name
@@ -83,6 +96,9 @@ class CompanySearchView(View):
                        'searchterm': searchterm,
                        'searchterm_joined': searchterm_joined})
 
+    def get_results(self, searchterm):
+        return Company.objects.filter(name__unaccent__icontains=searchterm)
+    
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():

@@ -46,3 +46,12 @@ function listItems() {
 }
 
 
+$(function() {
+  $(".auto-search").autocomplete({
+    source: "/search/",
+    minLength: 4,
+    select: function(event, ui) {
+      location.href="/" + ui.item.id;
+}
+});
+})

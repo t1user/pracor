@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^review/(?P<id>\d*)/$',
         ReviewCreate.as_view(), name='review'),
 
-    url(r'^search/(?P<searchterm>.*)/$',
+    url(r'^search/(?P<searchterm>.*)?$',
         CompanySearchView.as_view(), name='company_search'),
 
     url(r'^(?P<pk>\d+)/(?P<item>\w+)/(?P<slug>[-\w\d]+)?$',
