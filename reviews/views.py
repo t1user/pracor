@@ -124,16 +124,20 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         Override get() to make sure the view has been called with correct slug.
         If not, redirect.
         """
-        obj = self.get_object()
+        self.object = self.get_object()
         # this is required only for CompanyItemsView, which inherits from this one
         item = self.kwargs.get('item', None)
-        if self.kwargs.get('slug') != obj.slug:
+        if self.kwargs.get('slug') != self.object.slug:
             if item is None:
-                return redirect(obj)
+                return redirect(self.object)
             else:
-                return redirect('company_items', pk=obj.pk, slug=obj.slug, item=item)
+                return redirect('company_items', pk=self.object.pk,
+                                slug=self.object.slug, item=item)
         else:
-            return super().get(self, request, *args, **kwargs)
+            #this is a copy of superclass, not called by super()
+            #to avoid calling self.get_object() again (redundand database call)
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
     
     def get_items(self, **kwargs):
         """

@@ -142,6 +142,29 @@ class Company(ApprovableModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(unidecode(self.name))
+        #get rid of '-sa', '-sp-z-oo' and '-sp-z-oo-sp-k' etc. endings
+        endings = ['-sa',
+                   '-sp-z-oo',
+                   '-sp-z-oo-sp-k',
+                   '-sp-j',
+                   '-sp-j-sp-j',
+                   '-sp-k',
+                   '-sp-j-sp-j',
+                   '-sp-z-oo-ska',
+                   '-sp-z-oo-sp-j',
+                   ]
+        for e in endings:
+            if self.slug.endswith(e):
+                self.slug = self.slug.replace(e, '')
+        """
+        if self.slug.endswith('-sa'):
+            self.slug = self.slug[:self.slug.rfind('-')]
+        if self.slug.endswith('-sp-z-oo'):
+            self.slug = self.slug.replace('-sp-z-oo', '')
+        if self.slug.endswith('-sp-z-oo-sp-k'):
+            self.slug = self.slug.replace('-sp-z-oo-sp-k', '')
+        if self.slug.endwith('
+        """
         super().save(*args, **kwargs)
     
     def get_absolute_url(self):

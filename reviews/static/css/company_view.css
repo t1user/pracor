@@ -54,6 +54,7 @@ table {
     justify-content: flex-start;
 }
 
+
 .counter-button {
     padding: 1.5rem;
     border: 0.1px solid #0CAA41;
@@ -63,6 +64,9 @@ table {
     font-size: 1.8rem;
 }
 
+.counter-button:hover {
+    background-color: #e7fdef;
+}
 
 @media screen and (max-width: 900px) {
     .stars {
