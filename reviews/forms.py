@@ -77,8 +77,25 @@ class ProfanitiesFilter():
     pattern = re.compile(words, re.IGNORECASE)
     
     def __call__(self, value):
-        matches = self.pattern.findall(value)
+        matches = self.pattern.findall(re.escape(value))
         matches = [match for match in matches if match != '']
+        full_words = value.split(' ')
+        full_matched_words = []
+        for word in full_words:
+            for match in matches:
+                if match in word:
+                    full_matched_words.append(word.lower())
+        matches = set(full_matched_words)
+        #if partial words matched, get the full words
+        """
+        string = '|'.join(matches)
+        print(string)
+        regex = '\\b{0,10}%s{0,10}\\b' % (string)
+        search = re.compile(regex, re.IGNORECASE)
+        print(search)
+        matches = search.findall(value)
+        print(matches)
+        """
         if matches:
             if len(matches) == 1:
                 value = ''.join(matches)
