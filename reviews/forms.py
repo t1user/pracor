@@ -1,8 +1,12 @@
 from django import forms
+#from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from .widgets import RadioSelectModified, RadioReversed
 
 from .models import Review, Salary, Interview, Company, Position
+
+import csv, re
+
 
 
 
@@ -46,13 +50,63 @@ class CompanySelectFormOld(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['company_name'].queryset = self.companies
 
+
+
+        
+class ProfanitiesFilter():
+    """
+    Custom validator to filter out swear words.
+    First file has words that are matched inside other words.
+    Second file has words that are matched only as full words.
+    """
+    words = ''
+    with open('reviews/profanities_filter/prof_fil_broad.txt') as f:
+        i = csv.reader(f, delimiter='\n')
+        for item in i:
+            words += item[0]
+            words += '|'
+
+    more_words = ''
+    with open('reviews/profanities_filter/prof_fil.txt') as f:
+        i = csv.reader(f, delimiter='\n')
+        for item in i:
+            text_item = '\\b{}\\b|'.format(item[0])
+            more_words += text_item
+            
+        words += more_words
+    pattern = re.compile(words, re.IGNORECASE)
     
+    def __call__(self, value):
+        matches = self.pattern.findall(value)
+        matches = [match for match in matches if match != '']
+        if matches:
+            if len(matches) == 1:
+                value = ''.join(matches)
+            else:
+                value = ', '.join(matches)
+            raise forms.ValidationError('Niedopuszczalne wyrażenia: {}'.format(value),
+                                  params={'value':value},
+            )
+    
+
+class CensoredField(forms.CharField):
+    """
+    Standard CharField with custom validator filtering out profanities.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.validators.append(ProfanitiesFilter())
     
 class CompanyCreateForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = ['name', 'headquarters_city', 'website']
 
+        field_classes = {
+            'name': CensoredField,
+            'headquarters_city': CensoredField,
+            }
+        
     def clean_website(self):
         """Clean field: 'website', ensure that urls with http, https, 
         with and without www are treated as the same."""
@@ -64,12 +118,19 @@ class CompanyCreateForm(forms.ModelForm):
         # TODO check here if the website returns 200
         return url
 
+    
 class PositionForm(forms.ModelForm):
     class Meta:
         model = Position
         fields = ['position', 'department', 'location', 
                   'start_date_year', 'start_date_month', 'employment_status']
 
+        field_classes = {
+            'position': CensoredField,
+            'department': CensoredField,
+            'location': CensoredField,
+            }
+        
         labels = {
             'position': 'stanowisko',
             'department': 'departament',
@@ -90,6 +151,8 @@ class PositionForm(forms.ModelForm):
             'start_date_month': 'miesiąc',
             }
         """
+
+
         
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -98,6 +161,14 @@ class ReviewForm(forms.ModelForm):
                   'worklife', 'compensation', 'environment', 'overallscore',
                   'pros', 'cons', 'comment']
 
+        field_classes = {
+            'title': CensoredField,
+            'pros': CensoredField,
+            'cons': CensoredField,
+            'overallscore': CensoredField,
+            'comment': CensoredField,
+            }
+        
         labels = {
             'title': 'tytuł recenzji',
             'advancement': 'możliwości rozwoju',
@@ -106,7 +177,7 @@ class ReviewForm(forms.ModelForm):
             'environment': 'atmosfera w pracy',
             'pros': 'zalety',
             'cons': 'wady',
-            'ovarallscore': 'ocena ogólna',
+            'overallscore': 'ocena ogólna',
             'comment': 'co należy zmienić?',
         }
 
@@ -120,6 +191,8 @@ class ReviewForm(forms.ModelForm):
             'cons': forms.Textarea(),
             'comment': forms.Textarea(),
         }
+        
+
 
 class SalaryForm(forms.ModelForm):
     #period = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'inline',}))
@@ -179,6 +252,14 @@ class InterviewForm(forms.ModelForm):
             'rating',
         ]
 
+        field_classes = {
+            'position': CensoredField,
+            'department': CensoredField,
+            'how_got': CensoredField,
+            'questions': CensoredField,
+            'impressions': CensoredField,
+            }
+        
         widgets = {
             'difficulty': forms.RadioSelect(),
             'impressions': forms.Textarea(),
@@ -189,3 +270,4 @@ class InterviewForm(forms.ModelForm):
         """help_texts = {
             'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
             }"""
+

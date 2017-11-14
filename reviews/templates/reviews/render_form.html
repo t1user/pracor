@@ -10,13 +10,13 @@ from widget. Those fields are rendered with star.
     {{ form.non_field_errors }}
     {% for field in form %}
     <div class="form_field {{ field.field.widget.attrs|class }}">
-        {{ field.errors }}
         <label for="{{ field.id_for_label }}">
             {{ field.label|safe }}
             {% if field.field.required %}
             <span class="required">*</span>
             {% endif %}
         </label>
+        {{ field.errors }}
         {{ field }}
         {% if field.help_text %}
         <p class="help">{{ field.help_text|safe }}</p>

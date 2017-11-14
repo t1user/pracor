@@ -68,6 +68,7 @@ class CompanySearchView(View):
 
     def get(self, request, *args, **kwargs):
         """Used to display both:  search form or search results."""
+        #this is used by jQuery autocomplete function
         if request.is_ajax():
             search_results = self.get_results(request.GET.get('term',''))
             options = []
@@ -77,10 +78,8 @@ class CompanySearchView(View):
                 search_item['label'] = item.name
                 search_item['value'] = item.name
                 options.append(search_item)
-            print(options)
             return JsonResponse(options, safe=False)
-                                         
-        
+        #this is used by regular http requests
         search_results = ''
         searchterm_joined = kwargs.get('searchterm')
         searchterm = searchterm_joined.replace('_', ' ')
@@ -97,6 +96,7 @@ class CompanySearchView(View):
                        'searchterm_joined': searchterm_joined})
 
     def get_results(self, searchterm):
+        """Fires database query and returns matching Company objects."""
         return Company.objects.filter(name__unaccent__icontains=searchterm)
     
     def post(self, request, *args, **kwargs):
@@ -455,6 +455,7 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
         have been overriden to handle two forms instead 
         of one. two_forms returns True if the second form is required.
         """
+        self.object = None
         self.company = get_object_or_404(Company, pk=self.kwargs['id'])
         form = self.get_form()
         if self.two_forms():
@@ -466,7 +467,10 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
                 return self.form_invalid(form=form,
                                          position_form=position_form)
         else:
-            return self.form_valid(form=form)
+            if form.is_valid():
+                return self.form_valid(form=form)
+            else:
+                return self.form_invalid(form=form)
             
     def form_valid(self, form, **kwargs):
         """
@@ -491,17 +495,17 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
         self.request.user.profile.save(update_fields = ['contributed'])
         return HttpResponseRedirect(self.get_success_url())
             
-    def form_invalid(self, form, position_form):
+    def form_invalid(self, form, **kwargs):
         """
         Override to enable for handling of two forms. If only one form,
         superclass used.
         """
         if self.two_forms():
+            position_form = kwargs['position_form']
             return self.render_to_response(self.get_context_data(form=form,
                                             position_form=position_form))
         else:
-            return super().form_valid(form)
-
+            return super().form_invalid(form, **kwargs)
 
 
 class ReviewCreate(ContentCreateAbstract):
