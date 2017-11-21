@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import six, timezone
 
 from django.conf import settings
+from reviews.models import Company
 
 
 class UserManager(BaseUserManager):
@@ -71,14 +72,22 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE, editable=False)
     contributed = models.BooleanField('Zrobił wpis', default=False)
-    sex = models.CharField("płeć", max_length=1, choices=SEX, null=True, default=None)
+    sex = models.CharField("płeć", max_length=1, choices=SEX, default=None, blank=True)
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)
     linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
     linkedin_url = models.URLField(null=True, blank=True)
+    visited_companies = models.ManyToManyField(Company, through='Visit')
 
     def __str__(self):
         return self.user.email
-    
 
+
+class Visit(models.Model):
+    company = models.ForeignKey(Company)
+    user = models.ForeignKey(Profile)
+    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return self.company.name

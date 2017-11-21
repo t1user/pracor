@@ -11,6 +11,7 @@ from django.core.paginator import (Paginator, EmptyPage, PageNotAnInteger)
 from django.conf import settings
 
 from .models import Company, Salary, Review, Interview, Position
+from users.models import Visit
 from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
                     ReviewForm, SalaryForm, InterviewForm,
                     CompanySelectForm)
@@ -234,6 +235,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         """
         Adds number of stars for Company ratings.
         """
+        self.record_visit()
         context = super().get_context_data(**kwargs)
         # get_scores() is a model method
         scores = self.object.get_scores()
@@ -242,6 +244,15 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         context['items'] = self.get_items()
         #pprint(context)
         return context
+
+    def record_visit(self):
+        """
+        Record user who visited the Company and the date
+        of the visit.
+        """
+        visit = Visit(company=self.object,
+                      user=self.request.user.profile)
+        visit.save()
 
 
 class CompanyItemsView(CompanyDetailView, AccessBlocker):

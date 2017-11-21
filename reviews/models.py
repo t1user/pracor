@@ -21,6 +21,7 @@ class ApprovableModel(models.Model):
     class Meta:
         abstract = True
 
+        
 class Company(ApprovableModel):
     class Meta:
         verbose_name = "Firma"

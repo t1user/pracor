@@ -59,6 +59,7 @@ class ProfanitiesFilter():
     First file has words that are matched inside other words.
     Second file has words that are matched only as full words.
     """
+
     words = ''
     with open('reviews/profanities_filter/prof_fil_broad.txt') as f:
         i = csv.reader(f, delimiter='\n')
@@ -73,18 +74,19 @@ class ProfanitiesFilter():
             text_item = '\\b{}\\b|'.format(item[0])
             more_words += text_item
             
-        words += more_words
+    words += more_words
     pattern = re.compile(words, re.IGNORECASE)
     
     def __call__(self, value):
-        matches = self.pattern.findall(re.escape(value))
+        matches = self.pattern.findall(value)
         matches = [match for match in matches if match != '']
+        print(matches)
         full_words = value.split(' ')
         full_matched_words = []
         for word in full_words:
             for match in matches:
                 if match in word:
-                    full_matched_words.append(word.lower())
+                    full_matched_words.append(word.lower().rstrip(',!?:;.'))
         matches = set(full_matched_words)
         #if partial words matched, get the full words
         """

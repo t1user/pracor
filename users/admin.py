@@ -2,24 +2,10 @@ from django.contrib import admin
 from django.db import models
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
-from .models import User, Profile
+from .models import User, Profile, Visit
 from social_django.models import UserSocialAuth
 from reviews.models import Position, Review, Salary, Interview
 from django.forms import Textarea, TextInput
-
-class ProfileInline(admin.StackedInline):
-    model = Profile
-    radio_fields = {'sex': admin.HORIZONTAL}
-    fieldsets = (
-        (None, {
-            'fields': ( 'contributed', 'sex', 'career_start_year',)
-            }),
-        ('Pola linkedin', {
-            'classes': ('collapse',),
-            'fields': ('linkedin_id', 'linkedin_url'),
-            }),
-        )
-    list_filter = ('contributed',)
 
 class SocialDjangoInline(admin.StackedInline):
     model = UserSocialAuth
@@ -49,6 +35,28 @@ class SalaryInline(PositionInline):
 
 class InterviewInline(PositionInline):
     model = Interview
+
+class VisitInline(admin.TabularInline):
+    model = Visit
+    classes = ('collapse',)
+    raw_id_fields = ('company',)
+    extra = 0
+    readonly_fields = ('timestamp', 'company')
+
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    radio_fields = {'sex': admin.HORIZONTAL}
+    fieldsets = (
+        (None, {
+            'fields': ( 'contributed', 'sex', 'career_start_year',)
+            }),
+        ('Pola linkedin', {
+            'classes': ('collapse',),
+            'fields': ('linkedin_id', 'linkedin_url'),
+            }),
+        )
+    list_filter = ('contributed',)
+
 
     
 @admin.register(User)
@@ -90,14 +98,14 @@ class UserAdmin(DjangoUserAdmin):
         return UserSocialAuth.objects.get(user=obj).provider
     get_social.short_description = "login zewnętrzny"
 
-
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     """
     For benefit of editors who do not have permission to edit users.
     """
-    readonly_fields = ('user', 'date_joined', 'last_login')
-    list_display = ('user', 'sex','date_joined', 'last_login', 'contributed',)
+    readonly_fields = ('user', 'date_joined', 'last_login', 'visited_companies')
+    list_display = ('user', 'sex','date_joined', 'last_login', 'contributed')
+    inlines = (VisitInline,)
     radio_fields = {'sex': admin.HORIZONTAL}
     fieldsets = (
         (None, {
@@ -110,6 +118,11 @@ class ProfileAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
             'fields': ('linkedin_id', 'linkedin_url'),
             }),
+        (None, {
+            'classes': ('collapse',),
+            'fields': ('visited_companies',),
+            }),
+            
         )
 
     def date_joined(self, obj):
