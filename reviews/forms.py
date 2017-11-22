@@ -88,7 +88,7 @@ class ProfanitiesFilter():
                 if match in word:
                     full_matched_words.append(word.lower().rstrip(',!?:;.'))
         matches = set(full_matched_words)
-        #if partial words matched, get the full words
+        #if partial words matched, get the full words, of which they are part
         """
         string = '|'.join(matches)
         print(string)

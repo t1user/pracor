@@ -9,9 +9,8 @@ body {
     /* Margin bottom by footer height */
     margin-bottom: 6em;
     font-size: 1.7em;
-    #line-height: 1.6;
     font-family: Lato, Arial, Sans-serif;
-    #font-family: 'Fira Mono' monospace;
+    /*font-family: 'Fira Mono';*/
     letter-spacing: 0.03em;
 
 }
@@ -33,9 +32,9 @@ h1 {
 }
 
 main {
-    #width:  90%;
-    #max-width: 96rem;
-    #margin: 0 auto;
+    /*width:  90%;
+    max-width: 96rem;
+    margin: 0 auto;*/
 
 }
 
@@ -91,7 +90,6 @@ nav img {
 
 .topnav {
     float: right;
-    #padding-top: 1.4rem;
 }
 
 nav a {
@@ -103,8 +101,9 @@ nav a {
 }
 
 .topnav  a:hover {
-    background-color: #ddd;
-    color: black;
+    /*background-color: #ddd;
+    background-color: #e7fdef;*/
+    color: #e7fdef;
 }
 
 nav a.icon, nav a.glass {
