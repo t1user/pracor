@@ -103,13 +103,13 @@ table {
 .action-buttons {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: space-between;
 }
 
 .action-buttons a {
     width: 30%;
     min-width: 12rem;
-    margin: 1rem;   
+    margin-top: 2rem;   
 }
 
 .more-button {
@@ -191,10 +191,14 @@ table {
         display: none;
     }
 
+    .action-buttons {
+        justify-content: flex-start;
+    }
+    
     .action-button.responsive {
         display: inline-block;
         width: 10rem;
-        margin: 0;
+        margin-left: 2rem;
     }
 
     .action-button.responsive a {

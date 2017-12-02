@@ -43,8 +43,8 @@ class Company(ApprovableModel):
     employment = models.CharField('zatrudnienie', max_length=1,
                                   choices=EMPLOYMENT, blank=True, null=True)
     public = models.NullBooleanField('notowane', blank=True, null=True)
-    ownership = models.CharField('właściciele', max_length=500, blank=True, null=True)
-    sectors = models.CharField('sektory', max_length=350, blank=True, null=True)
+    ownership = models.TextField('właściciele', blank=True, null=True)
+    sectors = models.TextField('sektory', blank=True, null=True)
     isin = models.CharField('ISIN', max_length=30, blank=True, null=True)
 
     slug = models.SlugField(null=True, max_length=200, editable=False)

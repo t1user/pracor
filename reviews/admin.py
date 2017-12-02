@@ -56,7 +56,8 @@ class CompanyAdmin(ModelAdminModified):
                        }),
          ('Dodatkowe informacje', {
              'classes': ('collapse',),
-             'fields': ('region', 'country', 'employment', 'public', 'ownership')
+             'fields': (('region', 'country'), 'employment', ('public', 'isin'), 'ownership',
+                        'sectors',)
              }),
         ModelAdminModified.approval,
          ('Oceny', {
