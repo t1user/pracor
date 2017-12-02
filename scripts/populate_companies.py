@@ -7,6 +7,7 @@ proj_path = "/home/tomek/pracr/"
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
 sys.path.append(proj_path)
 import pracr.wsgi
+from django.db import IntegrityError
 
 
 
@@ -14,13 +15,16 @@ import openpyxl, requests
 #from openpyxl.worksheet.worksheet.Worksheet import iter_rows, iter_cells, cell
 from reviews.models import Company
 
+INTEGRITY_COUNT = 0
 
 def get_files():
-    #create a list of excel files
+    """Create a list of excel files (.xlsx extension only) in the current directory. 
+    All of them will be processed."""
     files = []
     for file in os.listdir():
         if file.endswith('.xlsx'):
-            files.append(file)
+             files.append(file)
+             files.sort()
     return files
 
 def get_sheet(file):
@@ -34,13 +38,11 @@ def count_rows():
         n = 0
         for row in sheet.rows:
             n+=1
-        print(n)
-
-
+        print('Number of rows in file: ', n)
 
 
 def get_header(sheet):
-    #get content of row 8 and return it as a list
+    #get content of row 8 and return it as a list - it must contain field names
     header = [cell.value for column in sheet.iter_cols(min_row=8, max_row=8) for cell in column]
     return header
             
@@ -51,7 +53,9 @@ def get_content(header, sheet):
         values = {}
         for index, cell in enumerate(row):
             values[header[index]]= cell.value
-        content.append(values)
+        #rows without name are empty and should be weeded
+        if values['Firma'] is not None:
+            content.append(values)
     return content
 
 
@@ -68,7 +72,9 @@ def create_entry(entry):
     def get_employment(employees):
         """Helper function to convert employment classes into ranges
         defined in database."""
-        if employees < 100:
+        if employees == 'n/a':
+            return None
+        elif employees < 100:
             return 'A'
         elif employees < 500:
             return 'B'
@@ -88,8 +94,19 @@ def create_entry(entry):
             raise ValueError
         return new_name
 
+    def clean_ownership(owner):
+        """If the content is too long for database max_length limit - truncate"""
+        if len(owner) > 500:
+            owner = owner[:499]
+        return owner
+
+    def clean_sectors(sectors):
+        if len(sectors) > 350:
+            sectors = sectors[:349]
+        return sectors
+
     #want to have companies without www removed silently (without loggin an error)
-    if entry['Strona www'] != 'n/a':
+    if www_available(entry): #and test_www(entry):
         try:
             item = Company(name = clean_name(entry['Firma']),
                            headquarters_city = entry['Miasto'],
@@ -97,31 +114,50 @@ def create_entry(entry):
                            country = entry['Kraj'],
                            website = entry['Strona www'],
                            public = get_public(entry['Notowane/Nienotowane']),
-                           ownership = entry['Właściciele'],
+                           ownership = clean_ownership(entry['Właściciele']),
                            employment = get_employment(entry['Liczba zatrudnionych']),
+                           sectors = clean_sectors(entry['Sektory']),
+                           isin = entry['ISIN'],
         )
             item.save()
-            return 1
+            return True
+        except ValueError as e:
+            #print('!FIRMA W LIKWIDACJI!', entry['Firma'], entry['Strona www'], 'Error: ', e.args)
+            return False
+        except IntegrityError as e:
+            #print('Integrity error', entry['Firma'], e)
+            global INTEGRITY_COUNT
+            INTEGRITY_COUNT += 1
         except Exception as e:
-            print('ERROR!!!!!!!!   ', entry['Firma'], entry['Strona www'], 'Error: ', e)
-            return 0
-
-    return 0
+            #print('ERROR!!!!!!!!   ', entry['Firma'], entry['Strona www'], 'Error: ', e.args)
+            #return False
+            print(entry['Firma'], e.args, type(e).__name__)
+            sys.exit()
+    return False
 
 def test_www(entry):
     number = entry['Num']
     name = entry['Firma']
     www = entry['Strona www']
-    
-    r = requests.get(www)
-    if r.status_code != requests.codes.ok:
-        print('ERROR!!!!!!! ', number, name, www, r.status_code)
+    try:
+        r = requests.get(www)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        print("Error http: ", e.args)
+        return False
+    except requests.exceptions.ConnectionError as e:
+        print("Wrong www: ", e.args)
+        return False
+    except requests.exceptions.TooManyRedirects as e:
+        print("Too many redirects: ", e.args, "still adding ", www, "to database")
+        return True
+    return True
 
-def list_no_www(entry):
+def www_available(entry):
     if entry['Strona www'] == 'n/a':
-        print(entry['Firma'], entry['Strona www'])
-        return 1
-    return 0
+        #print('No website for: ', entry['Firma'], entry['Strona www'])
+        return False
+    return True
     
         
         
@@ -148,7 +184,7 @@ print(counter)
     
 
 def do_file(content, function):
-    """Performs 'function' for content generated from one file"""
+    """Performs 'function' for content generated from one file. Content is a list."""
     counter = 0
     for entry in content:
         a = function(entry)
@@ -159,6 +195,8 @@ def run_files(function):
     """Performs 'function' for all files."""
     counter = 0
     for file in files:
+        print()
+        print("------------------------------------------------------------------------------")
         print(file)
         sheet = get_sheet(file)
         header = get_header(sheet)
@@ -167,20 +205,12 @@ def run_files(function):
         counter += a
     print('Count: ', counter)
 
-run_files(create_entry)
-#run_files(list_no_www)
+
+if __name__ == '__main__':
+    run_files(create_entry)
+    #run_files(list_no_www)
+    print("database integrity errors: ", INTEGRITY_COUNT)
+
+    
         
 
-
-
-"""
-#print(content)
-
-for  item in content:
-    print(item['Num'], item['Firma'], item['Strona www'])
-    
-
-
-print(files)
-print(files[1])
-"""

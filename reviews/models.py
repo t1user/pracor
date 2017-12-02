@@ -10,7 +10,7 @@ class ApprovableModel(models.Model):
     """
     Abstract model providing features for entry approval in the admin module.
     """
-
+    #approved set to False prevents the record from being displayed
     approved = models.NullBooleanField('Zatwierdzone', default=None, null=True, blank=True)
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
                                  on_delete=models.SET_NULL,
@@ -32,20 +32,22 @@ class Company(ApprovableModel):
                   ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]
 
     #only three values are required - to make company creation easy for users
-    name = models.CharField('nazwa', max_length=100, unique=True)
+    name = models.CharField('nazwa', max_length=200, unique=True)
     headquarters_city = models.CharField('siedziba centrali', max_length=60)
     website = models.URLField('strona www', unique=True)
 
-    #other fields are optional, to be filled-in by admins
+    #other fields are optional, to be filled-in by admins (rather than users)
     date = models.DateField('data dodania do bazy', auto_now_add=True, editable=False)
     region = models.CharField('województwo', max_length=40, blank=True, null=True)
     country = models.CharField('kraj', max_length=40, default='Polska')
     employment = models.CharField('zatrudnienie', max_length=1,
                                   choices=EMPLOYMENT, blank=True, null=True)
     public = models.NullBooleanField('notowane', blank=True, null=True)
-    ownership = models.CharField('właściciele', max_length=200, blank=True, null=True)
+    ownership = models.CharField('właściciele', max_length=500, blank=True, null=True)
+    sectors = models.CharField('sektory', max_length=350, blank=True, null=True)
+    isin = models.CharField('ISIN', max_length=30, blank=True, null=True)
 
-    slug = models.SlugField(null=True, max_length=100, editable=False)
+    slug = models.SlugField(null=True, max_length=200, editable=False)
     #rating inputs - not to be edited directly, numbers have to be divided by
     #number of reviews to get to the rating number
     overallscore = models.PositiveIntegerField('Ocena ogólna', editable=False,
@@ -157,15 +159,6 @@ class Company(ApprovableModel):
         for e in endings:
             if self.slug.endswith(e):
                 self.slug = self.slug.replace(e, '')
-        """
-        if self.slug.endswith('-sa'):
-            self.slug = self.slug[:self.slug.rfind('-')]
-        if self.slug.endswith('-sp-z-oo'):
-            self.slug = self.slug.replace('-sp-z-oo', '')
-        if self.slug.endswith('-sp-z-oo-sp-k'):
-            self.slug = self.slug.replace('-sp-z-oo-sp-k', '')
-        if self.slug.endwith('
-        """
         super().save(*args, **kwargs)
     
     def get_absolute_url(self):
