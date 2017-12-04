@@ -1,10 +1,12 @@
-from django.db import models
-from django.urls import reverse
-from django.conf import settings
 import datetime
+
+from django.conf import settings
+from django.db import models
 from django.db.models import Avg
+from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
+
 
 class ApprovableModel(models.Model):
     """
@@ -17,16 +19,11 @@ class ApprovableModel(models.Model):
                                  null=True, blank=True, editable=False)
     reviewed_date = models.DateField('Data przeglądu', null=True, blank=True)
     
-    
     class Meta:
         abstract = True
 
         
 class Company(ApprovableModel):
-    class Meta:
-        verbose_name = "Firma"
-        verbose_name_plural = "Firmy"
-        ordering = ['name']
         
     EMPLOYMENT = [('A', '<100'), ('B', '101-500'), ('C', '501-1000'),
                   ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]
@@ -63,6 +60,36 @@ class Company(ApprovableModel):
     number_of_reviews = models.PositiveIntegerField('Liczba ocen', editable=False,
                                                     default=0)
 
+    class Meta:
+        verbose_name = "Firma"
+        verbose_name_plural = "Firmy"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unidecode(self.name))
+        #get rid of '-sa', '-sp-z-oo' and '-sp-z-oo-sp-k' etc. endings
+        endings = ['-sa',
+                   '-sp-z-oo',
+                   '-sp-z-oo-sp-k',
+                   '-sp-j',
+                   '-sp-j-sp-j',
+                   '-sp-k',
+                   '-sp-j-sp-j',
+                   '-sp-z-oo-ska',
+                   '-sp-z-oo-sp-j',
+                   ]
+        for e in endings:
+            if self.slug.endswith(e):
+                self.slug = self.slug.replace(e, '')
+        super().save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('company_page',
+                       kwargs={'pk': self.pk, 'slug': self.slug})
+        
     def get_reviews(self):
         return Review.objects.filter(company=self.pk).exclude(approved=False)
 
@@ -140,36 +167,9 @@ class Company(ApprovableModel):
             self.environment += review.environment
         self.save()
 
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(unidecode(self.name))
-        #get rid of '-sa', '-sp-z-oo' and '-sp-z-oo-sp-k' etc. endings
-        endings = ['-sa',
-                   '-sp-z-oo',
-                   '-sp-z-oo-sp-k',
-                   '-sp-j',
-                   '-sp-j-sp-j',
-                   '-sp-k',
-                   '-sp-j-sp-j',
-                   '-sp-z-oo-ska',
-                   '-sp-z-oo-sp-j',
-                   ]
-        for e in endings:
-            if self.slug.endswith(e):
-                self.slug = self.slug.replace(e, '')
-        super().save(*args, **kwargs)
-    
-    def get_absolute_url(self):
-        return reverse('company_page',
-                       kwargs={'pk': self.pk, 'slug': self.slug})
 
 
 class Position(models.Model):
-    class Meta:
-        verbose_name = "Stanowisko"
-        verbose_name_plural = "Stanowiska"
         
     STATUS_ZATRUDNIENIA = [
         ('A', 'Pełen etat'),
@@ -205,6 +205,10 @@ class Position(models.Model):
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')
 
+    class Meta:
+        verbose_name = "Stanowisko"
+        verbose_name_plural = "Stanowiska"
+    
     def __str__(self):
         if self.company:
             company = str(self.company)
@@ -215,9 +219,6 @@ class Position(models.Model):
         return self.position + ' - ' + company + ' - ' + self.user.email
 
 class Review(ApprovableModel):
-    class Meta:
-        verbose_name = "Recenzja"
-        verbose_name_plural = "Recenzje"
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
         
@@ -243,8 +244,17 @@ class Review(ApprovableModel):
     environment = models.PositiveIntegerField('atmosfera w pracy',
                                               choices=RATINGS, default=None)
     
+    class Meta:
+        verbose_name = "Recenzja"
+        verbose_name_plural = "Recenzje"
 
+    def __str__(self):
+        return 'id_{}-{}-{}'.format(str(self.id), self.company.name, self.title)
 
+    def get_absolute_url(self):
+        return reverse('company_page',
+                       kwargs={'pk': self.company.id})
+    
     def get_scores(self):
         return {'overallscore': self.overallscore,
                 'advancement': self.advancement,
@@ -253,19 +263,8 @@ class Review(ApprovableModel):
                 'environment': self.environment,
                 }
 
-    def get_absolute_url(self):
-        return reverse('company_page',
-                       kwargs={'pk': self.company.id})
-
-    def __str__(self):
-        return 'id_' + str(self.id) + ' - ' + self.company.name + ' - ' + self.title
-
-
 
 class Salary(ApprovableModel):
-    class Meta:
-        verbose_name = "Zarobki"
-        verbose_name_plural = "Zarobki"
 
     PERIOD = [
         ('M', 'miesięcznie'),
@@ -313,6 +312,17 @@ class Salary(ApprovableModel):
     total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
                                                default=0, editable=False)
 
+    class Meta:
+        verbose_name = "Zarobki"
+        verbose_name_plural = "Zarobki"
+
+    def __str__(self):
+        return 'id_{}_{}'.format(self.id, self.company)
+
+    def get_absolute_url(self):
+        return reverse('company_page',
+                       kwargs={'pk': self.company.id})
+        
     @staticmethod
     def convert(currency='PLN', period='M', gross_net='G', value=1):
         """
@@ -361,14 +371,6 @@ class Salary(ApprovableModel):
         if gross_net == 'N':
             return net_to_gross(value)
         
-    
-    def get_absolute_url(self):
-        return reverse('company_page',
-                       kwargs={'pk': self.company.id})
-
-    def __str__(self):
-        return 'id_{}_{}'.format(self.id, self.company)
-
 
 class Interview(ApprovableModel):
     HOW_GOT = [
@@ -411,6 +413,9 @@ class Interview(ApprovableModel):
     impressions = models.TextField('wrażenia')
     rating = models.PositiveIntegerField('Ocena', choices=RATINGS, default=None)
 
+    def __str__(self):
+        return 'id_' + str(self.id) + '_' + str(self.company)
+
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
@@ -419,7 +424,3 @@ class Interview(ApprovableModel):
         """"Used by method calculating number of rating stars for display."""
         return {'rating': self.rating,
                 }
-
-    def __str__(self):
-        return 'id_' + str(self.id) + '_' + str(self.company)
-

@@ -1,6 +1,5 @@
 
-from .forms import (CompanySearchForm, ReviewForm, SalaryForm,
-                    CompanyForm)
+from .forms import CompanyForm, CompanySearchForm, ReviewForm, SalaryForm
 
 
 class BaseFormView(View):
@@ -81,4 +80,3 @@ class CompanyCreateView(BaseFormView):
     def process_result(self, request, *args, **kwargs):
         super().process_result(request, *args, **kwargs)
         self.redirect_data = self.model_instance.pk
-

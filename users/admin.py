@@ -1,11 +1,14 @@
 from django.contrib import admin
-from django.db import models
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.utils.translation import ugettext_lazy as _
-from .models import User, Profile, Visit
-from social_django.models import UserSocialAuth
-from reviews.models import Position, Review, Salary, Interview
+from django.db import models
 from django.forms import Textarea, TextInput
+from django.utils.translation import ugettext_lazy as _
+from social_django.models import UserSocialAuth
+
+from reviews.models import Interview, Position, Review, Salary
+
+from .models import Profile, User, Visit
+
 
 class SocialDjangoInline(admin.StackedInline):
     model = UserSocialAuth
@@ -132,6 +135,3 @@ class ProfileAdmin(admin.ModelAdmin):
     def last_login(self, obj):
         return obj.user.last_login
     last_login.short_description = "ostatnie logowanie"
-        
-
-

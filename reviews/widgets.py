@@ -11,5 +11,3 @@ class RadioReversed(RadioSelect):
     Radio widget, which lists items in reverse order.
     """
     template_name = 'reviews/django_modified/radio_reversed.html'
-
-    

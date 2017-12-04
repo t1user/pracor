@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.db import models
-from django.forms import Textarea, TextInput, RadioSelect
-from .models import Company, Review, Salary, Position, Interview
+from django.forms import RadioSelect, Textarea, TextInput
 from django.utils import timezone
+
+from .models import Company, Interview, Position, Review, Salary
 
 admin.site.site_header = 'pracr - administracja'
 
@@ -148,5 +149,3 @@ class InterviewAdmin(ModelAdminModified):
 @admin.register(admin.models.LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('get_change_message', 'object_repr', 'action_time', 'user', 'action_flag')
-
-

@@ -1,15 +1,14 @@
-from django.shortcuts import render, redirect
+from django import forms
+from django.contrib.auth import (authenticate, get_user_model, login,
+                                 password_validation)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, render
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext
 from django.views import View
 from django.views.generic import TemplateView
-from django import forms
-from django.contrib.auth import (
-    login, authenticate, get_user_model, password_validation,)
 
-from django.utils.translation import ugettext, ugettext_lazy as _
-
-from django.contrib.auth.mixins import LoginRequiredMixin
-
-from .forms import CreateProfileForm_user, CreateProfileForm_profile
+from .forms import CreateProfileForm_profile, CreateProfileForm_user
 from .models import User
 
 
@@ -144,5 +143,3 @@ class LoginErrorView(View):
     def get(self, request, *args, **kwargs):
         print(kwargs)
         return render(request,self.template_name)
-
-        

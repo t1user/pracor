@@ -1,13 +1,12 @@
+import csv
+import re
+
 from django import forms
 #from django.core.exceptions import ValidationError
 from django.forms import ModelForm
-from .widgets import RadioSelectModified, RadioReversed
 
-from .models import Review, Salary, Interview, Company, Position
-
-import csv, re
-
-
+from .models import Company, Interview, Position, Review, Salary
+from .widgets import RadioReversed, RadioSelectModified
 
 
 class CompanySearchForm(forms.Form):
@@ -289,4 +288,3 @@ class InterviewForm(forms.ModelForm):
         """help_texts = {
             'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
             }"""
-

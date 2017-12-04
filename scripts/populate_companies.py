@@ -1,19 +1,23 @@
-"""Creates database entries for reviews.Company from excel files. Excel files must have labels in row 8 and 1000 entries starting from row 9. Columns with names as per line [] must exist.
+"""Create database entries for reviews.Company from excel files. Excel files must have labels in row 8 and 1000 entries starting from row 9. Columns with names as per lines 114-123 must exist. The way to use the script is to invoke run_files(function), where function will be performed on every row in every file.
 """
 
 #Configuration to allow for access to project models
-import os, sys
+import os
+import sys
+
+import openpyxl
+import requests
+#from openpyxl.worksheet.worksheet.Worksheet import iter_rows, iter_cells, cell
+
 proj_path = "/home/tomek/pracr/"
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
 sys.path.append(proj_path)
 import pracr.wsgi
+
 from django.db import IntegrityError
-
-
-
-import openpyxl, requests
-#from openpyxl.worksheet.worksheet.Worksheet import iter_rows, iter_cells, cell
 from reviews.models import Company
+
+sys.exit()
 
 INTEGRITY_COUNT = 0
 
@@ -87,7 +91,6 @@ def create_entry(entry):
         else:
             return 'F'
 
-
     def clean_name(name):
         new_name = name.strip('[1]').strip()
         if 'Likwidacja' in new_name or 'Zamknięta' in new_name:
@@ -95,12 +98,21 @@ def create_entry(entry):
         return new_name
 
     def clean_ownership(owner):
-        """If the content is too long for database max_length limit - truncate"""
+        """
+        If the content is too long for database max_length limit - truncate.
+        CURRENTLY NOT IN USE. Not required because TextField doesn't have max_length limitation
+        (as opposed to CharField).
+        """
+        return owner
         if len(owner) > 500:
             owner = owner[:499]
         return owner
 
     def clean_sectors(sectors):
+        """
+        Same as previous function.
+        """
+        return sectors
         if len(sectors) > 350:
             sectors = sectors[:349]
         return sectors
@@ -136,6 +148,9 @@ def create_entry(entry):
     return False
 
 def test_www(entry):
+    """
+    Test if the given www is valid. This function can be called inside create_entry (uncomment the call) or a script from separate module can be used.
+    """
     number = entry['Num']
     name = entry['Firma']
     www = entry['Strona www']
@@ -210,7 +225,3 @@ if __name__ == '__main__':
     run_files(create_entry)
     #run_files(list_no_www)
     print("database integrity errors: ", INTEGRITY_COUNT)
-
-    
-        
-

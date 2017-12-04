@@ -1,21 +1,22 @@
-from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views import View
-from django.urls import reverse, reverse_lazy
-from django.views.generic import (UpdateView, DeleteView, CreateView,
-                                  ListView, DetailView, TemplateView)
-from django.contrib.auth.mixins import (LoginRequiredMixin, PermissionRequiredMixin,
-                                        UserPassesTestMixin)
-from django.core.paginator import (Paginator, EmptyPage, PageNotAnInteger)
+from pprint import pprint
 
 from django.conf import settings
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin,
+                                        UserPassesTestMixin)
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.views import View
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  TemplateView, UpdateView)
 
-from .models import Company, Salary, Review, Interview, Position
 from users.models import Visit
-from .forms import (CompanySearchForm, CompanyCreateForm, PositionForm,
-                    ReviewForm, SalaryForm, InterviewForm,
-                    CompanySelectForm)
-from pprint import pprint
+
+from .forms import (CompanyCreateForm, CompanySearchForm, CompanySelectForm,
+                    InterviewForm, PositionForm, ReviewForm, SalaryForm)
+from .models import Company, Interview, Position, Review, Salary
 
 
 class AccessBlocker(UserPassesTestMixin):
@@ -702,5 +703,3 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
             print(forms)
             return render(request, self.template_name,
                           {'forms': forms})
-    
-        

@@ -1,8 +1,9 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.forms import ModelForm
+
 from users.models import Profile
 
-from django.contrib.auth import get_user_model
 
 class CreateProfileForm_user(forms.ModelForm):
     class Meta:
@@ -23,5 +24,3 @@ class CreateProfileForm_profile(forms.ModelForm):
         widgets = {
             'sex': forms.RadioSelect()
             }
-        
-
