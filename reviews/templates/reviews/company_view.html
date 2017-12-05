@@ -20,6 +20,7 @@ items are reviews, salaries and iterviews accessible by
 items.review
 items.salary
 item.interview
+update: it's been tranlsated, use: opinie, zarobki, rozmowy
 {% endcomment %}
 
 <div class="container">
@@ -30,15 +31,15 @@ item.interview
                 <article class="counter">
                     <div class="counter-button">
                         Opinie
-                        <a href="{% url 'company_items' company.pk 'opinie' company.slug %}">{{ items.review.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'opinie' company.slug %}">{{ items.opinie.count }}</a>
                     </div>
                     <div class="counter-button">
                         Zarobki
-                        <a href="{% url 'company_items' company.pk 'zarobki' company.slug %}">{{ items.salary.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'zarobki' company.slug %}">{{ items.zarobki.count }}</a>
                     </div>
                     <div class="counter-button">
                         Rozmowy
-                        <a href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">{{ items.interview.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">{{ items.rozmowy.count }}</a>
                     </div>
                 </article>
             </div>

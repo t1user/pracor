@@ -12,9 +12,6 @@ urlpatterns = [
     url(r'^linkedin_associate',
         LinkedinCreateProfile.as_view(), name='linkedin_associate'),
 
-    url(r'^review/(?P<id>\d*)/$',
-        ReviewCreate.as_view(), name='review'),
-
     url(r'^search/(?P<searchterm>.*)?$',
         CompanySearchView.as_view(), name='company_search'),
 
@@ -36,9 +33,12 @@ urlpatterns = [
     url(r'^company/list/$',
         CompanyList.as_view(), name='company_list'),
 
-    url(r'^salary/(?P<id>\d*)/$',
+    url(r'^opinie/(?P<id>\d*)/$',
+        ReviewCreate.as_view(), name='review'),
+
+    url(r'^zarobki/(?P<id>\d*)/$',
         SalaryCreate.as_view(), name='salary'),
 
-    url(r'^interview/(?P<id>\d*)/$',
+    url(r'^rozmowy/(?P<id>\d*)/$',
         InterviewCreate.as_view(), name='interview'),
 ]

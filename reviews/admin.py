@@ -44,8 +44,9 @@ class CompanyAdmin(ModelAdminModified):
                        'reviewer', 'date', 'reviewed_date', 'get_ratings', 'slug')
     actions = ['update_scores']
     search_fields = ['name']
-    list_display = ['name', 'headquarters_city', 'website', 'number_of_reviews',
+    list_display = ['id', 'name', 'headquarters_city', 'website', 'number_of_reviews',
                     'count_salaries', 'count_interviews', 'approved', 'reviewer']
+    list_display_links = ['name',]
     inlines = (ReviewInline, SalaryInline, InterviewInline, )
 
     

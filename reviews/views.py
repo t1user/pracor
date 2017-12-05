@@ -99,7 +99,8 @@ class CompanySearchView(View):
 
     def get_results(self, searchterm):
         """Fires database query and returns matching Company objects."""
-        return Company.objects.filter(name__unaccent__icontains=searchterm)
+        return Company.objects.filter(name__unaccent__icontains=searchterm) | \
+            Company.objects.filter(website__icontains=searchterm)
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -120,17 +121,17 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
-    item_data = {'review':
+    item_data = {'opinie':
                  {'object': Review,
                   'name': 'opinie',
                   'file': 'reviews/review_item.html',
                   },
-                 'salary':
+                 'zarobki':
                  {'object': Salary,
                   'name': 'zarobki',
                   'file':  'reviews/salary_item.html',
                   },
-                 'interview':
+                 'rozmowy':
                  {'object': Interview,
                   'name': 'rozmowy',
                   'file':  'reviews/interview_item.html',
@@ -143,7 +144,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         If not, redirect.
         """
         self.object = self.get_object()
-        # this is required only for CompanyItemsView, which inherits from this one
+        # this line is required only for CompanyItemsView, which inherits from this one
         item = self.kwargs.get('item', None)
         if self.kwargs.get('slug') != self.object.slug:
             if item is None:
@@ -269,13 +270,15 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
         context = super().get_context_data(**kwargs)
         item = self.kwargs['item']
 
+        """
         #translate from Polish word in url to English word used in code
         translation_dict = {'opinie': 'review',
                             'zarobki': 'salary',
                             'rozmowy': 'interview'}
         #if item is a Polish word, translate it, otherwise don't change
         item = translation_dict.get(item, item)
-
+        """
+        
         if item in self.item_data:
             item_data = self.item_data[item]
             context['item'] = item
