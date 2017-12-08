@@ -23,6 +23,8 @@ h1 {
     font-weight: 400;
 }
 
+
+
 .container {
     background-color: #ffffff;
     padding: 1.5rem;
@@ -30,6 +32,26 @@ h1 {
     box-shadow: 1rem 1rem 1rem #f2f2f2;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
 }
+
+
+.message-stripe {
+    background-color: #d9d9d9;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+
+.message-stripe li {
+    list-style-type: none;
+    font-style: italic;
+    color:  rgb(30, 174, 219);
+    /*color: #0CAA41;*/
+    font-size: 2.2rem;
+    letter-spacing: 0.2rem;
+}
+
 
 main {
     /*width:  90%;

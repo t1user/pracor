@@ -33,12 +33,12 @@ urlpatterns = [
     url(r'^company/list/$',
         CompanyList.as_view(), name='company_list'),
 
-    url(r'^opinie/(?P<id>\d*)/$',
+    url(r'^dodaj/opinie/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$',
         ReviewCreate.as_view(), name='review'),
 
-    url(r'^zarobki/(?P<id>\d*)/$',
+    url(r'^dodaj/zarobki/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$',
         SalaryCreate.as_view(), name='salary'),
 
-    url(r'^rozmowy/(?P<id>\d*)/$',
+    url(r'^dodaj/rozmowy/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$',
         InterviewCreate.as_view(), name='interview'),
 ]

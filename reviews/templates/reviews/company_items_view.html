@@ -17,7 +17,7 @@ pracr | {{ company.name }} | {{ name }}
 
 <div class="container">
     <section>
-        {% include "reviews/company_header.html" %}
+        {% include "reviews/_company_header.html" %}
     </section>
 </div>
 
@@ -32,7 +32,7 @@ pracr | {{ company.name }} | {{ name }}
 </section>
 
 <section>
-    {% include 'reviews/paginator.html' %}
+    {% include 'reviews/_paginator.html' %}
 </section>
 
 <section>
@@ -50,4 +50,4 @@ pracr | {{ company.name }} | {{ name }}
 
 
 
-{% endblock %}
+{% endblock content %}

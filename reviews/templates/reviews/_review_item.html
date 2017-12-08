@@ -3,11 +3,11 @@
         <div class="date"><i>{{ value.date|date:"j E Y" }}</i></div>
         <h3>"{{ value.title|capfirst }}"</h3>
 
-        {% include "reviews/background.html" %}
+        {% include "reviews/_background.html" %}
         
     </div>
     <div class="five columns">
-        {% include "reviews/top_rating.html" %}
+        {% include "reviews/_top_rating.html" %}
     </div>
 </div>
 
@@ -23,7 +23,7 @@
         {% endif %}
     </div>
     <div class="five columns">
-        {% include "reviews/rating_table.html" %}
+        {% include "reviews/_rating_table.html" %}
     </div>
 </div>
 

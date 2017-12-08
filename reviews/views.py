@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin,
                                         UserPassesTestMixin)
+from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,6 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView)
+from django.db.models import Q
 
 from users.models import Visit
 
@@ -18,6 +20,12 @@ from .forms import (CompanyCreateForm, CompanySearchForm, CompanySelectForm,
                     InterviewForm, PositionForm, ReviewForm, SalaryForm)
 from .models import Company, Interview, Position, Review, Salary
 
+
+def success_message(request):
+    """
+    Used to display flash message after succesful submission of a form
+    """
+    messages.add_message(request, messages.SUCCESS, 'Zapisano dane. Dzięki!')
 
 class AccessBlocker(UserPassesTestMixin):
     """
@@ -65,7 +73,7 @@ class CompanySearchView(View):
     initial = {}
     template_name = 'reviews/home.html'
     redirect_template_name = 'reviews/company_search_results.html'
-    #redirects back to itself
+    #after search redirects back to itself to present results
     redirect_view = 'company_search'
 
     def get(self, request, *args, **kwargs):
@@ -99,8 +107,8 @@ class CompanySearchView(View):
 
     def get_results(self, searchterm):
         """Fires database query and returns matching Company objects."""
-        return Company.objects.filter(name__unaccent__icontains=searchterm) | \
-            Company.objects.filter(website__icontains=searchterm)
+        return Company.objects.filter(Q(name__unaccent__icontains=searchterm) |
+                                      Q(website__unaccent__icontains=searchterm))
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -124,17 +132,17 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
     item_data = {'opinie':
                  {'object': Review,
                   'name': 'opinie',
-                  'file': 'reviews/review_item.html',
+                  'file': 'reviews/_review_item.html',
                   },
                  'zarobki':
                  {'object': Salary,
                   'name': 'zarobki',
-                  'file':  'reviews/salary_item.html',
+                  'file':  'reviews/_salary_item.html',
                   },
                  'rozmowy':
                  {'object': Interview,
                   'name': 'rozmowy',
-                  'file':  'reviews/interview_item.html',
+                  'file':  'reviews/_interview_item.html',
                   },
                  }
 
@@ -307,6 +315,8 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
 
             context['buttons'] = {x: self.item_data[x]['name']
                                   for x in self.item_data.keys() if x != item}
+            pprint(context)
+            print(self.object.__dict__)
             return context
         else:
             raise Http404
@@ -508,6 +518,7 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
         # give user full access to views that require contribution to the site
         self.request.user.profile.contributed = True
         self.request.user.profile.save(update_fields = ['contributed'])
+        success_message(self.request)
         return HttpResponseRedirect(self.get_success_url())
             
     def form_invalid(self, form, **kwargs):
@@ -531,60 +542,6 @@ class SalaryCreate(ContentCreateAbstract):
     form_class = SalaryForm
     template_name = "reviews/salary_form.html"
     
-class ReviewCreateOld(LoginRequiredMixin, CreateView):
-    form_class = ReviewForm
-    model = Review
-
-    def form_valid(self, form):
-        company = get_object_or_404(Company, pk=self.kwargs['id'])
-        form.instance.company = company
-        company.overallscore += form.instance.overallscore
-        company.advancement += form.instance.advancement
-        company.worklife += form.instance.worklife
-        company.compensation += form.instance.compensation
-        company.environment += form.instance.environment
-        company.number_of_reviews += 1
-        company.save(update_fields=['overallscore',
-                                    'advancement',
-                                    'worklife',
-                                    'compensation',
-                                    'environment',
-                                    'number_of_reviews',
-                                    ])
-        #form.instance.position = form.instance.position.title()
-        #form.instance.city = form.instance.city.title()
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(
-            Company, pk=self.kwargs['id'])
-        #context['radios'] = ['overallscore', 'advancement',
-        #                     'compensation', 'environment', 'worklife']
-        return context
-
-
-class SalaryCreateOld(LoginRequiredMixin, CreateView):
-    form_class = SalaryForm
-    model = Salary
-
-    def form_valid(self, form):
-        form.instance.company = get_object_or_404(
-            Company, pk=self.kwargs['id'])
-        # stub value to be replaced with request.user.something
-        form.instance.years_experience = 5
-        form.instance.city = form.instance.city.title()
-        form.instance.position = form.instance.position.title()
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(
-            Company, pk=self.kwargs['id'])
-        return context
-
 
 class InterviewCreate(LoginRequiredMixin, CreateView):
     form_class = InterviewForm
@@ -593,6 +550,7 @@ class InterviewCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.company = get_object_or_404(
             Company, pk=self.kwargs['id'])
+        success_message(self.request)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -706,3 +664,59 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
             print(forms)
             return render(request, self.template_name,
                           {'forms': forms})
+
+
+class ReviewCreateOld(LoginRequiredMixin, CreateView):
+    form_class = ReviewForm
+    model = Review
+
+    def form_valid(self, form):
+        company = get_object_or_404(Company, pk=self.kwargs['id'])
+        form.instance.company = company
+        company.overallscore += form.instance.overallscore
+        company.advancement += form.instance.advancement
+        company.worklife += form.instance.worklife
+        company.compensation += form.instance.compensation
+        company.environment += form.instance.environment
+        company.number_of_reviews += 1
+        company.save(update_fields=['overallscore',
+                                    'advancement',
+                                    'worklife',
+                                    'compensation',
+                                    'environment',
+                                    'number_of_reviews',
+                                    ])
+        #form.instance.position = form.instance.position.title()
+        #form.instance.city = form.instance.city.title()
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_name'] = get_object_or_404(
+            Company, pk=self.kwargs['id'])
+        #context['radios'] = ['overallscore', 'advancement',
+        #                     'compensation', 'environment', 'worklife']
+        return context
+
+
+class SalaryCreateOld(LoginRequiredMixin, CreateView):
+    form_class = SalaryForm
+    model = Salary
+
+    def form_valid(self, form):
+        form.instance.company = get_object_or_404(
+            Company, pk=self.kwargs['id'])
+        # stub value to be replaced with request.user.something
+        form.instance.years_experience = 5
+        form.instance.city = form.instance.city.title()
+        form.instance.position = form.instance.position.title()
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_name'] = get_object_or_404(
+            Company, pk=self.kwargs['id'])
+        return context
+

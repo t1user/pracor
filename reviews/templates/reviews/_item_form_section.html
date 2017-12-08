@@ -8,12 +8,12 @@
 <atricle>
     <form action='' method='POST'>
 
-        {% include "reviews/render_form.html" with form=form %}
+        {% include "reviews/_render_form.html" with form=form %}
         
         {% if position_form %}
         <h4>Dotyczy stanowiska:</h4>
 
-        {% include "reviews/render_form.html" with form=position_form %}
+        {% include "reviews/_render_form.html" with form=position_form %}
 
         {% endif %}
         {% csrf_token %}

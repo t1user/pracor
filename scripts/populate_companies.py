@@ -17,7 +17,6 @@ import pracr.wsgi
 from django.db import IntegrityError
 from reviews.models import Company
 
-sys.exit()
 
 INTEGRITY_COUNT = 0
 

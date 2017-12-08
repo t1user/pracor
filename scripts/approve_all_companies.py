@@ -11,8 +11,17 @@ from users.models import User
 companies = Company.objects.all()
 reviewer = User.objects.get(email="tmierz@rocketmail.com")
 
+companies.update(
+    approved = True,
+    reviewer = reviewer,
+    reviewed.date = datetime.datetime.now()
+    )
+companies.save()
+
+"""
 for company in companies:
     company.approved = True
     company.reviewer = reviewer
     company.reviewed_date = datetime.datetime.now()
     company.save()
+"""

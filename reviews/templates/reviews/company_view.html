@@ -20,12 +20,12 @@ items are reviews, salaries and iterviews accessible by
 items.review
 items.salary
 item.interview
-update: it's been tranlsated, use: opinie, zarobki, rozmowy
+update: it's been translated, use: opinie, zarobki, rozmowy
 {% endcomment %}
 
 <div class="container">
     <section>
-        {% include "reviews/company_header.html" %}
+        {% include "reviews/_company_header.html" %}
         <div class="row">
             <div class="seven columns">
                 <article class="counter">
@@ -43,9 +43,9 @@ update: it's been tranlsated, use: opinie, zarobki, rozmowy
                     </div>
                 </article>
             </div>
-            {% if items.review.count %}
+            {% if items.opinie.count %}
             <article class="five columns">
-                {% include "reviews/rating_table.html" %}
+                {% include "reviews/_rating_table.html" %}
             </article>
  
             {% else %}
@@ -56,7 +56,7 @@ update: it's been tranlsated, use: opinie, zarobki, rozmowy
         </div>
     </section>
     <section>
-        {% include "reviews/action_buttons.html" %}
+        {% include "reviews/_action_buttons.html" %}
     </section>
 </div>
 
@@ -76,4 +76,4 @@ update: it's been tranlsated, use: opinie, zarobki, rozmowy
 {% endif %}
 {% endfor %}
 
-{% endblock %}
+{% endblock content %}
