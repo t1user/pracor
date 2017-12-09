@@ -95,8 +95,6 @@ class CompanySearchView(View):
         searchterm = searchterm_joined.replace('_', ' ')
         if searchterm:
             search_results = self.get_results(searchterm)
-            #search_results = Company.objects.filter(name__search=searchterm)
-            #search_results = Company.objects.filter(name__iregex=r"\y{0}\y".format(searchterm))
             self.template_name = self.redirect_template_name
         form = self.form_class(initial=self.initial)
         return render(request, self.template_name,
@@ -129,18 +127,19 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
-    item_data = {'opinie':
-                 {'object': Review,
+    #reminder: every 'item' is a class
+    item_data = {'review':
+                 {'item': Review,
                   'name': 'opinie',
                   'file': 'reviews/_review_item.html',
                   },
-                 'zarobki':
-                 {'object': Salary,
+                 'salary':
+                 {'item': Salary,
                   'name': 'zarobki',
                   'file':  'reviews/_salary_item.html',
                   },
-                 'rozmowy':
-                 {'object': Interview,
+                 'interview':
+                 {'item': Interview,
                   'name': 'rozmowy',
                   'file':  'reviews/_interview_item.html',
                   },
@@ -162,7 +161,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                                 slug=self.object.slug, item=item)
         else:
             #this is a copy of superclass, not called by super()
-            #to avoid calling self.get_object() again (redundand database call)
+            #to avoid calling self.get_object() again 
             context = self.get_context_data(object=self.object)
             return self.render_to_response(context)
     
@@ -176,9 +175,9 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         items = {}
         for key, value in self.item_data.items():
             # reminder: self.object is Company instance
-            object = self.object.get_objects(value['object'])
-            count = object.count()
-            last = object.last()
+            item = self.object.get_items(value['item'])
+            count = item.count()
+            last = item.last()
             try:
                 scores = last.get_scores()
                 stars = self.get_stars(scores)
@@ -187,7 +186,7 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                 stars = {}
             name = value['name']
             file = value['file']
-            items[key] = {'count': count,
+            items[value['name']] = {'count': count,
                           'last': last,
                           'name': name,
                           'file': file,
@@ -252,17 +251,15 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
         if scores:
             context['stars'] = self.get_stars(scores=scores)
         context['items'] = self.get_items()
-        #pprint(context)
         return context
 
     def record_visit(self):
         """
-        Record user who visited the Company and the date
-        of the visit.
+        Record user who visited the Company (date
+        of the visit added by model).
         """
-        visit = Visit(company=self.object,
+        Visit.objects.create(company=self.object,
                       user=self.request.user.profile)
-        visit.save()
 
 
 class CompanyItemsView(CompanyDetailView, AccessBlocker):
@@ -270,6 +267,12 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
     template_name = 'reviews/company_items_view.html'
     paginate_by = 5
 
+
+    def paginate(self, item_list):
+        context = {}
+        return item_list
+                    
+    
     def get_context_data(self, **kwargs):
         """"
         Method first determines what item (review/salary/interview) is required 
@@ -278,21 +281,21 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
         context = super().get_context_data(**kwargs)
         item = self.kwargs['item']
 
-        """
+        
         #translate from Polish word in url to English word used in code
         translation_dict = {'opinie': 'review',
                             'zarobki': 'salary',
                             'rozmowy': 'interview'}
         #if item is a Polish word, translate it, otherwise don't change
         item = translation_dict.get(item, item)
-        """
+        
         
         if item in self.item_data:
             item_data = self.item_data[item]
             context['item'] = item
             context['file'] = item_data['file']
             context['name'] = item_data['name']
-            item_list = self.object.get_objects(item_data['object']).order_by('-date')
+            item_list = self.object.get_items(item_data['item']).order_by('-date')
             if self.paginate_by and (len(item_list) > self.paginate_by):
                 context['is_paginated'] = True
                 paginator = Paginator(item_list, self.paginate_by)
@@ -304,19 +307,17 @@ class CompanyItemsView(CompanyDetailView, AccessBlocker):
                 except EmptyPage:
                     items = paginator.page(paginator.num_page)
                 item_list = items
-                context['page_obj'] = item_list
-                context['paginator'] = paginator
+            #get data for star pictures for reviews, everything else: ignore error
             try:
                 data = {x: self.get_stars(x.get_scores())
                         for x in item_list}
             except:
                 data = {x: {} for x in item_list}
-            context['data'] = data
 
+            context['page_obj'] = item_list
+            context['data'] = data
             context['buttons'] = {x: self.item_data[x]['name']
                                   for x in self.item_data.keys() if x != item}
-            pprint(context)
-            print(self.object.__dict__)
             return context
         else:
             raise Http404

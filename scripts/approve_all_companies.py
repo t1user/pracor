@@ -14,9 +14,8 @@ reviewer = User.objects.get(email="tmierz@rocketmail.com")
 companies.update(
     approved = True,
     reviewer = reviewer,
-    reviewed.date = datetime.datetime.now()
+    reviewed_date = datetime.datetime.now()
     )
-companies.save()
 
 """
 for company in companies:

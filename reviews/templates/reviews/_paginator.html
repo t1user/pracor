@@ -8,11 +8,11 @@
                     <a href="?page={{ page_obj.previous_page_number }}">&lt&lt poprzednie &nbsp </a>
                     {% endif %}
                     <span class="page-current">
-                        Strona <select id="paginatorSelect" onchange="location = '?page='+this.options[this.selectedIndex].value;">
+                        Strona &nbsp <select id="paginatorSelect" onchange="location = '?page='+this.options[this.selectedIndex].value;">
                         {% for page in page_obj.paginator.page_range %}
                         <option value="{{page}}"{% if page == page_obj.number %}selected="selected"{% endif %}>{{page}}</option>
                         {% endfor %}
-                        </select> z {{ page_obj.paginator.num_pages }}
+                        </select> &nbsp z &nbsp {{ page_obj.paginator.num_pages }}
                     </span>
                     {% if page_obj.has_next %}
                     <a href="?page={{ page_obj.next_page_number }}"> &nbsp następne &gt&gt</a>

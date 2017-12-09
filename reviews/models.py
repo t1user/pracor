@@ -99,9 +99,9 @@ class Company(ApprovableModel):
     def get_interviews(self):
         return Interview.objects.filter(company=self.pk).exclude(approved=False)
 
-    def get_objects(self, object):
-        self.object = object
-        return object.objects.filter(company=self.pk).exclude(approved=False)
+    def get_items(self, item):
+        #self.object = object
+        return item.objects.filter(company=self.pk).exclude(approved=False)
 
     def count_reviews(self):
         return self.get_reviews().count()
