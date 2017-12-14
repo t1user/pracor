@@ -1,11 +1,11 @@
 <span>
-    {% for full in stars.full %}
+    {% for full in scores.full %}
     <i class="material-icons stars">star</i>
     {% endfor %}
-    {% if stars.half %}
+    {% if scores.half %}
     <i class="material-icons stars">star_half</i>
     {% endif %}
-    {% for blank in stars.blank %}
+    {% for blank in scores.blank %}
     <i class="material-icons stars">star_border</i>
     {% endfor %}
 </span>

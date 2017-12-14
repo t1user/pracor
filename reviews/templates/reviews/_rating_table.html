@@ -1,12 +1,12 @@
+{% load reviews_extras %}
+
 <table>
-    {% for item, value in stars.items %}
+    {% for item, rating in scores.items %}
     {% if not forloop.first %}
     <tr>
         <td>
-            <div>{{ value.label }}</div>
-            <div>{% include "reviews/_display_stars.html" with stars=value %}</div>
-        </td>
-        {#<td class="score">{{ value.rating }}</td>#}
+            {% include "reviews/_rating_item.html" with name=item scores=rating %}
+            {#<td class="score">{{ rating }}</td>#}
     </tr>
     {% endif %}
     {% endfor %}

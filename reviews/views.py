@@ -8,10 +8,11 @@ from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy, resolve
 from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  TemplateView, UpdateView)
+                                  TemplateView, UpdateView, RedirectView)
+from django.views.generic.detail import SingleObjectMixin
 from django.db.models import Q
 
 from users.models import Visit
@@ -83,10 +84,9 @@ class CompanySearchView(View):
             search_results = self.get_results(request.GET.get('term',''))
             options = []
             for item in search_results:
-                search_item = {}
-                search_item['id'] = item.pk
-                search_item['label'] = item.name
-                search_item['value'] = item.name
+                search_item = {'id': item.pk,
+                               'label': item.name,
+                               'value': item.name}
                 options.append(search_item)
             return JsonResponse(options, safe=False)
         #this is used by regular http requests
@@ -104,7 +104,7 @@ class CompanySearchView(View):
                        'searchterm_joined': searchterm_joined})
 
     def get_results(self, searchterm):
-        """Fires database query and returns matching Company objects."""
+        """Fire database query and returns matching Company objects."""
         return Company.objects.filter(Q(name__unaccent__icontains=searchterm) |
                                       Q(website__unaccent__icontains=searchterm))
     
@@ -117,140 +117,46 @@ class CompanySearchView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class CompanyDetailView(LoginRequiredMixin, DetailView):
+class NoSlugRedirectMixin:
     """
-    Displays Company details with last item of each Review, Salary, Interview. 
-    Is inherited by CompanyItemsView, which displays lists of all items 
+    If view called by GET without a slug, redirect to url with slug. Otherwise, ignore.
+    Must be inherited by a CBV, which implements get_object() method.
+    """
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if kwargs.pop('slug') != self.object.slug:
+            args = request.META.get('QUERY_STRING', '')
+            if args:
+                args = '?{}'.format(args)
+            url = reverse(resolve(request.path_info).url_name,
+                          kwargs={'slug':self.object.slug, **kwargs}) + args
+            return redirect(url)
+        else:
+            return super().get(request, *args, **kwargs)
+    
+class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
+    """
+    Display Company details with last item of each Review, Salary, Interview. 
+    The class ss inherited by CompanyItemsView, which displays lists of all items 
     (Review, Salary, Interview). Company objects are looked up by pk, slug
     is added at the end of url for seo, but is not used for lookup.
     """
     model = Company
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
-    #reminder: every 'item' is a class
-    item_data = {'review':
-                 {'item': Review,
-                  'name': 'opinie',
-                  'file': 'reviews/_review_item.html',
-                  },
-                 'salary':
-                 {'item': Salary,
-                  'name': 'zarobki',
-                  'file':  'reviews/_salary_item.html',
-                  },
-                 'interview':
-                 {'item': Interview,
-                  'name': 'rozmowy',
-                  'file':  'reviews/_interview_item.html',
-                  },
-                 }
 
-    def get(self, request, *args, **kwargs):
-        """
-        Override get() to make sure the view has been called with correct slug.
-        If not, redirect.
-        """
-        self.object = self.get_object()
-        # this line is required only for CompanyItemsView, which inherits from this one
-        item = self.kwargs.get('item', None)
-        if self.kwargs.get('slug') != self.object.slug:
-            if item is None:
-                return redirect(self.object)
-            else:
-                return redirect('company_items', pk=self.object.pk,
-                                slug=self.object.slug, item=item)
-        else:
-            #this is a copy of superclass, not called by super()
-            #to avoid calling self.get_object() again 
-            context = self.get_context_data(object=self.object)
-            return self.render_to_response(context)
-    
-    def get_items(self, **kwargs):
-        """
-        Items are one last Review, Salary, Interview with 
-        accompanying data (template file name, total number of each items, 
-        stars, etc). The method is called by get_conext to add the items
-        to the context for rendering.
-        """
-        items = {}
-        for key, value in self.item_data.items():
-            # reminder: self.object is Company instance
-            item = self.object.get_items(value['item'])
-            count = item.count()
-            last = item.last()
-            try:
-                scores = last.get_scores()
-                stars = self.get_stars(scores)
-            except Exception as e:
-                print(e)
-                stars = {}
-            name = value['name']
-            file = value['file']
-            items[value['name']] = {'count': count,
-                          'last': last,
-                          'name': name,
-                          'file': file,
-                          'stars': stars,
-                          }
-        return items
-
-    def get_stars(self, scores):
-        """
-        Create a dictionary with the number of full, half and blank rating stars for 
-        a given dictionary of scores. 
-        The dictionary 'scores' has to be in the format:
-        {'overallscore': overallscore,
-         'advancement': advancement,
-         'worklife': worklife,
-         'compensation': compensation,
-         'environment': environment,} 
-        """
-        rating_items = {}
-        for key, value in scores.items():
-            (full, half, blank) = self.count_stars(value)
-            # add field names to context to allow for looping over rating
-            # items
-            try:
-                label = self.object._meta.get_field(key).verbose_name
-            except:
-                #this is for Interview.rating
-                label = key
-            rating_items[key] = {'rating': value,
-                                 'full': full,
-                                 'half': half,
-                                 'blank': blank,
-                                 'label': label}
-        return rating_items
-
-    def count_stars(self, value):
-        """
-        Performs actual stars calculations. Used for Reviews and Interviews.
-        """
-        truncated = int(value)
-        half = value - truncated
-        if 0.25 <= half < 0.75:
-            half = 1
-        else:
-            half = 0
-        if value - truncated >= 0.75:
-            truncated += 1
-        # full and blank are iterators to allow for looping in templates
-        full = range(truncated)
-        blank = range(5 - truncated - half)
-        return (full, half, blank)
-
-    
     def get_context_data(self, **kwargs):
         """
-        Adds number of stars for Company ratings.
+        Record visit and 
+        add items that will  help looping in templates.
         """
         self.record_visit()
         context = super().get_context_data(**kwargs)
-        # get_scores() is a model method
-        scores = self.object.get_scores()
-        if scores:
-            context['stars'] = self.get_stars(scores=scores)
-        context['items'] = self.get_items()
+        context['items'] = {
+            'review': self.object.reviews,
+            'salary': self.object.salaries,
+            'interview': self.object.interviews,
+        }
         return context
 
     def record_visit(self):
@@ -262,65 +168,65 @@ class CompanyDetailView(LoginRequiredMixin, DetailView):
                       user=self.request.user.profile)
 
 
-class CompanyItemsView(CompanyDetailView, AccessBlocker):
-    """Used to display lists of reviews/salaries/interviews."""
+class CompanyItemsRedirectView(RedirectView):
+    """A helper function to facilitate accessing xxx_items from templates."""
+    pass
+
+
+class CompanyItemsView(LoginRequiredMixin, AccessBlocker,
+                       SingleObjectMixin,  ListView):
     template_name = 'reviews/company_items_view.html'
     paginate_by = 5
-
-
-    def paginate(self, item_list):
-        context = {}
-        return item_list
-                    
     
-    def get_context_data(self, **kwargs):
-        """"
-        Method first determines what item (review/salary/interview) is required 
-        and pulls relevant data. Then activates paginator and returns data to context.
+    def get(self, request, *args, **kwargs):
         """
+        Provide Company object for SingleObjectMixin. Redirect if called 
+        without slug. Cannot inherit NoSlugRedirectMixin because of MRO clash.
+        """
+        self.object = self.get_object(queryset=Company.objects.all())
+        return self.no_slug(request, *args, **kwargs)
+    
+    def no_slug(self, request, *args, **kwargs):
+        """
+        Check if view has been called with proper slug, if not redirect.
+        """
+        if kwargs.pop('slug') != self.object.slug:
+            args = request.META.get('QUERY_STRING', '')
+            if args:
+                args = '?{}'.format(args)
+            url = reverse(resolve(request.path_info).url_name,
+                          kwargs={'slug':self.object.slug, **kwargs}) + args
+            return redirect(url)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        item = self.kwargs['item']
+        context['buttons'] = [x._meta.verbose_name_plural.lower()
+                              for x in [Review, Salary, Interview]
+                              if x != self.model]
+        context['name'] = self.model._meta.verbose_name_plural
+        context['model'] = self.model._meta.model_name
+        pprint(context)
+        return context
+        
+    def get_queryset(self):
+        return self.object.get_items(self.model).order_by('-date')
 
-        
-        #translate from Polish word in url to English word used in code
-        translation_dict = {'opinie': 'review',
-                            'zarobki': 'salary',
-                            'rozmowy': 'interview'}
-        #if item is a Polish word, translate it, otherwise don't change
-        item = translation_dict.get(item, item)
-        
-        
-        if item in self.item_data:
-            item_data = self.item_data[item]
-            context['item'] = item
-            context['file'] = item_data['file']
-            context['name'] = item_data['name']
-            item_list = self.object.get_items(item_data['item']).order_by('-date')
-            if self.paginate_by and (len(item_list) > self.paginate_by):
-                context['is_paginated'] = True
-                paginator = Paginator(item_list, self.paginate_by)
-                page = self.request.GET.get('page')
-                try:
-                    items = paginator.page(page)
-                except PageNotAnInteger:
-                    items = paginator.page(1)
-                except EmptyPage:
-                    items = paginator.page(paginator.num_page)
-                item_list = items
-            #get data for star pictures for reviews, everything else: ignore error
-            try:
-                data = {x: self.get_stars(x.get_scores())
-                        for x in item_list}
-            except:
-                data = {x: {} for x in item_list}
+    
+class ReviewItemsView(CompanyItemsView):
+    """Display list of reviews for a given Company."""
+    model = Review
 
-            context['page_obj'] = item_list
-            context['data'] = data
-            context['buttons'] = {x: self.item_data[x]['name']
-                                  for x in self.item_data.keys() if x != item}
-            return context
-        else:
-            raise Http404
+    
+class SalaryItemsView(CompanyItemsView):
+    """Display list of salaries for a given Company."""
+    model = Salary
+
+
+class InterviewItemsView(CompanyItemsView):
+    """Display list of interviews for a given Company."""
+    model = Interview
+
 
 class CompanyCreate(LoginRequiredMixin, CreateView):
     model = Company
@@ -396,34 +302,6 @@ class CompanyDelete(LoginRequiredMixin, SuperuserAccessBlocker, DeleteView):
     success_url = reverse_lazy('home')
 
 
-class ContentInput(LoginRequiredMixin, View):
-    """
-    This class is not in use.
-    """
-    content_form_class = ReviewForm
-    position_form_class  = PositionForm
-    model = Review
-    template_name = "reviews/review_form.html"
-
-    def get(self, request, *args, **kwargs):
-        content_form = self.content_form_class()
-        position_form = self.position_form_class()
-        return render(request, self.template_name,
-                      {'content_form': content_form,
-                       'position_form': position_form})
-
-    def post(self, request, *args, **kwargs):
-        content_form = self.content_form_class(request.POST)
-        position_form = self.position_form_class(request.POST)
-        if content_form.is_valid() and position_form.is_valid():
-            content_form.save()
-            position_form.save()
-            return redirect('register_success')
-        return render(request, self.template_name,
-                          {'content_form': content_form,
-                           'position_form': position_form})
-
-
 class ContentCreateAbstract(LoginRequiredMixin, CreateView):
     """
     Creates custom CreateView class to be inherited by views creating
@@ -453,6 +331,8 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
         If user has a position associated with the Company
         they're trying to review, this instance should be 
         associated with the review.
+        TODO: WHAT IF MORE THAN ONE POSITION
+        USER SHOULD BE ABLE TO HAVE SEVERAL POSITIONS IN A COMPANY GIVEN CERTAIN CONDITIONS
         """
         try:
             position_instance = Position.objects.filter(company=self.company,
@@ -538,6 +418,7 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
 class ReviewCreate(ContentCreateAbstract):
     form_class = ReviewForm
     template_name = "reviews/review_form.html"
+
     
 class SalaryCreate(ContentCreateAbstract):
     form_class = SalaryForm
@@ -665,59 +546,4 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
             print(forms)
             return render(request, self.template_name,
                           {'forms': forms})
-
-
-class ReviewCreateOld(LoginRequiredMixin, CreateView):
-    form_class = ReviewForm
-    model = Review
-
-    def form_valid(self, form):
-        company = get_object_or_404(Company, pk=self.kwargs['id'])
-        form.instance.company = company
-        company.overallscore += form.instance.overallscore
-        company.advancement += form.instance.advancement
-        company.worklife += form.instance.worklife
-        company.compensation += form.instance.compensation
-        company.environment += form.instance.environment
-        company.number_of_reviews += 1
-        company.save(update_fields=['overallscore',
-                                    'advancement',
-                                    'worklife',
-                                    'compensation',
-                                    'environment',
-                                    'number_of_reviews',
-                                    ])
-        #form.instance.position = form.instance.position.title()
-        #form.instance.city = form.instance.city.title()
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(
-            Company, pk=self.kwargs['id'])
-        #context['radios'] = ['overallscore', 'advancement',
-        #                     'compensation', 'environment', 'worklife']
-        return context
-
-
-class SalaryCreateOld(LoginRequiredMixin, CreateView):
-    form_class = SalaryForm
-    model = Salary
-
-    def form_valid(self, form):
-        form.instance.company = get_object_or_404(
-            Company, pk=self.kwargs['id'])
-        # stub value to be replaced with request.user.something
-        form.instance.years_experience = 5
-        form.instance.city = form.instance.city.title()
-        form.instance.position = form.instance.position.title()
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['company_name'] = get_object_or_404(
-            Company, pk=self.kwargs['id'])
-        return context
 

@@ -1,11 +1,11 @@
 <div class="background">
-    <div>{{ value.position.position|capfirst }} |&nbsp;</div>
-    {% if value.position.department %}
-    <div>{{ value.position.department|capfirst }} |&nbsp;</div>
+    <div>{{ object.position.position|capfirst }} |&nbsp;</div>
+    {% if object.position.department %}
+    <div>{{ object.position.department|capfirst }} |&nbsp;</div>
     {% endif %}
-    <div>{{ value.position.location|title }} |&nbsp;</div>
-    <div>{{ value.position.get_employment_status_display }}</div>
-    <div>{{ value.years_at_company }}</div>
+    <div>{{ object.position.location|title }} |&nbsp;</div>
+    <div>{{ object.position.get_employment_status_display }}</div>
+    <div>{{ object.years_at_company }}</div>
 </div>
 
         

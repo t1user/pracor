@@ -6,46 +6,47 @@
 <link rel="stylesheet" href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}">
 {% endblock css %}
 
+
 <div class="row">
     <div class="twelve columns">
-        <div class="data">{{ value.date|date:"j E Y" }}</div>
+        <div class="data"><i>{{ object.date|date:"j E Y" }}</i></div>
         <h5>Rozmowa kwalifikacyjna na stanowisko:</h5>
-        <h3>{{ value.position|capfirst }}</h3>
-        {% if value.department %}
-        <div>Departament: {{ value.department }}</div>
+        <h3>{{ object.position|capfirst }}</h3>
+        {% if object.department %}
+        <div>Departament: {{ object.department }}</div>
         {% endif %}
     </div>
 </div>
 <div class="row interview-ratings">
     <div class="six columns">
-                {% include "reviews/_display_stars.html" with stars=stars.rating %}
+                {% include "reviews/_display_stars.html" with scores=scores.rating|stars %}
     </div>
     <div class ="six columns">
         <div class="interview-icons">
-            {% if value.got_offer %}
+            {% if object.got_offer %}
             <i class="fa fa-check-circle-o fa-lg" aria-hidden="true"></i>
             {% else %}
             <i class="fa fa-times-circle-o fa-lg" aria-hidden="true"></i>
             {% endif %}
-            {{ value.got_offer|yesno:"Oferta,Bez oferty" }}
+            {{ object.got_offer|yesno:"Oferta,Bez oferty" }}
         </div>
         <div class="interview-icons">
-            <i class=" fa fa-thermometer-{{ value.difficulty|thermometer }} fa-lg thermo"></i>
-            <div class="difficulty-text">{{ value.difficulty|difficulty }}</div>
+            <i class=" fa fa-thermometer-{{ object.difficulty|thermometer }} fa-lg thermo"></i>
+            <div class="difficulty-text">{{ object.difficulty|difficulty }}</div>
         </div>
     </div>
 </div>
 <div class="row">
     <div class="twelve columns">
-        {% if value.questions %}
+        {% if object.questions %}
         <h5>Pytania:</h5>
-        <div>{{ value.questions|linebreaks }}</div>
+        <div>{{ object.questions|linebreaks }}</div>
         {% endif %}
-        {% if value.impressions %}
+        {% if object.impressions %}
         <h5>Wrażenia:</h5>
-        <div>{{ value.impressions|linebreaks }}</div>
+        <div>{{ object.impressions|linebreaks }}</div>
         {% endif %}
-        <div><i>Jak trafił/a do firmy: {{ value.get_how_got_display }}</i></div>
+        <div><i>Jak trafił/a do firmy: {{ object.get_how_got_display }}</i></div>
     </div>
 </div>
 

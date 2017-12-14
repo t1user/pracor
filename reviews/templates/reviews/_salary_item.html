@@ -2,25 +2,25 @@
 
 <div class="row">
     <div class="twelve columns">
-        <div class="date">{{ value.date|date:"j E Y" }}</div>
+        <div class="date"><i>{{ object.date|date:"j E Y" }}</i></div>
 
         {% include "reviews/_background.html" %}
         
         <h5>Zarobki zasadnicze</h5>
         <div class="salary">
-            {{ value.currency }}
-            {{ value.salary_input|intcomma }}
-            {{ value.get_period_display }}
-            {{ value.get_gross_net_display }}
+            {{ object.currency }}
+            {{ object.salary_input|intcomma }}
+            {{ object.get_period_display }}
+            {{ object.get_gross_net_display }}
         </div>
         
-        {% if value.bonus_input %}
+        {% if object.bonus_input %}
         <h5>Premia</h5>
         <div class="bonus">
-          {{ value.currency }}
-          {{ value.bonus_input|intcomma }}
-          {{ value.get_bonus_period_display }}
-          {{ value.get_bonus_gross_net_display }}
+          {{ object.currency }}
+          {{ object.bonus_input|intcomma }}
+          {{ object.get_bonus_period_display }}
+          {{ object.get_bonus_gross_net_display }}
         </div>
         {% endif %}
     </div>

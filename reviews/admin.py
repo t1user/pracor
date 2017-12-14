@@ -16,7 +16,6 @@ class ModelAdminModified(admin.ModelAdmin):
     approval = ('Akceptacja', {
         'fields': ('approved', 'reviewer', 'reviewed_date'),
     })
-
     
     def save_model(self, request, obj, form, change):
         """Adds user as reviewer and review date if the instance has been modified."""
@@ -28,6 +27,10 @@ class ItemInline(admin.TabularInline):
     classes = ('collapse',)
     extra = 0
     exclude = ('approved', 'reviewer', 'reviewed_date',)
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':30})}
+        }
+
 
 class ReviewInline(ItemInline):
     model = Review
@@ -40,11 +43,11 @@ class InterviewInline(ItemInline):
 
 @admin.register(Company)
 class CompanyAdmin(ModelAdminModified):
-    readonly_fields = ('number_of_reviews', 'count_salaries', 'count_interviews',
+    readonly_fields = ('count_reviews', 'count_salaries', 'count_interviews',
                        'reviewer', 'date', 'reviewed_date', 'get_ratings', 'slug')
     actions = ['update_scores']
     search_fields = ['name']
-    list_display = ['id', 'name', 'headquarters_city', 'website', 'number_of_reviews',
+    list_display = ['id', 'name', 'headquarters_city', 'website', 'count_reviews',
                     'count_salaries', 'count_interviews', 'approved', 'reviewer']
     list_display_links = ['name',]
     inlines = (ReviewInline, SalaryInline, InterviewInline, )
@@ -63,18 +66,21 @@ class CompanyAdmin(ModelAdminModified):
              }),
         ModelAdminModified.approval,
          ('Oceny', {
-             'classes': ('collapse',), 
-             'fields': ('get_ratings', 'number_of_reviews')
+             'classes': (), 
+             'fields': (('get_ratings', 'count_reviews'),)
              }),
          )
 
+    def count_reviews(self, obj):
+        return obj.reviews.count()
+    count_reviews.short_description = "Liczba opinii"
     
     def count_salaries(self, obj):
-        return obj.get_salaries().count()
+        return obj.salaries.count()
     count_salaries.short_description = "Liczba zarobków"
 
     def count_interviews(self, obj):
-        return obj.get_interviews().count()
+        return obj.interviews.count()
     count_interviews.short_description = "Liczba interview"
 
     def get_ratings(self, obj):

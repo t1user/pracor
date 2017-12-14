@@ -15,8 +15,17 @@ urlpatterns = [
     url(r'^search/(?P<searchterm>.*)?$',
         CompanySearchView.as_view(), name='company_search'),
 
+    url(r'^(?P<pk>\d+)/opinie/(?P<slug>[-\w\d]+)?$',
+        ReviewItemsView.as_view(), name='review_items'),
+
+    url(r'^(?P<pk>\d+)/zarobki/(?P<slug>[-\w\d]+)?$',
+        SalaryItemsView.as_view(), name='salary_items'),
+
+    url(r'^(?P<pk>\d+)/rozmowy/(?P<slug>[-\w\d]+)?$',
+        InterviewItemsView.as_view(), name='interview_items'),
+    
     url(r'^(?P<pk>\d+)/(?P<item>\w+)/(?P<slug>[-\w\d]+)?$',
-        CompanyItemsView.as_view(), name='company_items'),
+        CompanyItemsRedirectView.as_view(), name='company_items'),
 
     url(r'^(?P<pk>\d+)/(?P<slug>[-\w\d]+)?$',
         CompanyDetailView.as_view(), name='company_page'),

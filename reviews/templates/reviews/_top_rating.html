@@ -1,15 +1,8 @@
+{% load reviews_extras %}
+
 <div class="overall">
-  <div class="left-block">
-    <div>
-      {{ stars.overallscore.label }}
+    <div class="left-block">
+        {% include "reviews/_rating_item.html" with name="overallscore" scores=scores.overallscore %}
     </div>
-    <div>
-      {% include "reviews/_display_stars.html" with stars=stars.overallscore %}
-    </div>
-  </div>
-  {% comment %}
-  <div class="right-block score">
-    {{ stars.overallscore.rating }}
-  </div>
-  {% endcomment %}
 </div>
+

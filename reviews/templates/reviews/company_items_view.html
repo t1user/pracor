@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load reviews_extras %}
+
 {% load static %}
 
 {% block css %}
@@ -22,10 +24,11 @@ pracr | {{ company.name }} | {{ name }}
 </div>
 
 <section>
-    {% for key, value in data.items %}
+
+    {% for object in object_list %}
 
     <article class="container">
-        {% include file with value=key stars=value %}
+        {% include model|file with scores=object.get_scores %}
     </article>
     
     {% endfor %}
@@ -39,8 +42,8 @@ pracr | {{ company.name }} | {{ name }}
     <div class="container">
         <div class="row">
             <article class="twelve columns action-buttons">
-                {% for button, name in buttons.items %}
-                <a href= {% url 'company_items' company.pk button %} class="button">{{ name }}</a>
+                {% for button in buttons %}
+                <a href= {% url 'company_items' company.pk button company.slug %} class="button">{{ button }}</a>
                 {% endfor %}
                 <a href = {% url 'company_page' company.pk %} class="button button-primary">Powrót</a>
             </article>

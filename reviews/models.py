@@ -45,20 +45,6 @@ class Company(ApprovableModel):
     isin = models.CharField('ISIN', max_length=30, blank=True, null=True)
 
     slug = models.SlugField(null=True, max_length=200, editable=False)
-    #rating inputs - not to be edited directly, numbers have to be divided by
-    #number of reviews to get to the rating number
-    overallscore = models.PositiveIntegerField('Ocena ogólna', editable=False,
-                                               default=0)
-    advancement = models.PositiveIntegerField('Możliwości rozwoju', editable=False,
-                                              default=0)
-    worklife = models.PositiveIntegerField('Równowaga praca/życie', editable=False,
-                                           default=0)
-    compensation = models.PositiveIntegerField('Zarobki', editable=False,
-                                               default=0)
-    environment = models.PositiveIntegerField('Atmosfera w pracy', editable=False,
-                                              default=0)
-    number_of_reviews = models.PositiveIntegerField('Liczba ocen', editable=False,
-                                                    default=0)
 
     class Meta:
         verbose_name = "Firma"
@@ -89,14 +75,17 @@ class Company(ApprovableModel):
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.pk, 'slug': self.slug})
-        
-    def get_reviews(self):
-        return Review.objects.filter(company=self.pk).exclude(approved=False)
+    @property
+    def reviews(self):
+        return Review.objects.selected(company=self.pk)
+        #return Review.objects.filter(company=self.pk).exclude(approved=False)
 
-    def get_salaries(self):
+    @property
+    def salaries(self):
         return Salary.objects.filter(company=self.pk).exclude(approved=False)
 
-    def get_interviews(self):
+    @property
+    def interviews(self):
         return Interview.objects.filter(company=self.pk).exclude(approved=False)
 
     def get_items(self, item):
@@ -105,40 +94,20 @@ class Company(ApprovableModel):
 
     def count_reviews(self):
         return self.get_reviews().count()
-    """
-    def get_scores(self):
-        Calculates actual ratings from database fields
-        self.update_scores()
-        count = self.count_reviews()
-        if count != 0:
-            overallscore = round(self.overallscore / count, 1)
-            advancement = round(self.advancement / count, 1)
-            worklife = round(self.worklife / count, 1)
-            compensation = round(self.compensation / count, 1)
-            environment = round(self.environment / count, 1)
-            return {'overallscore': overallscore,
-                    'advancement': advancement,
-                    'worklife': worklife,
-                    'compensation': compensation,
-                    'environment': environment,
-                    }
-    """
 
     def get_scores(self):
-        reviews = self.get_reviews()
         output = {}
         for item in ('overallscore',
                      'advancement',
                      'worklife',
                      'compensation',
                      'environment',):
-            output[item] = reviews.aggregate(score=Avg(item))['score']
+            output[item] = self.reviews.aggregate(score=Avg(item))['score']
             if output[item] is None:
                 output[item] = 0
             else:
                 output[item] = round(output[item], 1)
-        return output
-    
+        return output 
 
     def get_scores_strings(self):
         """Returns human readable string of scores (e.g. for admin)"""
@@ -146,28 +115,9 @@ class Company(ApprovableModel):
         string = ""
         for key, value in scores.items():
             string += "{:<25}: {:>4}\n".format(
-                str(self._meta.get_field(key).verbose_name), value)
+                str(Review._meta.get_field(key).verbose_name), value)
         return string
         
-
-    def update_scores(self):
-        """Recalculates all scores to make them compliant with existing reviews."""
-        reviews = self.get_reviews()
-        self.overallscore = 0
-        self.advancement = 0
-        self.worklife = 0
-        self.compensation = 0
-        self.environment = 0
-        self.number_of_reviews = reviews.count()
-        for review in reviews:
-            self.overallscore += review.overallscore
-            self.advancement += review.advancement
-            self.worklife += review.worklife
-            self.compensation += review.compensation
-            self.environment += review.environment
-        self.save()
-
-
 
 class Position(models.Model):
         
@@ -218,6 +168,13 @@ class Position(models.Model):
             company = ' '
         return self.position + ' - ' + company + ' - ' + self.user.email
 
+class SelectedManager(models.Manager):
+
+    use_for_related_fields = True
+
+    def selected(self, company, **kwargs):
+        return self.filter(**kwargs).exclude(approved=False)
+    
 class Review(ApprovableModel):
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
@@ -243,10 +200,12 @@ class Review(ApprovableModel):
                                                choices=RATINGS, default=None)
     environment = models.PositiveIntegerField('atmosfera w pracy',
                                               choices=RATINGS, default=None)
+
+    objects = SelectedManager()
     
     class Meta:
-        verbose_name = "Recenzja"
-        verbose_name_plural = "Recenzje"
+        verbose_name = "Opinia"
+        verbose_name_plural = "Opinie"
 
     def __str__(self):
         return 'id_{}-{}-{}'.format(str(self.id), self.company.name, self.title)
@@ -265,7 +224,6 @@ class Review(ApprovableModel):
 
 
 class Salary(ApprovableModel):
-
     PERIOD = [
         ('M', 'miesięcznie'),
         ('K', 'kwartalnie'),
@@ -412,6 +370,10 @@ class Interview(ApprovableModel):
     questions = models.TextField('pytania', null=True, blank=True)
     impressions = models.TextField('wrażenia')
     rating = models.PositiveIntegerField('Ocena', choices=RATINGS, default=None)
+
+    class Meta:
+        verbose_name = "Rozmowa"
+        verbose_name_plural = "Rozmowy"
 
     def __str__(self):
         return 'id_' + str(self.id) + '_' + str(self.company)

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load reviews_extras %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/company_view.css' %}">
@@ -13,15 +14,8 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
 
 {% endblock title %}
 
-{% block content %}
 
-{% comment %}
-items are reviews, salaries and iterviews accessible by
-items.review
-items.salary
-item.interview
-update: it's been translated, use: opinie, zarobki, rozmowy
-{% endcomment %}
+{% block content %}
 
 <div class="container">
     <section>
@@ -31,21 +25,21 @@ update: it's been translated, use: opinie, zarobki, rozmowy
                 <article class="counter">
                     <div class="counter-button">
                         Opinie
-                        <a href="{% url 'company_items' company.pk 'opinie' company.slug %}">{{ items.opinie.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'opinie' company.slug %}">{{ company.reviews.count }}</a>
                     </div>
                     <div class="counter-button">
                         Zarobki
-                        <a href="{% url 'company_items' company.pk 'zarobki' company.slug %}">{{ items.zarobki.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'zarobki' company.slug %}">{{ company.salaries.count }}</a>
                     </div>
                     <div class="counter-button">
                         Rozmowy
-                        <a href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">{{ items.rozmowy.count }}</a>
+                        <a href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">{{ company.interviews.count }}</a>
                     </div>
                 </article>
             </div>
-            {% if items.opinie.count %}
+            {% if company.reviews.count %}
             <article class="five columns">
-                {% include "reviews/_rating_table.html" %}
+                {% include "reviews/_rating_table.html" with scores=company.get_scores %}
             </article>
  
             {% else %}
@@ -60,17 +54,16 @@ update: it's been translated, use: opinie, zarobki, rozmowy
     </section>
 </div>
 
-
-{% for key, value in items.items %}
-{% if value.count %}
+{% for name, item in items.items %}
+{% if item.count %}
 <div class="container">
     <section>
-        {% include value.file with value=value.last stars=value.stars %}
-        {% if value.count > 1 %}
+        {% include name|file with object=item.last scores=item.last.get_scores %}
+        {% if item.count > 1 %}
                 <div class="more-button">
-                    <a href="{% url 'company_items' company.pk key company.slug %}" class="button">Wszystkie {{ value.name }} ({{ value.count }}) >></a>
+                    <a href="{% url 'company_items' company.pk name|translate company.slug %}" class="button">Wszystkie {{ name|translate }} ({{ item.count }}) >></a>
                 </div>
-        {% endif %}
+                {% endif %}
     </section>
 </div>
 {% endif %}

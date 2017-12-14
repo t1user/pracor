@@ -3,9 +3,9 @@
     <a href="{{ company.get_absolute_url }}"><h1>{{ company.name }}</h1></a>
     <a href="{{ company.website }}" target="_blank">{{ company.website }}</a><p>
   </div>
-  {% if items.opinie.count %}
-  <article class="five columns">               
-    {% include "reviews/_top_rating.html" %}
+  {% if company.reviews.count %}
+  <article class="five columns">
+    {% include "reviews/_top_rating.html" with scores=company.get_scores %}
   </article>
   {% endif %}
 </div>
