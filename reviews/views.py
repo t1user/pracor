@@ -1,3 +1,4 @@
+import hashlib
 from pprint import pprint
 
 from django.conf import settings
@@ -206,7 +207,6 @@ class CompanyItemsView(LoginRequiredMixin, AccessBlocker,
                               if x != self.model]
         context['name'] = self.model._meta.verbose_name_plural
         context['model'] = self.model._meta.model_name
-        pprint(context)
         return context
         
     def get_queryset(self):
@@ -245,20 +245,14 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         self.object = form.save()
         # this is used if sent here by LinkedInAssociateView
         new_names = self.request.session.get('new_names')
-        print(new_names)
         if new_names:
             current_company = self.kwargs.get('company')
-            print(current_company)
             for name in new_names:
                 if current_company == name[1]:
                     position = Position.objects.get(company_name=current_company)
-                    print(self.object)
-                    print(self.object.id)
                     position.company = self.object
                     position.save(update_fields=['company'])
-                    print(name)
                     new_names.remove(name)
-                    print('new names after remove: ', self.request.session['new_names'])
                     self.request.session['new_names'] = new_names
             try:
                 new_name = new_names.pop()
@@ -328,18 +322,15 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
 
     def get_position_instance(self):
         """
-        If user has a position associated with the Company
-        they're trying to review, this instance should be 
-        associated with the review.
-        TODO: WHAT IF MORE THAN ONE POSITION
-        USER SHOULD BE ABLE TO HAVE SEVERAL POSITIONS IN A COMPANY GIVEN CERTAIN CONDITIONS
+        If user has a position associated with the Company they're trying to review, 
+        this Position instance should be associated with the review.
+        TODO:
+        PROPERLY HANDLE MORE THAN ONE POSITION INSTANCE.
         """
-        try:
-            position_instance = Position.objects.filter(company=self.company,
-                                                        user=self.request.user)
-            return position_instance[0]
-        except:
-            return None
+        position_instance = Position.objects.filter(company=self.company,
+                                                    user=self.request.user)
+        if position_instance:
+            return position_instance[position_instance.count()-1]
 
     def two_forms(self):
         if self.get_position_instance():
@@ -356,14 +347,13 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
     
     def post(self, request, *args, **kwargs):
         """
-        Handles POST request, instantiating two forms with passed POST
-        data and  validating it. is_valid and is_invalid methods 
-        have been overriden to handle two forms instead 
-        of one. two_forms returns True if the second form is required.
+        Instantiate two forms with passed POST data and validate them. 
+        is_valid and is_invalid methods have been overriden to handle two forms.
         """
         self.object = None
         self.company = get_object_or_404(Company, pk=self.kwargs['id'])
         form = self.get_form()
+        #returns True if the second form is required.
         if self.two_forms():
             position_form = self.get_position_form()
             if form.is_valid() and position_form.is_valid():
@@ -377,6 +367,7 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
                 return self.form_valid(form=form)
             else:
                 return self.form_invalid(form=form)
+
             
     def form_valid(self, form, **kwargs):
         """
@@ -404,8 +395,7 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
             
     def form_invalid(self, form, **kwargs):
         """
-        Override to enable for handling of two forms. If only one form,
-        superclass used.
+        Handle two forms. If only one form profided, use superclass.
         """
         if self.two_forms():
             position_form = kwargs['position_form']
@@ -415,17 +405,65 @@ class ContentCreateAbstract(LoginRequiredMixin, CreateView):
             return super().form_invalid(form, **kwargs)
 
 
-class ReviewCreate(ContentCreateAbstract):
+class TokenVerifyMixin:
+    """
+    Prevent resubmission of the same of form. After saving form data, store 
+    hashed csrf in session. On form submission check its csrf against the one
+    stored in session.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Check for resubmission of the same form.
+        """
+        if self.check_token():
+            self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+            return redirect(self.company)
+        return super().post(request, *args, **kwargs)
+
+    def hash_token(self):
+        """
+        Get csrf token and hash it.
+        """
+        token = self.request.POST.get('csrfmiddlewaretoken')
+        hash = hashlib.sha1(token.encode('utf-8')).hexdigest()
+        return hash
+    
+    def save_token(self):
+        """
+        Store hashed csrf token in session, so that track can be kept on which
+        forms have already been saved to database. Allows for prevention of
+        multiple submissions of the same form.
+        """
+        self.request.session['token'] = self.hash_token()
+        
+    def check_token(self):
+        """
+        Compare csrf token with the one stored in session.
+        """
+        token = self.hash_token()
+        stored_token = self.request.session.get('token')
+        if token == stored_token:
+            return True
+
+    def form_valid(self, *args, **kwargs):
+        """
+        Store csrf token in session.
+        """
+        self.save_token()
+        return super().form_valid(*args, **kwargs)
+    
+
+class ReviewCreate(TokenVerifyMixin, ContentCreateAbstract):
     form_class = ReviewForm
     template_name = "reviews/review_form.html"
 
     
-class SalaryCreate(ContentCreateAbstract):
+class SalaryCreate(TokenVerifyMixin, ContentCreateAbstract):
     form_class = SalaryForm
     template_name = "reviews/salary_form.html"
     
 
-class InterviewCreate(LoginRequiredMixin, CreateView):
+class InterviewCreate(LoginRequiredMixin, TokenVerifyMixin, CreateView):
     form_class = InterviewForm
     model = Interview
 

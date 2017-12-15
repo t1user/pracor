@@ -335,7 +335,7 @@ class Interview(ApprovableModel):
         ('A', 'Ogłoszenie'),
         ('B', 'Kontakty profesjonalne'),
         ('C', 'Head-hunter'),
-        ('D', 'Znajomi-rodzina'),
+        ('D', 'Znajomi/rodzina'),
         ('E', 'Seks z decydentem'),
         ('F', 'Targi/prezentacje'),
         ('F', 'Inne'),

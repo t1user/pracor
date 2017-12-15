@@ -9,6 +9,9 @@ def klass(ob):
 
 @register.filter('class')
 def attrs(ob):
+    """
+    CURRENTLY NOT IN USE
+    """
     return ob.get('class', '')
 
 @register.filter('thermometer')

@@ -1,15 +1,8 @@
-{% comment %}
-File handles rendering of forms.
-Starts with loading of  custom tags from reviews/templatetags
-The custom tag |class allows for extracting 'required' class
-from widget. Those fields are rendered with star.
-{% endcomment %}
-
 {% load reviews_extras %}
 <fieldset>
     {{ form.non_field_errors }}
     {% for field in form %}
-    <div class="form_field {{ field.field.widget.attrs|class }}">
+    <div class="form_field {{ field.field.widget.attrs.class }}">
         <label for="{{ field.id_for_label }}">
             {{ field.label|safe }}
             {% if field.field.required %}

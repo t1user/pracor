@@ -109,11 +109,11 @@ table {
 .action-buttons a {
     width: 30%;
     min-width: 12rem;
-    margin-top: 2rem;   
+    margin: 1rem;
 }
 
 .more-button {
-    margin: 0  auto;
+    margin-top: 1rem;
 }
 
 .mobile {
