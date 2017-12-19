@@ -138,8 +138,8 @@ class Position(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              on_delete=models.SET_NULL)
     #company_name used to store name before entry is associated with a Company database record
-    company_name = models.CharField(max_length=100, null=True, blank=True)
-    company_linkedin_id=models.CharField(max_length=25, null=True)
+    company_name = models.CharField(max_length=100, blank=True)
+    company_linkedin_id=models.CharField(max_length=25, blank=True)
     #company used to associate position with Company database record, blank before the association
     company = models.ForeignKey(Company, on_delete=models.SET_NULL,
                                 blank=True, null=True)
@@ -172,7 +172,7 @@ class SelectedManager(models.Manager):
 
     use_for_related_fields = True
 
-    def selected(self, company, **kwargs):
+    def selected(self, **kwargs):
         return self.filter(**kwargs).exclude(approved=False)
     
 class Review(ApprovableModel):

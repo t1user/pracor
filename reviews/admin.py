@@ -7,9 +7,9 @@ from .models import Company, Interview, Position, Review, Salary
 
 admin.site.site_header = 'pracr - administracja'
 
-myModels = [Position]
+#myModels = [Position]
 
-admin.site.register(myModels)
+#admin.site.register(myModels)
 
 class ModelAdminModified(admin.ModelAdmin):
     list_filter = ('approved',)
@@ -153,6 +153,13 @@ class InterviewAdmin(ModelAdminModified):
         ModelAdminModified.approval,
         )
 
+@admin.register(Position)
+class PositionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'company', 'position', 'department', 'location', )
+    search_fields = ('user__email', 'company__name',)
+    readonly_fields = ('user', 'company',)
+
+    
 @admin.register(admin.models.LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('get_change_message', 'object_repr', 'action_time', 'user', 'action_flag')
