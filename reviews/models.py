@@ -12,30 +12,33 @@ class ApprovableModel(models.Model):
     """
     Abstract model providing features for entry approval in the admin module.
     """
-    #approved set to False prevents the record from being displayed
-    approved = models.NullBooleanField('Zatwierdzone', default=None, null=True, blank=True)
+    # approved set to False prevents the record from being displayed
+    approved = models.NullBooleanField(
+        'Zatwierdzone', default=None, null=True, blank=True)
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Zatwierdzający',
                                  on_delete=models.SET_NULL,
                                  null=True, blank=True, editable=False)
     reviewed_date = models.DateField('Data przeglądu', null=True, blank=True)
-    
+
     class Meta:
         abstract = True
 
-        
+
 class Company(ApprovableModel):
-        
+
     EMPLOYMENT = [('A', '<100'), ('B', '101-500'), ('C', '501-1000'),
                   ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]
 
-    #only three values are required - to make company creation easy for users
+    # only three values are required - to make company creation easy for users
     name = models.CharField('nazwa', max_length=200, unique=True)
     headquarters_city = models.CharField('siedziba centrali', max_length=60)
     website = models.URLField('strona www', unique=True)
 
-    #other fields are optional, to be filled-in by admins (rather than users)
-    date = models.DateField('data dodania do bazy', auto_now_add=True, editable=False)
-    region = models.CharField('województwo', max_length=40, blank=True, null=True)
+    # other fields are optional, to be filled-in by admins (rather than users)
+    date = models.DateField('data dodania do bazy',
+                            auto_now_add=True, editable=False)
+    region = models.CharField(
+        'województwo', max_length=40, blank=True, null=True)
     country = models.CharField('kraj', max_length=40, default='Polska')
     employment = models.CharField('zatrudnienie', max_length=1,
                                   choices=EMPLOYMENT, blank=True, null=True)
@@ -56,7 +59,7 @@ class Company(ApprovableModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(unidecode(self.name))
-        #get rid of '-sa', '-sp-z-oo' and '-sp-z-oo-sp-k' etc. endings
+        # get rid of '-sa', '-sp-z-oo' and '-sp-z-oo-sp-k' etc. endings
         endings = ['-sa',
                    '-sp-z-oo',
                    '-sp-z-oo-sp-k',
@@ -71,14 +74,15 @@ class Company(ApprovableModel):
             if self.slug.endswith(e):
                 self.slug = self.slug.replace(e, '')
         super().save(*args, **kwargs)
-    
+
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.pk, 'slug': self.slug})
+
     @property
     def reviews(self):
         return Review.objects.selected(company=self.pk)
-        #return Review.objects.filter(company=self.pk).exclude(approved=False)
+        # return Review.objects.filter(company=self.pk).exclude(approved=False)
 
     @property
     def salaries(self):
@@ -107,7 +111,7 @@ class Company(ApprovableModel):
                 output[item] = 0
             else:
                 output[item] = round(output[item], 1)
-        return output 
+        return output
 
     def get_scores_strings(self):
         """Returns human readable string of scores (e.g. for admin)"""
@@ -117,10 +121,10 @@ class Company(ApprovableModel):
             string += "{:<25}: {:>4}\n".format(
                 str(Review._meta.get_field(key).verbose_name), value)
         return string
-        
+
 
 class Position(models.Model):
-        
+
     STATUS_ZATRUDNIENIA = [
         ('A', 'Pełen etat'),
         ('B', 'Część etatu'),
@@ -133,14 +137,17 @@ class Position(models.Model):
     YEARS = [(i, i) for i in years]
     months = range(1, 13)
     MONTHS = [(i, '{:02}'.format(i)) for i in months]
- 
+
     date = models.DateTimeField(auto_now_add=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              on_delete=models.SET_NULL)
-    #company_name used to store name before entry is associated with a Company database record
-    company_name = models.CharField(max_length=100, blank=True)
-    company_linkedin_id=models.CharField(max_length=25, blank=True)
-    #company used to associate position with Company database record, blank before the association
+    # company_name used to store name before entry is associated with a
+    # Company database record
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_linkedin_id = models.CharField(
+        max_length=25, null=True, blank=True)
+    # company used to associate position with Company database record, blank
+    # before the association
     company = models.ForeignKey(Company, on_delete=models.SET_NULL,
                                 blank=True, null=True)
     linkedin_id = models.PositiveIntegerField(blank=True, null=True)
@@ -158,7 +165,7 @@ class Position(models.Model):
     class Meta:
         verbose_name = "Stanowisko"
         verbose_name_plural = "Stanowiska"
-    
+
     def __str__(self):
         if self.company:
             company = str(self.company)
@@ -168,17 +175,19 @@ class Position(models.Model):
             company = ' '
         return self.position + ' - ' + company + ' - ' + self.user.email
 
+
 class SelectedManager(models.Manager):
 
     use_for_related_fields = True
 
     def selected(self, **kwargs):
         return self.filter(**kwargs).exclude(approved=False)
-    
+
+
 class Review(ApprovableModel):
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
-        
+
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
@@ -202,7 +211,7 @@ class Review(ApprovableModel):
                                               choices=RATINGS, default=None)
 
     objects = SelectedManager()
-    
+
     class Meta:
         verbose_name = "Opinia"
         verbose_name_plural = "Opinie"
@@ -213,7 +222,7 @@ class Review(ApprovableModel):
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
-    
+
     def get_scores(self):
         return {'overallscore': self.overallscore,
                 'advancement': self.advancement,
@@ -236,7 +245,7 @@ class Salary(ApprovableModel):
     ]
 
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
-    company = models.ForeignKey(Company, verbose_name= 'firma',
+    company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
     position = models.ForeignKey(Position, verbose_name="stanowisko",
                                  on_delete=models.SET_NULL,
@@ -280,24 +289,24 @@ class Salary(ApprovableModel):
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
-        
+
     @staticmethod
     def convert(currency='PLN', period='M', gross_net='G', value=1):
         """
         Converts numbers input in different formats to comparable basis.
         """
-        zus = 0.0976 + 0.015 #stawka emerytalna + rentowa
-        ch = 0.0245 #stawka chorobowa
-        z7 = 0.0775 #stawka ub. zdrowotnego odliczana od podatku
-        z9 = 0.09 #stawka ub. zdrowotnego placona
-        z = z9 - z7 #stawka zdrowotna nieodliczalna od podatku
-        ku = 111.25 * 12 #koszty uzyskania przychodu
-        kw = 556.02 #roczna kwota wolna od podatku
-        step = 85528 #próg podatkowy
-        limit_zus = 127890 #próg powyżej, którego nie płaci się zus
-        r_1 = 0.18 #stawka podatku do progu podatkowego (step)
-        r_2 = 0.32 #stawka powyzej progu podatkowego
-        tax_1 = 15395.04 #podatek płacony przy brutto=step
+        zus = 0.0976 + 0.015  # stawka emerytalna + rentowa
+        ch = 0.0245  # stawka chorobowa
+        z7 = 0.0775  # stawka ub. zdrowotnego odliczana od podatku
+        z9 = 0.09  # stawka ub. zdrowotnego placona
+        z = z9 - z7  # stawka zdrowotna nieodliczalna od podatku
+        ku = 111.25 * 12  # koszty uzyskania przychodu
+        kw = 556.02  # roczna kwota wolna od podatku
+        step = 85528  # próg podatkowy
+        limit_zus = 127890  # próg powyżej, którego nie płaci się zus
+        r_1 = 0.18  # stawka podatku do progu podatkowego (step)
+        r_2 = 0.32  # stawka powyzej progu podatkowego
+        tax_1 = 15395.04  # podatek płacony przy brutto=step
 
         def gross_to_net(B):
             """
@@ -306,29 +315,31 @@ class Salary(ApprovableModel):
             """
             base = B * (1 - zus - ch) - ku
             if base < step:
-                N = B*(1 - zus - ch)*(1 - z - r_1) + ku*r_1 + kw
+                N = B * (1 - zus - ch) * (1 - z - r_1) + ku * r_1 + kw
             elif B <= limit_zus:
-                N = B*(1 - zus - ch)*(1 - z - r_2) + (ku + step)*r_2 - tax_1 + kw
+                N = B * (1 - zus - ch) * (1 - z - r_2) + \
+                    (ku + step) * r_2 - tax_1 + kw
             else:
-                N = 86620 + (B - limit_zus)*(1 - ch)*(1 - z - r_2)
-                return round(N/100, 0) * 100
+                N = 86620 + (B - limit_zus) * (1 - ch) * (1 - z - r_2)
+                return round(N / 100, 0) * 100
 
         def net_to_gross(N):
             """
             Przelicza ROCZNE dochody netto na przychód brutto przy standardowej
             umowie o pracę. Wynik zaokrąglony do najbliższej 100zl.
             """
-            B = (N - ku*r_1 - kw) / ((1 - zus - ch)*(1 - z - r_1))
+            B = (N - ku * r_1 - kw) / ((1 - zus - ch) * (1 - z - r_1))
             base = B * (1 - zus - ch) - ku
             if base >= step:
-                B = (N + tax_1 - kw - (ku + step)*r_2)/((1 - zus - ch)*(1 - z - r_2))
-                if B > limit_zus: 
-                    B = ((N - 86620)/((1 - ch)*(1 - z - r_2))) + limit_zus
-            return round(B/100, 0) * 100
-        
+                B = (N + tax_1 - kw - (ku + step) * r_2) / \
+                    ((1 - zus - ch) * (1 - z - r_2))
+                if B > limit_zus:
+                    B = ((N - 86620) / ((1 - ch) * (1 - z - r_2))) + limit_zus
+            return round(B / 100, 0) * 100
+
         if gross_net == 'N':
             return net_to_gross(value)
-        
+
 
 class Interview(ApprovableModel):
     HOW_GOT = [
@@ -351,10 +362,10 @@ class Interview(ApprovableModel):
     GOT_OFFER = [
         (True, 'Tak'),
         (False, 'Nie'),
-        ]
+    ]
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
-    
+
     company = models.ForeignKey(Company,
                                 on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True, editable=False)
@@ -369,7 +380,8 @@ class Interview(ApprovableModel):
     got_offer = models.BooleanField('dostał ofertę',)
     questions = models.TextField('pytania', null=True, blank=True)
     impressions = models.TextField('wrażenia')
-    rating = models.PositiveIntegerField('Ocena', choices=RATINGS, default=None)
+    rating = models.PositiveIntegerField(
+        'Ocena', choices=RATINGS, default=None)
 
     class Meta:
         verbose_name = "Rozmowa"

@@ -17,7 +17,6 @@ function showSearch() {
     } else {
         x.className = "search-mobile";
     }
-
 }
 
 
@@ -54,4 +53,48 @@ $(function() {
       location.href="/" + ui.item.id;
 }
 });
+});
+
+
+
+$(".auto-position").autocomplete({
+    source: function(request, response) {
+        $.ajax({
+            url:'',
+            dataType: 'json',
+            data:{
+                'term': request.term,
+                'field': this.element['0']['id']
+            },
+            success: function(data) {
+                response(data);
+                }
+        })
+    },
+    minLength: 4,
+});
+
+
+
+/*
+
+$(function() {
+  $(".auto-position").autocomplete({
+    source: function(request, response) {
+        $.ajax({
+            url:'',
+            dataType: 'json',
+            data:{
+                'field': $(this).val(this.item.val),
+                },
+            success: function(data){
+                response(data);
+                }
+            })},
+    minLength: 4,
+    select: function(event, ui) {
+      location.href="/" + ui.item.id;
+}
+});
 })
+*/

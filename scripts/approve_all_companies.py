@@ -1,5 +1,11 @@
-import os, sys
-proj_path = "/home/tomek/pracr/"
+import os
+import sys
+
+
+import getpass
+user = getpass.getuser()
+proj_path = "/home/" + user + "/pracr/"
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
 sys.path.append(proj_path)
 import pracr.wsgi
@@ -12,10 +18,10 @@ companies = Company.objects.all()
 reviewer = User.objects.get(email="tmierz@rocketmail.com")
 
 companies.update(
-    approved = True,
-    reviewer = reviewer,
-    reviewed_date = datetime.datetime.now()
-    )
+    approved=True,
+    reviewer=reviewer,
+    reviewed_date=datetime.datetime.now()
+)
 
 """
 for company in companies:

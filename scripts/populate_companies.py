@@ -1,7 +1,7 @@
 """Create database entries for reviews.Company from excel files. Excel files must have labels in row 8 and 1000 entries starting from row 9. Columns with names as per lines 114-123 must exist. The way to use the script is to invoke run_files(function), where function will be performed on every row in every file.
 """
 
-#Configuration to allow for access to project models
+# Configuration to allow for access to project models
 import os
 import sys
 
@@ -9,7 +9,11 @@ import openpyxl
 import requests
 #from openpyxl.worksheet.worksheet.Worksheet import iter_rows, iter_cells, cell
 
-proj_path = "/home/tomek/pracr/"
+import getpass
+
+user = getpass.getuser()
+
+proj_path = "/home/" + user + "/pracr/"
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
 sys.path.append(proj_path)
 import pracr.wsgi
@@ -20,43 +24,48 @@ from reviews.models import Company
 
 INTEGRITY_COUNT = 0
 
+
 def get_files():
     """Create a list of excel files (.xlsx extension only) in the current directory. 
     All of them will be processed."""
     files = []
     for file in os.listdir():
         if file.endswith('.xlsx'):
-             files.append(file)
-             files.sort()
+            files.append(file)
+            files.sort()
     return files
+
 
 def get_sheet(file):
     wb = openpyxl.load_workbook(file)
     sheet = wb.active
     return sheet
 
+
 def count_rows():
     for file in files:
         sheet = get_sheet(file)
         n = 0
         for row in sheet.rows:
-            n+=1
+            n += 1
         print('Number of rows in file: ', n)
 
 
 def get_header(sheet):
-    #get content of row 8 and return it as a list - it must contain field names
-    header = [cell.value for column in sheet.iter_cols(min_row=8, max_row=8) for cell in column]
+    # get content of row 8 and return it as a list - it must contain field
+    # names
+    header = [cell.value for column in sheet.iter_cols(
+        min_row=8, max_row=8) for cell in column]
     return header
-            
-        
+
+
 def get_content(header, sheet):
     content = []
     for row in sheet.iter_rows(min_col=1, max_col=len(header), min_row=9, max_row=1008):
         values = {}
         for index, cell in enumerate(row):
-            values[header[index]]= cell.value
-        #rows without name are empty and should be weeded
+            values[header[index]] = cell.value
+        # rows without name are empty and should be weeded
         if values['Firma'] is not None:
             content.append(values)
     return content
@@ -116,20 +125,22 @@ def create_entry(entry):
             sectors = sectors[:349]
         return sectors
 
-    #want to have companies without www removed silently (without loggin an error)
-    if www_available(entry): #and test_www(entry):
+    # want to have companies without www removed silently (without loggin an
+    # error)
+    if www_available(entry):  # and test_www(entry):
         try:
-            item = Company(name = clean_name(entry['Firma']),
-                           headquarters_city = entry['Miasto'],
-                           region = entry['Kraj/Region'],
-                           country = entry['Kraj'],
-                           website = entry['Strona www'],
-                           public = get_public(entry['Notowane/Nienotowane']),
-                           ownership = clean_ownership(entry['Właściciele']),
-                           employment = get_employment(entry['Liczba zatrudnionych']),
-                           sectors = clean_sectors(entry['Sektory']),
-                           isin = entry['ISIN'],
-        )
+            item = Company(name=clean_name(entry['Firma']),
+                           headquarters_city=entry['Miasto'],
+                           region=entry['Kraj/Region'],
+                           country=entry['Kraj'],
+                           website=entry['Strona www'],
+                           public=get_public(entry['Notowane/Nienotowane']),
+                           ownership=clean_ownership(entry['Właściciele']),
+                           employment=get_employment(
+                               entry['Liczba zatrudnionych']),
+                           sectors=clean_sectors(entry['Sektory']),
+                           isin=entry['ISIN'],
+                           )
             item.save()
             return True
         except ValueError as e:
@@ -141,10 +152,11 @@ def create_entry(entry):
             INTEGRITY_COUNT += 1
         except Exception as e:
             #print('ERROR!!!!!!!!   ', entry['Firma'], entry['Strona www'], 'Error: ', e.args)
-            #return False
+            # return False
             print(entry['Firma'], e.args, type(e).__name__)
             sys.exit()
     return False
+
 
 def test_www(entry):
     """
@@ -163,26 +175,26 @@ def test_www(entry):
         print("Wrong www: ", e.args)
         return False
     except requests.exceptions.TooManyRedirects as e:
-        print("Too many redirects: ", e.args, "still adding ", www, "to database")
+        print("Too many redirects: ", e.args,
+              "still adding ", www, "to database")
         return True
     return True
+
 
 def www_available(entry):
     if entry['Strona www'] == 'n/a':
         #print('No website for: ', entry['Firma'], entry['Strona www'])
         return False
     return True
-    
-        
-        
 
-#returns a list of excel files
+
+# returns a list of excel files
 files = get_files()
-#gets the active sheet from given file
+# gets the active sheet from given file
 sheet = get_sheet(files[1])
-#creates dictionary keys from column labels in row 8, returns a list
+# creates dictionary keys from column labels in row 8, returns a list
 header = get_header(sheet)
-#returns a list of dictionaries with content from the given sheet
+# returns a list of dictionaries with content from the given sheet
 content = get_content(header, sheet)
 
 """
@@ -195,22 +207,24 @@ for entry in content:
         counter+=1
 print(counter)
 """
-    
+
 
 def do_file(content, function):
     """Performs 'function' for content generated from one file. Content is a list."""
     counter = 0
     for entry in content:
         a = function(entry)
-        counter+=a
+        counter += a
     return counter
+
 
 def run_files(function):
     """Performs 'function' for all files."""
     counter = 0
     for file in files:
         print()
-        print("------------------------------------------------------------------------------")
+        print(
+            "------------------------------------------------------------------------------")
         print(file)
         sheet = get_sheet(file)
         header = get_header(sheet)
@@ -222,5 +236,5 @@ def run_files(function):
 
 if __name__ == '__main__':
     run_files(create_entry)
-    #run_files(list_no_www)
+    # run_files(list_no_www)
     print("database integrity errors: ", INTEGRITY_COUNT)

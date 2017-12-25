@@ -1,5 +1,12 @@
-import os, sys
-proj_path = "/home/tomek/pracr/"
+import os
+import sys
+
+import getpass
+
+user = getpass.getuser()
+
+proj_path = "/home/" + user + "/pracr/"
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
 sys.path.append(proj_path)
 import pracr.wsgi
@@ -20,7 +27,7 @@ def clean_name(name):
                'Sp. j. Sp. j.',
                'Sp. z o.o. Ska.',
                'Sp. z o.o. Sp. j.',
-    ]
+               ]
     for e in endings:
         if name.endswith(e):
             name = name.replace(e, '')
@@ -52,9 +59,10 @@ for company in companies:
             for i in name_s:
                 if i.upper() in company.name.upper():
                     print('Company: ', company, '-->', 'Parent: ', parent)
-                    #companies not deleted immediately so that their children can found
+                    # companies not deleted immediately so that their children
+                    # can found
                     for_deletion.append(company.pk)
-                    counter+= 1
+                    counter += 1
                     break
 print(counter)
 
@@ -62,8 +70,6 @@ print(counter)
 for item in for_deletion:
     companies.get(pk=item).delete()
 
-a=companies.get(name="Mbank S.A.")
-a.name="mBank S.A."
+a = companies.get(name="Mbank S.A.")
+a.name = "mBank S.A."
 a.save()
-
-            

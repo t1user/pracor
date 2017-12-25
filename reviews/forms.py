@@ -12,6 +12,7 @@ from .widgets import RadioReversed, RadioSelectModified
 class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
+
 class CompanySelectForm(forms.Form):
     company_name = forms.ChoiceField(widget=forms.RadioSelect(), label='')
     position = forms.CharField(max_length=30, widget=forms.HiddenInput())
@@ -20,7 +21,7 @@ class CompanySelectForm(forms.Form):
         self.companies = kwargs.pop('companies')
         super().__init__(*args, **kwargs)
         self.fields['company_name'].choices = (list(self.companies) +
-            [('None', 'Na liście nie ma firmy, w której pracuję')])
+                                               [('None', 'Na liście nie ma firmy, w której pracuję')])
 """
     def clean_company_name(self):
         data = self.cleaned_data.get('company_name')
@@ -32,26 +33,25 @@ class CompanySelectForm(forms.Form):
         return data
 """
 
+
 class CompanySelectFormOld(forms.Form):
     """
     NOT IN USE.
     Creates a RadioSelect with options given in kwarg 'companies' plus empty_label.
     """
-    #queryset is a required parameter, so here an empty queryset is passed
+    # queryset is a required parameter, so here an empty queryset is passed
     company_name = forms.ModelChoiceField(widget=RadioReversed(),
                                           queryset=Company.objects.none(),
                                           empty_label='Na liście nie ma firmy, w której pracuję',
                                           label='',
                                           )
-    
+
     def __init__(self, *args, **kwargs):
         self.companies = kwargs.pop('companies')
         super().__init__(*args, **kwargs)
         self.fields['company_name'].queryset = self.companies
 
 
-
-        
 class ProfanitiesFilter():
     """
     Custom validator to filter out swear words.
@@ -72,10 +72,10 @@ class ProfanitiesFilter():
         for item in i:
             text_item = '\\b{}\\b|'.format(item[0])
             more_words += text_item
-            
+
     words += more_words
     pattern = re.compile(words, re.IGNORECASE)
-    
+
     def __call__(self, value):
         matches = self.pattern.findall(value)
         matches = [match for match in matches if match != '']
@@ -87,7 +87,7 @@ class ProfanitiesFilter():
                 if match in word:
                     full_matched_words.append(word.lower().rstrip(',!?:;.'))
         matches = set(full_matched_words)
-        #if partial words matched, get the full words, of which they are part
+        # if partial words matched, get the full words, of which they are part
         """
         string = '|'.join(matches)
         print(string)
@@ -103,19 +103,22 @@ class ProfanitiesFilter():
             else:
                 value = ', '.join(matches)
             raise forms.ValidationError('Niedopuszczalne wyrażenia: {}'.format(value),
-                                  params={'value':value},
-            )
-    
+                                        params={'value': value},
+                                        )
+
 
 class CensoredField(forms.CharField):
     """
     Standard CharField with custom validator filtering out profanities.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.validators.append(ProfanitiesFilter())
-    
+
+
 class CompanyCreateForm(forms.ModelForm):
+
     class Meta:
         model = Company
         fields = ['name', 'headquarters_city', 'website']
@@ -123,8 +126,8 @@ class CompanyCreateForm(forms.ModelForm):
         field_classes = {
             'name': CensoredField,
             'headquarters_city': CensoredField,
-            }
-        
+        }
+
     def clean_website(self):
         """Clean field: 'website', ensure that urls with http, https, 
         with and without www are treated as the same."""
@@ -136,19 +139,20 @@ class CompanyCreateForm(forms.ModelForm):
         # TODO check here if the website returns 200
         return url
 
-    
+
 class PositionForm(forms.ModelForm):
+
     class Meta:
         model = Position
-        fields = ['position', 'department', 'location', 
+        fields = ['position', 'department', 'location',
                   'start_date_year', 'start_date_month', 'employment_status']
 
         field_classes = {
             'position': CensoredField,
             'department': CensoredField,
             'location': CensoredField,
-            }
-        
+        }
+
         labels = {
             'position': 'stanowisko',
             'department': 'departament',
@@ -156,23 +160,25 @@ class PositionForm(forms.ModelForm):
             'start_date_year': 'rok',
             'start_date_month': 'miesiąc',
             'employment_status': 'rodzaj umowy',
-            }
+        }
 
         widgets = {
-            'start_date_year': forms.Select(attrs={'class':'inline'}),
-            'start_date_month': forms.Select(attrs={'class':'inline'}),
-            }
-        
-        """
-        help_texts = {
-            'start_date_year': 'rok',
-            'start_date_month': 'miesiąc',
-            }
-        """
+            'position': forms.TextInput(attrs={'class': 'auto-position'}),
+            'department': forms.TextInput(attrs={'class': 'auto-position'}),
+            'location': forms.TextInput(attrs={'class': 'auto-position'}),
+            'start_date_year': forms.Select(attrs={'class': 'inline'}),
+            'start_date_month': forms.Select(attrs={'class': 'inline'}),
+        }
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['position'].widget.attrs['class'] = 'auto-position'
+            self.fields['department'].widget.attrs['class'] = 'auto-position'
+            self.fields['location'].widget.attrs['class'] = 'auto-positon'
 
 
-        
 class ReviewForm(forms.ModelForm):
+
     class Meta:
         model = Review
         fields = ['title', 'advancement',
@@ -185,8 +191,8 @@ class ReviewForm(forms.ModelForm):
             'cons': CensoredField,
             'overallscore': CensoredField,
             'comment': CensoredField,
-            }
-        
+        }
+
         labels = {
             'title': 'tytuł recenzji',
             'advancement': 'możliwości rozwoju',
@@ -209,11 +215,11 @@ class ReviewForm(forms.ModelForm):
             'cons': forms.Textarea(),
             'comment': forms.Textarea(),
         }
-        
 
 
 class SalaryForm(forms.ModelForm):
     #period = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'inline',}))
+
     class Meta:
         model = Salary
         fields = [
@@ -231,12 +237,11 @@ class SalaryForm(forms.ModelForm):
                                                      'class': 'inline'}),
             'period': forms.Select(attrs={'class': 'inline'}),
             'gross_net': forms.Select(attrs={'class': 'inline'}),
-            
+
             'bonus_input': forms.NumberInput(attrs={'step': 1000, 'class': 'inline'}),
-            'bonus_period': forms.Select(attrs={'class': 'inline',}),
+            'bonus_period': forms.Select(attrs={'class': 'inline', }),
             'bonus_gross_net': forms.Select(attrs={'class': 'inline'}),
-            }
-        
+        }
 
     def __init__(self, *args, **kwargs):
         """
@@ -249,14 +254,16 @@ class SalaryForm(forms.ModelForm):
         self.fields['bonus_period'].required = False
         self.fields['bonus_gross_net'].required = False
 
-        
+
 class InterviewForm(forms.ModelForm):
-    # this override is necessary as otherwise 'required' attr is not properly generated
+    # this override is necessary as otherwise 'required' attr is not properly
+    # generated
     got_offer = forms.TypedChoiceField(required=True, label="Czy dostałaś/eś ofertę?",
-                                   choices=((True, 'Tak'), (False, 'Nie')),
-                                   widget=forms.RadioSelect(
-                                       choices=((True, 'Tak'), (False, 'Nie'))),
-                                   )
+                                       choices=((True, 'Tak'), (False, 'Nie')),
+                                       widget=forms.RadioSelect(
+                                           choices=((True, 'Tak'), (False, 'Nie'))),
+                                       )
+
     class Meta:
         model = Interview
         fields = [
@@ -276,14 +283,14 @@ class InterviewForm(forms.ModelForm):
             'how_got': CensoredField,
             'questions': CensoredField,
             'impressions': CensoredField,
-            }
-        
+        }
+
         widgets = {
             'difficulty': forms.RadioSelect(),
             'impressions': forms.Textarea(),
             #'got_offer': forms.RadioSelect(),
             'rating': RadioSelectModified(),
-            }
+        }
 
         """help_texts = {
             'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
