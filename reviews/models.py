@@ -2,7 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Avg
+from django.db.models import Avg, Max, Min
 from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
@@ -235,6 +235,14 @@ class Review(ApprovableModel):
                 }
 
 
+class SalaryManager(SelectedManager):
+
+    use_for_related_fields = True
+
+    def selected(self, **kwargs):
+        return self.filter(**kwargs).exclude(approved=False).aggregate
+
+
 class Salary(ApprovableModel):
     PERIOD = [
         ('M', 'miesięcznie'),
@@ -282,7 +290,7 @@ class Salary(ApprovableModel):
     total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
                                                default=0, editable=False)
 
-    objects = SelectedManager()
+    objects = SalaryManager()
 
     class Meta:
         verbose_name = "Zarobki"

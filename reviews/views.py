@@ -14,6 +14,7 @@ from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView, RedirectView)
 from django.views.generic.detail import SingleObjectMixin
+from django.db import models
 from django.db.models import Q, F
 
 from users.models import Visit
@@ -87,7 +88,10 @@ class AjaxViewMixin:
         if request.is_ajax():
             field = request.GET.get('field', 'id_').replace('id_', '')
             results = self.get_results(
-                request.GET.get('term', ''), field).values()
+                request.GET.get('term', ''), field
+            ).values()
+            if field:
+                results = results.values(field).distinct()
             if not field:
                 field = "name"
             options = []
@@ -96,6 +100,8 @@ class AjaxViewMixin:
                         'label': item.get(field),
                         'value': item.get(field)}
                 options.append(item)
+            # print(options)
+            # option = set(options)
             return JsonResponse(options, safe=False)
         else:
             return super().get(request, *args, **kwargs)
@@ -339,7 +345,6 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         """
         Return results for jQuery autocomplete. Used by AjaxViewMixin.
         """
-        print(searchterm, field)
         field = field + '__unaccent__icontains'
         results = Position.objects.filter(
             company=self.kwargs['id'],
@@ -548,7 +553,7 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
         for company in companies:
             print('iteration: ', company)
             company_db = CompanySearchBase.get_results(self, company[1])
-            #company_db = Company.objects.filter(name__icontains=company[1])
+            # company_db = Company.objects.filter(name__icontains=company[1])
             if company_db.count() > 0:
                 # candidates are companies that have database entries similar
                 # to their names, user is suggested to chose an association

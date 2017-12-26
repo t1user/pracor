@@ -163,18 +163,27 @@ class PositionForm(forms.ModelForm):
         }
 
         widgets = {
-            'position': forms.TextInput(attrs={'class': 'auto-position'}),
-            'department': forms.TextInput(attrs={'class': 'auto-position'}),
-            'location': forms.TextInput(attrs={'class': 'auto-position'}),
+            #'position': forms.TextInput(attrs={'class': 'auto-position'}),
+            #'department': forms.TextInput(attrs={'class': 'auto-position'}),
+            #'location': forms.TextInput(attrs={'class': 'auto-position'}),
             'start_date_year': forms.Select(attrs={'class': 'inline'}),
             'start_date_month': forms.Select(attrs={'class': 'inline'}),
         }
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.fields['position'].widget.attrs['class'] = 'auto-position'
-            self.fields['department'].widget.attrs['class'] = 'auto-position'
-            self.fields['location'].widget.attrs['class'] = 'auto-positon'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['position'].widget.attrs['class'] = 'auto-position'
+        self.fields['department'].widget.attrs['class'] = 'auto-position'
+        self.fields['location'].widget.attrs['class'] = 'auto-position'
+
+    def clean_position(self):
+        return self.cleaned_data['position'].title()
+
+    def clean_department(self):
+        return self.cleaned_data['department'].title()
+
+    def clean_location(self):
+        return self.cleaned_data['location'].title()
 
 
 class ReviewForm(forms.ModelForm):
