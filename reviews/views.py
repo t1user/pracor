@@ -73,7 +73,35 @@ class HomeView(View):
                       {'form': form})
 
 
-class CompanySearchView(View):
+class AjaxViewMixin:
+    """
+    Return json data to forms, which use jQuery UI autocomplete widget.
+    Views that inherit must imiplement get_results method,
+    which returns data to be presented in the form.
+    """
+
+    def get(self, request, *args, **kwargs):
+        """
+        Request json data if request is ajax. Otherwise use super() to handle view.
+        """
+        if request.is_ajax():
+            field = request.GET.get('field', 'id_').replace('id_', '')
+            results = self.get_results(
+                request.GET.get('term', ''), field).values()
+            if not field:
+                field = "name"
+            options = []
+            for item in results:
+                item = {'id': item.get('id'),
+                        'label': item.get(field),
+                        'value': item.get(field)}
+                options.append(item)
+            return JsonResponse(options, safe=False)
+        else:
+            return super().get(request, *args, **kwargs)
+
+
+class CompanySearchBase(View):
     form_class = CompanySearchForm
     initial = {}
     template_name = 'reviews/home.html'
@@ -83,17 +111,6 @@ class CompanySearchView(View):
 
     def get(self, request, *args, **kwargs):
         """Used to display both:  search form or search results."""
-        # this is used by jQuery autocomplete function
-        if request.is_ajax():
-            search_results = self.get_results(request.GET.get('term', ''))
-            options = []
-            for item in search_results:
-                search_item = {'id': item.pk,
-                               'label': item.name,
-                               'value': item.name}
-                options.append(search_item)
-            return JsonResponse(options, safe=False)
-        # this is used by regular http requests
         search_results = ''
         searchterm_joined = kwargs.get('searchterm')
         searchterm = searchterm_joined.replace('_', ' ')
@@ -107,7 +124,7 @@ class CompanySearchView(View):
                        'searchterm': searchterm,
                        'searchterm_joined': searchterm_joined})
 
-    def get_results(self, searchterm):
+    def get_results(self, searchterm, *args, **kwargs):
         """Fire database query and returns matching Company objects."""
         return Company.objects.filter(Q(name__unaccent__icontains=searchterm) |
                                       Q(website__unaccent__icontains=searchterm))
@@ -119,6 +136,13 @@ class CompanySearchView(View):
             return HttpResponseRedirect(reverse(self.redirect_view,
                                                 kwargs={'searchterm': searchterm}))
         return render(request, self.template_name, {'form': form})
+
+
+class CompanySearchView(AjaxViewMixin, CompanySearchBase):
+    """
+    Handles searchbar including ajax calls jQuery for UI autocomplete.
+    """
+    pass
 
 
 class NoSlugRedirectMixin:
@@ -300,30 +324,6 @@ class CompanyUpdate(LoginRequiredMixin, SuperuserAccessBlocker, UpdateView):
 class CompanyDelete(LoginRequiredMixin, SuperuserAccessBlocker, DeleteView):
     model = Company
     success_url = reverse_lazy('home')
-
-
-class AjaxViewMixin:
-    """
-    Return json data to forms, which use jQuery UI autocomplete widget. Views that inherit must imiplement get_results method, which returns data to be presented in the form.
-    """
-
-    def get(self, request, *args, **kwargs):
-        """
-        Request json data if request is ajax. Otherwise use super() to handle view.
-        """
-        if request.is_ajax():
-            field = request.GET.get('field').replace('id_', '')
-            results = self.get_results(
-                request.GET.get('term', ''), field).values()
-            options = []
-            for item in results:
-                item = {'id': item.get('pk'),
-                        'label': item.get(field, 'name'),
-                        'value': item.get(field, 'name')}
-                options.append(item)
-            return JsonResponse(options, safe=False)
-        else:
-            return super().get(request, *args, **kwargs)
 
 
 class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
