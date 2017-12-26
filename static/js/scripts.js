@@ -48,7 +48,7 @@ function listItems() {
 $(function() {
   $(".auto-search").autocomplete({
     source: "/search/",
-    minLength: 4,
+    minLength: 3,
     select: function(event, ui) {
       location.href="/" + ui.item.id;
 }
@@ -71,7 +71,7 @@ $(".auto-position").autocomplete({
                 }
         })
     },
-    minLength: 4,
+    minLength: 3,
 });
 
 

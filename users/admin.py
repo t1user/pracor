@@ -13,31 +13,34 @@ from .models import Profile, User, Visit
 class SocialDjangoInline(admin.StackedInline):
     model = UserSocialAuth
     extra = 0
-    readonly_fields = ('provider', 'uid', 'extra_data')
+    readonly_fields = ('user', 'provider', 'uid', 'extra_data')
     list_filter = ('provider',)
-    
 
     def has_add_permission(self, request):
         return False
+
 
 class PositionInline(admin.StackedInline):
     model = Position
     extra = 0
     raw_id_fields = ('company',)
 
+
 class ReviewInline(PositionInline):
     model = Review
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': 60})},
-        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':60})}
-        }
+        models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 60})}
+    }
 
 
 class SalaryInline(PositionInline):
     model = Salary
 
+
 class InterviewInline(PositionInline):
     model = Interview
+
 
 class VisitInline(admin.TabularInline):
     model = Visit
@@ -46,22 +49,22 @@ class VisitInline(admin.TabularInline):
     extra = 0
     readonly_fields = ('timestamp', 'company')
 
+
 class ProfileInline(admin.StackedInline):
     model = Profile
     radio_fields = {'sex': admin.HORIZONTAL}
     fieldsets = (
         (None, {
-            'fields': ( 'contributed', 'sex', 'career_start_year',)
-            }),
+            'fields': ('contributed', 'sex', 'career_start_year',)
+        }),
         ('Pola linkedin', {
             'classes': ('collapse',),
             'fields': ('linkedin_id', 'linkedin_url'),
-            }),
-        )
+        }),
+    )
     list_filter = ('contributed',)
 
 
-    
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no email field."""
@@ -76,11 +79,10 @@ class UserAdmin(DjangoUserAdmin):
         (_('Permissions'), {
             'classes': ('collapse',),
             'fields': ('is_active', 'is_staff', 'is_superuser',
-                                       'groups', 'user_permissions')}),
+                       'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
-    
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -88,10 +90,10 @@ class UserAdmin(DjangoUserAdmin):
         }),
     )
 
-    list_display = ('email', 'first_name', 'last_name', 'get_contributed', 'get_social', 'is_staff',)
-    search_fields = ( 'email', 'first_name', 'last_name')
+    list_display = ('email', 'first_name', 'last_name',
+                    'get_contributed', 'get_social', 'is_staff',)
+    search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
-
 
     def get_contributed(self, obj):
         return obj.profile.contributed
@@ -101,32 +103,34 @@ class UserAdmin(DjangoUserAdmin):
         return UserSocialAuth.objects.get(user=obj).provider
     get_social.short_description = "login zewnętrzny"
 
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     """
     For benefit of editors who do not have permission to edit users.
     """
-    readonly_fields = ('user', 'date_joined', 'last_login', 'visited_companies')
-    list_display = ('user', 'sex','date_joined', 'last_login', 'contributed')
+    readonly_fields = ('user', 'date_joined',
+                       'last_login', 'visited_companies')
+    list_display = ('user', 'sex', 'date_joined', 'last_login', 'contributed')
     inlines = (VisitInline,)
     radio_fields = {'sex': admin.HORIZONTAL}
     fieldsets = (
         (None, {
             'fields': (('user', 'contributed'), 'sex', 'career_start_year',)
-            }),
+        }),
         (None, {
             'fields': ('date_joined', 'last_login',)
-            }),
+        }),
         ('Pola linkedin', {
             'classes': ('collapse',),
             'fields': ('linkedin_id', 'linkedin_url'),
-            }),
+        }),
         (None, {
             'classes': ('collapse',),
             'fields': ('visited_companies',),
-            }),
-            
-        )
+        }),
+
+    )
 
     def date_joined(self, obj):
         return obj.user.date_joined

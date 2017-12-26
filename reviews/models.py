@@ -86,11 +86,14 @@ class Company(ApprovableModel):
 
     @property
     def salaries(self):
-        return Salary.objects.filter(company=self.pk).exclude(approved=False)
+        return Salary.objects.selected(company=self.pk)
+        # return Salary.objects.filter(company=self.pk).exclude(approved=False)
 
     @property
     def interviews(self):
-        return Interview.objects.filter(company=self.pk).exclude(approved=False)
+        return Interview.objects.selected(company=self.pk)
+        # return
+        # Interview.objects.filter(company=self.pk).exclude(approved=False)
 
     def get_items(self, item):
         #self.object = object
@@ -279,6 +282,8 @@ class Salary(ApprovableModel):
     total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
                                                default=0, editable=False)
 
+    objects = SelectedManager()
+
     class Meta:
         verbose_name = "Zarobki"
         verbose_name_plural = "Zarobki"
@@ -382,6 +387,8 @@ class Interview(ApprovableModel):
     impressions = models.TextField('wrażenia')
     rating = models.PositiveIntegerField(
         'Ocena', choices=RATINGS, default=None)
+
+    objects = SelectedManager()
 
     class Meta:
         verbose_name = "Rozmowa"

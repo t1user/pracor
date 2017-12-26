@@ -547,7 +547,8 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
         new_names = []
         for company in companies:
             print('iteration: ', company)
-            company_db = Company.objects.filter(name__icontains=company[1])
+            company_db = CompanySearchBase.get_results(self, company[1])
+            #company_db = Company.objects.filter(name__icontains=company[1])
             if company_db.count() > 0:
                 # candidates are companies that have database entries similar
                 # to their names, user is suggested to chose an association
@@ -565,23 +566,15 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
         if candidates:
             print(candidates)
             form_choices = {}
-            # company_tuple is a tuple of (position_id, company_name,
-            # company_db)
             for candidate, company_tuple in candidates.items():
                 # will be used as choices parameter on the form
                 choices = [(company.pk, company.name)
                            for company in company_tuple[2]]
-                print('candidate: ', candidate)
-                print('options: ', companies)
                 forms[candidate] = self.form_class(companies=choices,
                                                    prefix=candidate,
                                                    initial={'position': company_tuple[0]})
                 form_choices[candidate] = choices
             request.session['form_choices'] = form_choices
-        # else:
-            # request.session['new_names'] = new_names
-        print('companies: ', companies, 'candidates: ', candidates,
-              'new_names: ', new_names, 'forms: ', forms)
         return render(request, self.template_name,
                       {'companies': names,
                        'candidates': candidates,
@@ -609,7 +602,6 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
                 position = Position.objects.get(pk=position_pk)
                 print(company_pk is None)
                 if company_pk:
-                    print('I am inside')
                     company = Company.objects.get(pk=company_pk)
                     position.company = company
                     position.save(update_fields=['company'])
