@@ -250,8 +250,18 @@ class SalaryManager(SelectedManager):
             Min('salary_input'),
             Avg('salary_input'),
             Max('salary_input'),
-            Count('salary_input')
+            Count('salary_input'),
         )
+
+    @property
+    def get_percent(self):
+        data = self.groups()
+        max = data.salary_input__max
+        min = data.salary_input__min
+        avg = data.salary_input__avg
+        print(max - min)
+        if (max - min) != 0:
+            return str((max - avg) / (max - min)) + '%'
 
 
 class Salary(ApprovableModel):
@@ -334,7 +344,7 @@ class Salary(ApprovableModel):
 
         def gross_to_net(B):
             """
-            Przelicza ROCZNE przychody brutto na dochód netto przy standardowej 
+            Przelicza ROCZNE przychody brutto na dochód netto przy standardowej
             umowie o pracę. Wynik zaokrąglony do najbliższej 100zl.
             """
             base = B * (1 - zus - ch) - ku

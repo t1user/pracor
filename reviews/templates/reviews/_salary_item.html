@@ -1,14 +1,18 @@
 {% load humanize %}
 {% load reviews_extras %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+{% endblock css %}
+
 
 <div class="row">
     <div class="twelve columns">
-
         {% comment %}
         {% include "reviews/_background.html" %}
         {% endcomment %}
-
-        <!-- <h5>Zarobki zasadnicze</h5> -->
         <div class="salary">
             <h4>
             {{ object.position__position }}|
@@ -18,34 +22,63 @@
             {{ object.position__department }}
             {% endif %}
             </h4>
-
-            <h5>Zarobki zasadnicze</h5>
-            {{ object.currency }}
-            {% if object.salary_input__count > 1 %}
-            {{ object.salary_input__min|intcomma }}<br/>
-            {% endif %}
-            
-            {{ object.salary_input__avg|intcomma }}<br/>
-
-            {% if object.salary_input__count > 1 %}
-            {{ object.salary_input__max|intcomma }}<br/>
-            {% endif %}
-
-            {{ object.period|period }}
-            {{ object.gross_net|gross_net }}
-            <br/>
-
-            <i>Na podstawie {{ object.salary_input__count }} wpis{{object.salary_input__count|pluralize:"u,ów" }}</i>
         </div>
-        
+    </div>
+</div>
+<div class="row">
+    <div class="four columns">
+        <h5>Zarobki zasadnicze</h5>    
+        {{ object.gross_net|gross_net }}
+        {{ object.period|period }}
+    </div>
+    <div class="three columns">
+        <i>średnio:</i>
+        <div class="avg-salary">
+            {{ object.currency }}
+            {{ object.salary_input__avg|intcomma }}
+        </div>
+        {{ object.get_percent }}
+    </div>
+    <div class="four columns">
+        {% if object.salary_input__count > 1 %}
+        <table class="u-full-width salary-slider">
+            <tr>
+                <td class="u-pull-right" style="width:{{ object.get_percent }}">
+                    <i class="fa fa-caret-down fa-2x" aria-hidden="true"></i>
+                </td>
+            </tr>
+            <tr class="u-full-width marker-line">
+                <td class="u-pull-left">
+                    {{ object.salary_input__min|intcomma }}
+                </td>
+                <td class="u-pull-right">
+                    {{ object.salary_input__max|intcomma }}
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+    </div>
+    <div class="one column">
+    </div>
+</div>
+<div class="row">
+    <div class="twelve columns">
+        <div class="u-pull-right">
+            <i>na podstawie {{ object.salary_input__count }} wpis{{object.salary_input__count|pluralize:"u,ów" }}</i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="twelve columns">
         {% if object.bonus_input %}
         <h5>Premia</h5>
         <div class="bonus">
-          {{ object.currency }}
-          {{ object.bonus_input|intcomma }}
-          {{ object.get_bonus_period_display }}
-          {{ object.get_bonus_gross_net_display }}
+            {{ object.currency }}
+            {{ object.bonus_input|intcomma }}
+            {{ object.get_bonus_period_display }}
+            {{ object.get_bonus_gross_net_display }}
         </div>
         {% endif %}
     </div>
 </div>
+

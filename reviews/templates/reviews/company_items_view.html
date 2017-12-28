@@ -19,7 +19,11 @@ pracr | {{ company.name }} | {{ name }}
 
 <div class="container">
     <section>
+        <h3>{{ model|item_list_title }}</h3>
         {% include "reviews/_company_header.html" %}
+        <article>
+            <a href="{% url model company.pk company.slug %}" class="button button-primary"><i class="material-icons">add</i>Dodaj {{ model|item_name_singular }}</a>
+        </article>
     </section>
 </div>
 

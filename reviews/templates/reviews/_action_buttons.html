@@ -1,14 +1,14 @@
 <div class="row">
     <!-- This is visible on desktop -->
     <article class="twelve columns action-buttons desktop">
-        <a href= {% url 'review' company.pk company.slug %} class="button button-primary">Dodaj opinię</a>
-        <a href = {% url 'salary' company.pk company.slug %} class="button button-primary">Dodaj zarobki</a>
-        <a href = {% url 'interview' company.pk company.slug %} class="button button-primary">Dodaj rozmowę</a>
+        <a href= {% url 'review' company.pk company.slug %} class="button button-primary"><i class="material-icons">add</i>Dodaj opinię</a>
+        <a href = {% url 'salary' company.pk company.slug %} class="button button-primary"><i class="material-icons">add</i>Dodaj zarobki</a>
+        <a href = {% url 'interview' company.pk company.slug %} class="button button-primary"><i class="material-icons">add</i>Dodaj rozmowę</a>
     </article>
 
   <!-- This is visible on mobile -->
   <aritcle class="twelve columns action-buttons mobile">
-      <a href ="javascript:void(0)" class="button button-primary" onclick="listItems()">Dodaj <i class="material-icons">menu</i></a>
+      <a href ="javascript:void(0)" class="button button-primary" onclick="listItems()"><i class="material-icons">add</i>Dodaj <i class="material-icons">menu</i></a>
       <!-- Those options are activated by js after button press -->
       <div id="actionButton" class="action-button">
           <a href= {% url 'review' company.pk company.slug %} class="button">Opinię</a>

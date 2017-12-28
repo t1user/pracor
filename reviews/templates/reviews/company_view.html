@@ -23,18 +23,18 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
         <div class="row">
             <div class="seven columns">
                 <article class="counter">
-                    <div class="counter-button">
-                        Opinie
-                        <a href="{% url 'company_items' company.pk 'opinie' company.slug %}">{{ company.reviews.count }}</a>
-                    </div>
-                    <div class="counter-button">
-                        Zarobki
-                        <a href="{% url 'company_items' company.pk 'zarobki' company.slug %}">{{ company.salaries.count }}</a>
-                    </div>
-                    <div class="counter-button">
-                        Rozmowy
-                        <a href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">{{ company.interviews.count }}</a>
-                    </div>
+                    <a class="counter-button" href="{% url 'company_items' company.pk 'opinie' company.slug %}">
+                        <div class="counter-title">Opinie</div>
+                        <div class="counter-link">{{ company.reviews.count }}</div>
+                    </a>
+                    <a class="counter-button" href="{% url 'company_items' company.pk 'zarobki' company.slug %}">
+                        <div class="counter-title">Zarobki</div>
+                        <div class="counter-link">{{ company.salaries.count }}</div>
+                    </a>
+                    <a class="counter-button" href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">
+                        <div class="counter-title">Rozmowy</div>
+                        <div class="counter-link">{{ company.interviews.count }}</div>
+                    </a>
                 </article>
             </div>
             {% if company.reviews.count %}
@@ -61,7 +61,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
         {% include name|file with object=item.last scores=item.last.get_scores %}
         {% if item.count > 1 %}
                 <div class="more-button">
-                    <a href="{% url 'company_items' company.pk name|translate company.slug %}" class="button">Wszystkie {{ name|translate }} ({{ item.count }}) >></a>
+                    <a href="{% url 'company_items' company.pk name|translate company.slug %}" class="button button-primary">Wszystkie {{ name|translate }} ({{ item.count }}) >></a>
                 </div>
                 {% endif %}
     </section>

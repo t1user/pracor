@@ -139,3 +139,28 @@ def translate_gross_net(item):
     except:
         return
     return obj.get_gross_net_display()
+
+
+@register.filter('item_name_singular')
+def item_name(item):
+    dictionary = {'review': 'opinię',
+                  'salary': 'zarobki',
+                  'interview': 'rozmowę'}
+    return dictionary[item]
+
+
+@register.filter('item_list_title')
+def item_list_tittle(item):
+    dictionary = {
+        'review': 'Opinie o firmie:',
+        'salary': 'Zarobki w firmie:',
+        'interview': 'Rozmowy kwalifikacyjne w firmie:',
+    }
+    return dictionary[item]
+
+
+@register.filter('make_percent')
+def make_percent(max_range, total_range):
+    if total_range != 0:
+        return str(max_range / total_range) + '%'
+    return 1

@@ -74,8 +74,6 @@ footer {
 
 /* start styling responsive top navbar */
 nav {
-    background-color: rgba(255, 255, 255, 0);
-    background-color: #f5f5f5;
     background-color: #0CAA41;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
     height: 6rem;
@@ -123,8 +121,6 @@ nav a {
 }
 
 .topnav  a:hover {
-    /*background-color: #ddd;
-    background-color: #e7fdef;*/
     color: #e7fdef;
 }
 
@@ -138,7 +134,7 @@ nav a.icon, nav a.glass {
     overflow-x: hidden;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 830px) {
     .search-field {
         width: 15rem;
     }

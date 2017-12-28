@@ -21,7 +21,7 @@ table .stars {
 
 .left-block {
     float: left;
-    margin-right: 3.8rem;
+    /*margin-right: 2rem;*/
 }
 
 .score {
@@ -54,23 +54,28 @@ table {
     justify-content: flex-start;
 }
 
-
 .counter-button {
-    padding: 1.5rem;
+    padding: 2.6rem 1.3rem;
     border: 0.1px solid #0CAA41;
     text-align: center;
     margin: 0.3rem;
-    min-width: 24%;
-    font-size: 1.8rem;
+    min-width: 26%;
+    /*font-size: 1.8rem;*/
 }
 
 .counter-button:hover {
     background-color: #e7fdef;
 }
 
+.material-icons {
+    vertical-align: middle;
+    padding-right: 0.5rem;
+}
+
 @media screen and (max-width: 900px) {
     .stars {
         font-size: 3.5rem;
+        
     }
 
     .fa {
@@ -78,28 +83,52 @@ table {
     }
     
     .counter-button {
-        font-size: 1.5rem;
         padding: .8rem;
     }
+}    
+
+
+@media screen and (max-width: 700px) {
+.stars {
+    font-size: 2.5rem;
+}
 }
 
-.counter-button a {
+.counter-button .counter-title {
+    color: black;
+    font-weight: 500;
+    font-size: 2rem;
+    }
+
+.counter-button .counter-link {
     display: block;
     text-align: center;
     font-weight: 800;
-    font-size: 2rem;
+    font-size: 2.2rem;
 }
+
+
+@media screen and (max-width: 900px) {
+    .counter-button {
+        padding: 1rem .3rem;
+        min-width: 29%;
+        }
+
+    .counter-button .counter-title {
+        font-size: 1.7rem;
+        }
+}
+
 
 
 .no-reviews {
     padding-top: 3rem;
     margin: 1rem;
     text-align: center;
-    
 }
 
 
-/* action buttons including responsive*/
+/* action buttons including responsive */
 .action-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -108,7 +137,7 @@ table {
 
 .action-buttons a {
     width: 30%;
-    min-width: 12rem;
+    min-width: 14rem;
     margin: 1rem;
 }
 
@@ -198,7 +227,7 @@ table {
     .action-button.responsive {
         display: inline-block;
         width: 10rem;
-        margin-left: 2rem;
+        /*margin-left: 2rem;*/
     }
 
     .action-button.responsive a {
@@ -215,4 +244,38 @@ table {
         max-width: 11rem;
     }
 
+}
+
+
+/* salary _salary_item.html */
+
+.avg-salary {
+    font-size: 2.5rem;
+}
+
+.salary-slider {
+    margin-top: 2rem;
+}
+
+.salary-slider tr, salary-slider td {
+    margin: 0;
+    padding: 0;
+}
+
+.marker-line {
+    border-top: solid #0CAA41;
+}
+
+td {
+    border-bottom: none;
+}
+
+td.u-pull-right {
+    margin: 0;
+    padding: 0;
+    }
+
+td .fa {
+    color: #0CAA41;
+    vertical-align: bottom;
 }
