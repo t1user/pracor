@@ -2,7 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Avg, Max, Min
+from django.db.models import Avg, Max, Min, Count
 from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
@@ -81,23 +81,18 @@ class Company(ApprovableModel):
 
     @property
     def reviews(self):
-        return Review.objects.selected(company=self.pk)
-        # return Review.objects.filter(company=self.pk).exclude(approved=False)
+        return Review.objects.selected(company=self.pk).order_by('-date')
 
     @property
     def salaries(self):
-        return Salary.objects.selected(company=self.pk)
-        # return Salary.objects.filter(company=self.pk).exclude(approved=False)
+        return Salary.objects.groups(company=self.pk).order_by('-salary_input__count')
 
     @property
     def interviews(self):
-        return Interview.objects.selected(company=self.pk)
-        # return
-        # Interview.objects.filter(company=self.pk).exclude(approved=False)
+        return Interview.objects.selected(company=self.pk).order_by('-date')
 
     def get_items(self, item):
-        #self.object = object
-        return item.objects.filter(company=self.pk).exclude(approved=False)
+        print('COMPANY.GET_ITEMS not implemented')
 
     def count_reviews(self):
         return self.get_reviews().count()
@@ -176,7 +171,11 @@ class Position(models.Model):
             company = self.company_name
         else:
             company = ' '
-        return self.position + ' - ' + company + ' - ' + self.user.email
+        if self.user:
+            user = self.user.email
+        else:
+            user = ''
+        return self.position + ' - ' + company + ' - ' + user
 
 
 class SelectedManager(models.Manager):
@@ -239,8 +238,20 @@ class SalaryManager(SelectedManager):
 
     use_for_related_fields = True
 
-    def selected(self, **kwargs):
-        return self.filter(**kwargs).exclude(approved=False).aggregate
+    def groups(self, **kwargs):
+        return self.selected(**kwargs).values(
+            'position__position',
+            'position__location',
+            'position__department',
+            'currency',
+            'period',
+            'gross_net',
+        ).annotate(
+            Min('salary_input'),
+            Avg('salary_input'),
+            Max('salary_input'),
+            Count('salary_input')
+        )
 
 
 class Salary(ApprovableModel):

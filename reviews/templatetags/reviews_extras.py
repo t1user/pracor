@@ -1,11 +1,13 @@
 from django import template
-from reviews.models import Review
+from reviews.models import Review, Salary
 
 register = template.Library()
+
 
 @register.filter('klass')
 def klass(ob):
     return ob.__class__.__name__
+
 
 @register.filter('class')
 def attrs(ob):
@@ -13,6 +15,7 @@ def attrs(ob):
     CURRENTLY NOT IN USE
     """
     return ob.get('class', '')
+
 
 @register.filter('thermometer')
 def thermo(obj):
@@ -42,6 +45,7 @@ def diff(obj):
     }
     return dictionary[obj]
 
+
 @register.filter('stars')
 def star_generator(rating):
     """
@@ -66,8 +70,9 @@ def star_generator(rating):
         "full": full,
         "half": half,
         "blank": blank,
-        }
+    }
     return dictionary
+
 
 @register.filter('rating_name')
 def rating_name(name):
@@ -87,18 +92,19 @@ def file_name(model):
         'reviews': 'review',
         'salaries': 'salary',
         'interviews': 'interview',
-        }
-    
+    }
+
     if model in ['reviews', 'salaries', 'interviews']:
         model = depluralize[model]
-        
+
     dictionary = {
         'review': 'reviews/_review_item.html',
         'salary': 'reviews/_salary_item.html',
         'interview': 'reviews/_interview_item.html',
-        }
-    
+    }
+
     return dictionary[model]
+
 
 @register.filter('translate')
 def translate_item(item):
@@ -109,5 +115,27 @@ def translate_item(item):
         'review': 'opinie',
         'salary': 'zarobki',
         'interview': 'rozmowy',
-        }
+    }
     return dictionary[item]
+
+
+@register.filter('period')
+def translate_period(item):
+    """
+    Rosolve salary.period database choices into display values.
+    """
+    try:
+        obj = Salary.objects.filter(period=item)[0]
+    except:
+        return
+    return obj.get_period_display()
+    # return Salary.get_period_display(item)
+
+
+@register.filter('gross_net')
+def translate_gross_net(item):
+    try:
+        obj = Salary.objects.filter(gross_net=item)[0]
+    except:
+        return
+    return obj.get_gross_net_display()

@@ -180,7 +180,8 @@ class PositionForm(forms.ModelForm):
         return self.cleaned_data['position'].title()
 
     def clean_department(self):
-        return self.cleaned_data['department'].title()
+        if self.cleaned_data['department']:
+            return self.cleaned_data['department'].title()
 
     def clean_location(self):
         return self.cleaned_data['location'].title()

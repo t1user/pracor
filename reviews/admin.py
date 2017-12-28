@@ -125,10 +125,10 @@ class ReviewAdmin(ModelAdminModified):
 
 @admin.register(Salary)
 class SalaryAdmin(ModelAdminModified):
-    readonly_fields = ('date', 'company', 'position', 'base_monthly',
+    readonly_fields = ('date', 'company', 'base_monthly',
                        'base_annual', 'total_monthly', 'total_annual', 'reviewer',
                        'reviewer', 'reviewed_date', 'company', 'position')
-    list_display = ('id', 'company', 'approved', 'reviewer')
+    list_display = ('id', 'company', 'position', 'approved', 'reviewer')
     search_fields = ['company__name', 'position__user__email']
     fieldsets = (
         (None, {

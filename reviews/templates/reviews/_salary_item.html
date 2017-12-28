@@ -1,17 +1,41 @@
 {% load humanize %}
+{% load reviews_extras %}
 
 <div class="row">
     <div class="twelve columns">
-        <div class="date"><i>{{ object.date|date:"j E Y" }}</i></div>
 
+        {% comment %}
         {% include "reviews/_background.html" %}
-        
-        <h5>Zarobki zasadnicze</h5>
+        {% endcomment %}
+
+        <!-- <h5>Zarobki zasadnicze</h5> -->
         <div class="salary">
+            <h4>
+            {{ object.position__position }}|
+            {{ object.position__location }}
+            {% if object.position__department %}
+            |
+            {{ object.position__department }}
+            {% endif %}
+            </h4>
+
+            <h5>Zarobki zasadnicze</h5>
             {{ object.currency }}
-            {{ object.salary_input|intcomma }}
-            {{ object.get_period_display }}
-            {{ object.get_gross_net_display }}
+            {% if object.salary_input__count > 1 %}
+            {{ object.salary_input__min|intcomma }}<br/>
+            {% endif %}
+            
+            {{ object.salary_input__avg|intcomma }}<br/>
+
+            {% if object.salary_input__count > 1 %}
+            {{ object.salary_input__max|intcomma }}<br/>
+            {% endif %}
+
+            {{ object.period|period }}
+            {{ object.gross_net|gross_net }}
+            <br/>
+
+            <i>Na podstawie {{ object.salary_input__count }} wpis{{object.salary_input__count|pluralize:"u,ów" }}</i>
         </div>
         
         {% if object.bonus_input %}

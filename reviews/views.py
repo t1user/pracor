@@ -245,7 +245,11 @@ class CompanyItemsView(LoginRequiredMixin, AccessBlocker,
         return context
 
     def get_queryset(self):
-        return self.object.get_items(self.model).order_by('-date')
+        dictionary = {Review: self.object.reviews,
+                      Salary: self.object.salaries,
+                      Interview: self.object.interviews, }
+
+        return dictionary[self.model]
 
 
 class ReviewItemsView(CompanyItemsView):
