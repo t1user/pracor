@@ -239,6 +239,7 @@ class SalaryManager(SelectedManager):
     use_for_related_fields = True
 
     def groups(self, **kwargs):
+        field = models.FloatField()
         return self.selected(**kwargs).values(
             'position__position',
             'position__location',
@@ -251,6 +252,10 @@ class SalaryManager(SelectedManager):
             Avg('salary_input'),
             Max('salary_input'),
             Count('salary_input'),
+            distance=(Max('salary_input', output_field=field) -
+                      Avg('salary_input', output_field=field)),
+            range=(Max('salary_input', output_field=field) -
+                   Min('salary_input', output_field=field)),
         )
 
     @property

@@ -160,7 +160,7 @@ def item_list_tittle(item):
 
 
 @register.filter('make_percent')
-def make_percent(max_range, total_range):
-    if total_range != 0:
-        return str(max_range / total_range) + '%'
-    return 1
+def make_percent(distance, range):
+    if range != 0:
+        print(distance / range)
+        return str((distance / range) * 100 + 5) + '%'

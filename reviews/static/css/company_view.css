@@ -59,7 +59,7 @@ table {
     border: 0.1px solid #0CAA41;
     text-align: center;
     margin: 0.3rem;
-    min-width: 26%;
+    min-width: 25%;
     /*font-size: 1.8rem;*/
 }
 
@@ -75,16 +75,18 @@ table {
 @media screen and (max-width: 900px) {
     .stars {
         font-size: 3.5rem;
+        padding-bottom: 0.9rem;
         
     }
 
     .fa {
         font-size: 1.2rem;
     }
-    
+    /*
     .counter-button {
         padding: .8rem;
     }
+    */
 }    
 
 
@@ -111,14 +113,14 @@ table {
 @media screen and (max-width: 900px) {
     .counter-button {
         padding: 1rem .3rem;
-        min-width: 29%;
+        min-width: 28%;
+        margin-bottom: 1rem;
         }
 
     .counter-button .counter-title {
         font-size: 1.7rem;
         }
 }
-
 
 
 .no-reviews {
@@ -253,10 +255,6 @@ table {
     font-size: 2.5rem;
 }
 
-.salary-slider {
-    margin-top: 2rem;
-}
-
 .salary-slider tr, salary-slider td {
     margin: 0;
     padding: 0;
@@ -278,4 +276,10 @@ td.u-pull-right {
 td .fa {
     color: #0CAA41;
     vertical-align: bottom;
+}
+
+@media screen and (min-width: 900px) {
+    .avg-salary {
+        margin-top: 2.5rem;
+    }
 }

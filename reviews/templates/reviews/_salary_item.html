@@ -37,13 +37,13 @@
             {{ object.currency }}
             {{ object.salary_input__avg|intcomma }}
         </div>
-        {{ object.get_percent }}
     </div>
     <div class="four columns">
         {% if object.salary_input__count > 1 %}
+        <i>zakres:</i>
         <table class="u-full-width salary-slider">
             <tr>
-                <td class="u-pull-right" style="width:{{ object.get_percent }}">
+                <td class="u-pull-right" style="width:{{ object.distance|make_percent:object.range }}">
                     <i class="fa fa-caret-down fa-2x" aria-hidden="true"></i>
                 </td>
             </tr>

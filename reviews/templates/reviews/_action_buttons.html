@@ -11,9 +11,9 @@
       <a href ="javascript:void(0)" class="button button-primary" onclick="listItems()"><i class="material-icons">add</i>Dodaj <i class="material-icons">menu</i></a>
       <!-- Those options are activated by js after button press -->
       <div id="actionButton" class="action-button">
-          <a href= {% url 'review' company.pk company.slug %} class="button">Opinię</a>
-          <a href = {% url 'salary' company.pk company.slug %} class="button">Zarobki</a>
-          <a href = {% url 'interview' company.pk company.slug %} class="button">Rozmowę</a>
+          <a href= {% url 'review' company.pk company.slug %} class="button"><i class="material-icons">add</i>Opinię</a>
+          <a href = {% url 'salary' company.pk company.slug %} class="button"><i class="material-icons">add</i>Zarobki</a>
+          <a href = {% url 'interview' company.pk company.slug %} class="button"><i class="material-icons">add</i>Rozmowę</a>
       </div>
   </aritcle>
 </div>
