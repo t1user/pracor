@@ -473,7 +473,8 @@ class TokenVerifyMixin:
 
     def hash_token(self):
         """
-        Get csrf token and hash it.
+        Get csrf token and hash it. 
+        Hashing is probably unnessesary, but what the hell...
         """
         token = self.request.POST.get('csrfmiddlewaretoken')
         hash = hashlib.sha1(token.encode('utf-8')).hexdigest()
@@ -498,7 +499,7 @@ class TokenVerifyMixin:
 
     def form_valid(self, *args, **kwargs):
         """
-        Store csrf token in session.
+        Store hashed csrf token in session.
         """
         self.save_token()
         return super().form_valid(*args, **kwargs)

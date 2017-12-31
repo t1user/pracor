@@ -15,7 +15,7 @@
         {% endcomment %}
         <div class="salary">
             <h4>
-            {{ object.position__position }}|
+            {{ object.position__position }} |
             {{ object.position__location }}
             {% if object.position__department %}
             |
@@ -32,7 +32,9 @@
         {{ object.period|period }}
     </div>
     <div class="three columns">
+        {% if object.salary_input__count > 1 %}
         <i>średnio:</i>
+        {% endif %}
         <div class="avg-salary">
             {{ object.currency }}
             {{ object.salary_input__avg|intcomma }}

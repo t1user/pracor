@@ -249,7 +249,7 @@ class SalaryManager(SelectedManager):
             'gross_net',
         ).annotate(
             Min('salary_input'),
-            Avg('salary_input'),
+            Avg('salary_input', output_field=models.IntegerField()),
             Max('salary_input'),
             Count('salary_input'),
             distance=(Max('salary_input', output_field=field) -
