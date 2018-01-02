@@ -58,7 +58,8 @@ class ProfanitiesFilter():
     First file has words that are matched inside other words.
     Second file has words that are matched only as full words.
     """
-
+    #makeing those class variables ensures this code is called only once - after
+    #starting server
     words = ''
     with open('reviews/profanities_filter/prof_fil_broad.txt') as f:
         i = csv.reader(f, delimiter='\n')
@@ -79,7 +80,6 @@ class ProfanitiesFilter():
     def __call__(self, value):
         matches = self.pattern.findall(value)
         matches = [match for match in matches if match != '']
-        print(matches)
         full_words = value.split(' ')
         full_matched_words = []
         for word in full_words:
@@ -88,15 +88,6 @@ class ProfanitiesFilter():
                     full_matched_words.append(word.lower().rstrip(',!?:;.'))
         matches = set(full_matched_words)
         # if partial words matched, get the full words, of which they are part
-        """
-        string = '|'.join(matches)
-        print(string)
-        regex = '\\b{0,10}%s{0,10}\\b' % (string)
-        search = re.compile(regex, re.IGNORECASE)
-        print(search)
-        matches = search.findall(value)
-        print(matches)
-        """
         if matches:
             if len(matches) == 1:
                 value = ''.join(matches)
@@ -128,6 +119,12 @@ class CompanyCreateForm(forms.ModelForm):
             'headquarters_city': CensoredField,
         }
 
+    def clean_name(self):
+        return self.cleaned_data['name'].title()
+        
+    def clean_headquarters_city(self):
+        return self.cleaned_data['headquarters_city'].title()
+
     def clean_website(self):
         """Clean field: 'website', ensure that urls with http, https, 
         with and without www are treated as the same."""
@@ -138,6 +135,7 @@ class CompanyCreateForm(forms.ModelForm):
             url = url.replace('http://', 'http://www.')
         # TODO check here if the website returns 200
         return url
+
 
 
 class PositionForm(forms.ModelForm):

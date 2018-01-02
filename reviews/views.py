@@ -146,7 +146,7 @@ class CompanySearchBase(View):
 
 class CompanySearchView(AjaxViewMixin, CompanySearchBase):
     """
-    Handles searchbar including ajax calls jQuery for UI autocomplete.
+    Handles searchbar including ajax calls for jQuery UI autocomplete.
     """
     pass
 
@@ -160,6 +160,7 @@ class NoSlugRedirectMixin:
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if kwargs.pop('slug') != self.object.slug:
+            #preserve GET parameters if any
             args = request.META.get('QUERY_STRING', '')
             if args:
                 args = '?{}'.format(args)
@@ -209,8 +210,15 @@ class CompanyItemsRedirectView(RedirectView):
     pass
 
 
-class CompanyItemsView(LoginRequiredMixin, AccessBlocker,
-                       SingleObjectMixin,  ListView):
+class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker,
+                           SingleObjectMixin,  ListView):
+    """
+    Abstract base class for displaying lists of Review, Salary, Interview.
+    Combines functionality of ListView - list of given items and
+    DetailView - Company. 
+    This is almost exact copy from Django documentation section on using view mixins.
+    """
+    
     template_name = 'reviews/company_items_view.html'
     paginate_by = 5
 
@@ -251,18 +259,18 @@ class CompanyItemsView(LoginRequiredMixin, AccessBlocker,
 
         return dictionary[self.model]
 
-
-class ReviewItemsView(CompanyItemsView):
+   
+class ReviewItemsView(CompanyItemsAbstract):
     """Display list of reviews for a given Company."""
     model = Review
 
 
-class SalaryItemsView(CompanyItemsView):
+class SalaryItemsView(CompanyItemsAbstract):
     """Display list of salaries for a given Company."""
     model = Salary
 
 
-class InterviewItemsView(CompanyItemsView):
+class InterviewItemsView(CompanyItemsAbstract):
     """Display list of interviews for a given Company."""
     model = Interview
 

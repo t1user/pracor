@@ -164,3 +164,4 @@ def make_percent(distance, range):
     if range != 0:
         return str((distance / range) * 100 + 5
                    ) + '%'
+    return '55%'

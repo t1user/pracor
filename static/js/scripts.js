@@ -1,5 +1,4 @@
 /* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
-
 function showMenu() {
     var x = document.getElementById("myTopnav");
     if (x.className === "topnav") {
@@ -44,7 +43,7 @@ function listItems() {
 }
 }
 
-
+/* autocomplete for search form */
 $(function() {
   $(".auto-search").autocomplete({
     source: "/search/",
