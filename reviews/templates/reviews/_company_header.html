@@ -5,7 +5,7 @@
   </div>
   {% if company.reviews.count %}
   <article class="five columns">
-    {% include "reviews/_top_rating.html" with scores=company.get_scores %}
+    {% include "reviews/_top_rating.html" with scores=company.scores %}
   </article>
   {% endif %}
 </div>

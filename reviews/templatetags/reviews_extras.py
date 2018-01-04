@@ -54,6 +54,9 @@ def star_generator(rating):
     Rating is a value representing rating that needs to be converted into
     stars widget.
     """
+    if rating == '':
+        return None
+
     truncated = int(rating)
     half = rating - truncated
     if 0.25 <= half < 0.75:
@@ -66,12 +69,12 @@ def star_generator(rating):
     # half is always either one or zero
     full = range(truncated)
     blank = range(5 - truncated - half)
-    dictionary = {
+    return {
         "full": full,
         "half": half,
         "blank": blank,
     }
-    return dictionary
+
 
 
 @register.filter('rating_name')
@@ -165,3 +168,13 @@ def make_percent(distance, range):
         return str((distance / range) * 100 + 5
                    ) + '%'
     return '55%'
+
+@register.filter('width')
+def make_per(obj):
+    distance=(obj['salary_max'] - obj['salary_avg'])
+    range=(obj['salary_max'] - obj['salary_min'])
+    if range != 0:
+        return str((distance / range) * 100 + 5) + '%'
+    return '55%'
+
+

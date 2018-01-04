@@ -30,9 +30,8 @@ pracr | {{ company.name }} | {{ name }}
 <section>
 
     {% for object in object_list %}
-
     <article class="container">
-        {% include model|file with scores=object.get_scores %}
+        {% include model|file with scores=object.scores %}
     </article>
     
     {% endfor %}

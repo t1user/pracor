@@ -251,6 +251,7 @@ table {
 
 /* salary _salary_item.html */
 
+
 .avg-salary {
     font-size: 2.5rem;
 }
@@ -279,7 +280,7 @@ td .fa {
 }
 
 @media screen and (min-width: 900px) {
-    .avg-salary {
+    .avg-salary, .particulars {
         margin-top: 2.5rem;
     }
 }

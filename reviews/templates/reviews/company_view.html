@@ -38,8 +38,9 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
                 </article>
             </div>
             {% if company.reviews.count %}
+
             <article class="five columns">
-                {% include "reviews/_rating_table.html" with scores=company.get_scores %}
+                {% include "reviews/_rating_table.html" with scores=company.scores %}
             </article>
  
             {% else %}
@@ -58,7 +59,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
 {% if item.count %}
 <div class="container">
     <section>
-        {% include name|file with object=item.last scores=item.last.get_scores %}
+        {% include name|file with object=item.first scores=item.first.scores %}
         {% if item.count > 1 %}
                 <div class="more-button">
                     <a href="{% url 'company_items' company.pk name|translate company.slug %}" class="button button-primary">Wszystkie {{ name|translate }} ({{ item.count }}) >></a>

@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
 
+from .managers import SelectedManager, SalaryManager
+
 
 class ApprovableModel(models.Model):
     """
@@ -85,19 +87,22 @@ class Company(ApprovableModel):
 
     @property
     def salaries(self):
-        return Salary.objects.groups(company=self.pk).order_by('-salary_input__count')
+        return Salary.objects.groups(company=self.pk).order_by('-salary_count')
 
     @property
     def interviews(self):
         return Interview.objects.selected(company=self.pk).order_by('-date')
 
+    #to be removed, placeholder for debugging
     def get_items(self, item):
         print('COMPANY.GET_ITEMS not implemented')
 
     def count_reviews(self):
         return self.get_reviews().count()
 
-    def get_scores(self):
+    @property
+    def scores(self):
+        """
         output = {}
         for item in ('overallscore',
                      'advancement',
@@ -105,17 +110,29 @@ class Company(ApprovableModel):
                      'compensation',
                      'environment',):
             output[item] = self.reviews.aggregate(score=Avg(item))['score']
+        """
+        return  self.reviews.aggregate(
+            overallscore = Avg('overallscore'),
+            advancement = Avg('advancement'),
+            worklife = Avg('worklife'),
+            compensation = Avg('compensation'),
+            environment = Avg('environment'),
+            )
+        """
             if output[item] is None:
                 output[item] = 0
             else:
                 output[item] = round(output[item], 1)
-        return output
+        """
+
 
     def get_scores_strings(self):
         """Returns human readable string of scores (e.g. for admin)"""
         scores = self.get_scores()
         string = ""
         for key, value in scores.items():
+            if value is None:
+                value = 0
             string += "{:<25}: {:>4}\n".format(
                 str(Review._meta.get_field(key).verbose_name), value)
         return string
@@ -178,14 +195,6 @@ class Position(models.Model):
         return self.position + ' - ' + company + ' - ' + user
 
 
-class SelectedManager(models.Manager):
-
-    use_for_related_fields = True
-
-    def selected(self, **kwargs):
-        return self.filter(**kwargs).exclude(approved=False)
-
-
 class Review(ApprovableModel):
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
@@ -225,48 +234,14 @@ class Review(ApprovableModel):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
 
-    def get_scores(self):
+    @property
+    def scores(self):
         return {'overallscore': self.overallscore,
                 'advancement': self.advancement,
                 'worklife': self.worklife,
                 'compensation': self.compensation,
                 'environment': self.environment,
                 }
-
-
-class SalaryManager(SelectedManager):
-
-    use_for_related_fields = True
-
-    def groups(self, **kwargs):
-        field = models.FloatField()
-        return self.selected(**kwargs).values(
-            'position__position',
-            'position__location',
-            'position__department',
-            'currency',
-            'period',
-            'gross_net',
-        ).annotate(
-            Min('salary_input'),
-            Avg('salary_input', output_field=models.IntegerField()),
-            Max('salary_input'),
-            Count('salary_input'),
-            distance=(Max('salary_input', output_field=field) -
-                      Avg('salary_input', output_field=field)),
-            range=(Max('salary_input', output_field=field) -
-                   Min('salary_input', output_field=field)),
-        )
-
-    @property
-    def get_percent(self):
-        data = self.groups()
-        max = data.salary_input__max
-        min = data.salary_input__min
-        avg = data.salary_input__avg
-        print(max - min)
-        if (max - min) != 0:
-            return str((max - avg) / (max - min)) + '%'
 
 
 class Salary(ApprovableModel):
@@ -435,7 +410,8 @@ class Interview(ApprovableModel):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
 
-    def get_scores(self):
+    @property
+    def scores(self):
         """"Used by method calculating number of rating stars for display."""
         return {'rating': self.rating,
                 }

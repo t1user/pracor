@@ -241,8 +241,7 @@ class SalaryForm(forms.ModelForm):
         ]
         widgets = {
             'currency': forms.TextInput(attrs={'size': 3}),
-            'salary_input': forms.NumberInput(attrs={'step': 100, 'value': 2000,
-                                                     'class': 'inline'}),
+            'salary_input': forms.NumberInput(attrs={'class': 'inline'}),
             'period': forms.Select(attrs={'class': 'inline'}),
             'gross_net': forms.Select(attrs={'class': 'inline'}),
 
