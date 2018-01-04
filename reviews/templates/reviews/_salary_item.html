@@ -29,7 +29,7 @@
     <div class="four columns">
         <h5>Zarobki zasadnicze</h5>    
         <div class="particulars">
-            {{ object.gross_net|gross_net }}
+            brutto
             {{ object.period|period }}
         </div>
     </div>
@@ -47,7 +47,7 @@
         <i>zakres:</i>
         <table class="u-full-width salary-slider">
             <tr>
-                <td class="u-pull-right" style="width:{{ object|width }}">
+                <td class="u-pull-right" style="width:{{ object|width:'salary' }}">
                     <i class="fa fa-caret-down fa-2x" aria-hidden="true"></i>
                 </td>
             </tr>
@@ -65,6 +65,52 @@
     <div class="one column">
     </div>
 </div>
+
+{% if object.bonus_avg %}
+<div class="row">
+    <div class="four columns">
+        <h5>Premia</h5>    
+        <div class="particulars">
+            brutto
+            {{ object.period|period }}
+            <br/>
+            <i>wypłacana: {{object.bonus_periods|bonus_period|join:', ' }}</i>
+        </div>
+    </div>
+    <div class="three columns">
+        {% if object.bonus_count > 1 %}
+        <i>średnio:</i>
+        {% endif %}
+        <div class="avg-salary">
+            {{ object.currency }}
+            {{ object.bonus_avg|intcomma }}
+        </div>
+    </div>
+    <div class="four columns">
+        {% if object.salary_count > 1 %}
+        <i>zakres:</i>
+        <table class="u-full-width salary-slider">
+            <tr>
+                <td class="u-pull-right" style="width:{{ object|width:'bonus' }}">
+                    <i class="fa fa-caret-down fa-2x" aria-hidden="true"></i>
+                </td>
+            </tr>
+            <tr class="u-full-width marker-line">
+                <td class="u-pull-left">
+                    {{ object.bonus_min|intcomma }}
+                </td>
+                <td class="u-pull-right">
+                    {{ object.bonus_max|intcomma }}
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+    </div>
+    <div class="one column">
+    </div>
+</div>
+{% endif %}
+
 <div class="row">
     <div class="twelve columns">
         <div class="u-pull-right">
@@ -72,6 +118,8 @@
         </div>
     </div>
 </div>
+
+{% comment %}
 <div class="row">
     <div class="twelve columns">
         {% if object.bonus_input %}
@@ -85,4 +133,4 @@
         {% endif %}
     </div>
 </div>
-
+{% endcomment %}

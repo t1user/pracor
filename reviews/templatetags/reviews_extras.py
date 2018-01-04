@@ -81,7 +81,7 @@ def star_generator(rating):
 def rating_name(name):
     """
     Convert variable name into displayable field name. Used for overallscore, worklife, 
-    compensation, etc. Review fields.
+    compensation, etc. Review fields in _rating_item.html
     """
     return Review._meta.get_field(name).verbose_name.capitalize()
 
@@ -128,17 +128,33 @@ def translate_period(item):
     Rosolve salary.period database choices into display values.
     """
     try:
-        obj = Salary.objects.filter(period=item)[0]
-    except:
-        return
-    return obj.get_period_display()
-    # return Salary.get_period_display(item)
+        obj = Salary.objects.filter(period=item).last()
+        return obj.get_period_display()
+    except AttributeError:
+        return ''
 
+
+# return Salary.get_period_display(item)
+
+@register.filter('bonus_period')
+def translate_bonus_period(item):
+    items = item.split(',')
+    print('items: ', items)
+    output = []
+    for i in items:
+        print(i)
+        try:
+            obj = Salary.objects.filter(bonus_period=i).last()
+            output.append(obj.get_bonus_period_display())
+            print(output)
+        except AttributeError:
+            output += ''
+    return output
 
 @register.filter('gross_net')
 def translate_gross_net(item):
     try:
-        obj = Salary.objects.filter(gross_net=item)[0]
+        obj = Salary.objects.filter(gross_net=item).last()
     except:
         return
     return obj.get_gross_net_display()
@@ -170,9 +186,13 @@ def make_percent(distance, range):
     return '55%'
 
 @register.filter('width')
-def make_per(obj):
-    distance=(obj['salary_max'] - obj['salary_avg'])
-    range=(obj['salary_max'] - obj['salary_min'])
+def make_per(obj, item):
+    if item == 'salary':
+        distance=(obj['salary_max'] - obj['salary_avg'])
+        range=(obj['salary_max'] - obj['salary_min'])
+    else:
+        distance=(obj['bonus_max'] - obj['bonus_avg'])
+        range=(obj['bonus_max'] - obj['bonus_min'])
     if range != 0:
         return str((distance / range) * 100 + 5) + '%'
     return '55%'

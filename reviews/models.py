@@ -2,7 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Avg, Max, Min, Count
+from django.db.models import Avg, Max, Min, Count, Func
 from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
@@ -93,24 +93,8 @@ class Company(ApprovableModel):
     def interviews(self):
         return Interview.objects.selected(company=self.pk).order_by('-date')
 
-    #to be removed, placeholder for debugging
-    def get_items(self, item):
-        print('COMPANY.GET_ITEMS not implemented')
-
-    def count_reviews(self):
-        return self.get_reviews().count()
-
     @property
     def scores(self):
-        """
-        output = {}
-        for item in ('overallscore',
-                     'advancement',
-                     'worklife',
-                     'compensation',
-                     'environment',):
-            output[item] = self.reviews.aggregate(score=Avg(item))['score']
-        """
         return  self.reviews.aggregate(
             overallscore = Avg('overallscore'),
             advancement = Avg('advancement'),
@@ -118,23 +102,17 @@ class Company(ApprovableModel):
             compensation = Avg('compensation'),
             environment = Avg('environment'),
             )
-        """
-            if output[item] is None:
-                output[item] = 0
-            else:
-                output[item] = round(output[item], 1)
-        """
-
 
     def get_scores_strings(self):
-        """Returns human readable string of scores (e.g. for admin)"""
-        scores = self.get_scores()
+        """
+        Return human readable string of scores (e.g. for admin)
+        """
         string = ""
-        for key, value in scores.items():
+        for key, value in self.scores.items():
             if value is None:
                 value = 0
-            string += "{:<25}: {:>4}\n".format(
-                str(Review._meta.get_field(key).verbose_name), value)
+            string += "{}:\t{}\n".format(
+                str(Review._meta.get_field(key).verbose_name), round(value, 1))
         return string
 
 
@@ -246,10 +224,11 @@ class Review(ApprovableModel):
 
 class Salary(ApprovableModel):
     PERIOD = [
+        ('G', 'na godzinę'),
+        ('D', 'dziennie'),
         ('M', 'miesięcznie'),
         ('K', 'kwartalnie'),
         ('R', 'rocznie'),
-        ('G', 'na godzinę'),
     ]
     GROSS_NET = [
         ('G', 'brutto'),
@@ -263,24 +242,19 @@ class Salary(ApprovableModel):
                                  on_delete=models.SET_NULL,
                                  null=True, blank=True, editable=False)
 
-    currency = models.CharField('waluta',
-                                max_length=3, default='PLN')
+    currency = models.CharField('waluta', max_length=3, default='PLN')
     salary_input = models.PositiveIntegerField('pensja')
-    period = models.CharField('',
-                              max_length=1, default='M', choices=PERIOD,
-                              )
-    gross_net = models.CharField(
-        '', max_length=1, default='G', choices=GROSS_NET)
+    period = models.CharField('', max_length=1, default='M', choices=PERIOD)
+    gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
+    salary_input_gross = models.PositiveIntegerField('pensja brutto', editable=False, default=0)
 
     bonus_input = models.PositiveIntegerField('premia', default=0,
                                               blank=True, null=True)
-    bonus_period = models.CharField('',
-                                    max_length=1, default='R', choices=PERIOD,
-                                    )
-    bonus_gross_net = models.CharField('',
-                                       max_length=1, default='G', choices=GROSS_NET,
-                                       )
-
+    bonus_period = models.CharField('', max_length=1, default='R', choices=PERIOD)
+    bonus_gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
+    bonus_anual = models.PositiveIntegerField('premia rocznie', null=True, blank=True,
+                                              default=0, editable=False)
+    
     base_monthly = models.PositiveIntegerField('Pensja zasadnicza miesięcznie',
                                                default=0, editable=False)
     base_annual = models.PositiveIntegerField('Pensja zasadnicza rocznie',
@@ -300,14 +274,24 @@ class Salary(ApprovableModel):
     def __str__(self):
         return 'id_{}_{}'.format(self.id, self.company)
 
+    def save(self, *args, **kwargs):
+        self.salary_input_gross = self.convert(
+            currency = self.currency,
+            period = self.period,
+            gross_net = self.gross_net,
+            salary = self.salary_input,
+            )
+        self.bonus_anual = self.bonus_input
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
 
     @staticmethod
-    def convert(currency='PLN', period='M', gross_net='G', value=1):
+    def convert(currency='PLN', period='M', gross_net='G', salary=1):
         """
-        Converts numbers input in different formats to comparable basis.
+        Converts input numbers to comparable basis.
         """
         zus = 0.0976 + 0.015  # stawka emerytalna + rentowa
         ch = 0.0245  # stawka chorobowa
@@ -352,7 +336,18 @@ class Salary(ApprovableModel):
             return round(B / 100, 0) * 100
 
         if gross_net == 'N':
-            return net_to_gross(value)
+            period_devisor = {
+                'G': 2008, #number of work hours in 2018
+                'D': 365,
+                'M': 12,
+                'K': 4,
+                'R': 1,
+                }
+            annual_salary = period_devisor[period] * salary
+            gross_anual_salary = net_to_gross(annual_salary)
+            gross_period_salary = round(gross_anual_salary / period_devisor[period], 0)
+            return gross_period_salary
+        return salary
 
 
 class Interview(ApprovableModel):
@@ -394,8 +389,7 @@ class Interview(ApprovableModel):
     got_offer = models.BooleanField('dostał ofertę',)
     questions = models.TextField('pytania', null=True, blank=True)
     impressions = models.TextField('wrażenia')
-    rating = models.PositiveIntegerField(
-        'Ocena', choices=RATINGS, default=None)
+    rating = models.PositiveIntegerField('ocena', choices=RATINGS, default=None)
 
     objects = SelectedManager()
 

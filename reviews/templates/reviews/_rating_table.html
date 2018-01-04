@@ -6,7 +6,8 @@
     <tr>
         <td>
             {% include "reviews/_rating_item.html" with name=item scores=rating %}
-            {#<td class="score">{{ rating }}</td>#}
+        </td>
+        {#<td class="score">{{ rating|floatformat }}</td>#}
     </tr>
     {% endif %}
     {% endfor %}
