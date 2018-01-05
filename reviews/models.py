@@ -86,15 +86,46 @@ class Company(ApprovableModel):
         return Review.objects.selected(company=self.pk).order_by('-date')
 
     @property
+    def sum_reviews(self):
+        return self.reviews.aggregate(Avg('overallscore'))
+    
+    @property
     def salaries(self):
-        return Salary.objects.groups(company=self.pk).order_by('-salary_count')
+        return Salary.objects.groups(
+            company=self.pk).order_by('-salary_count')
+
+    @property
+    def sum_salaries(self):
+        """
+        Return average, min and max of all annual salaries in the company.
+        """
+        salaries_annual = Salary.objects.selected(company=self.pk).aggregate(
+            sum_avg = Avg('salary_gross_annual', output=models.IntegerField()),
+            sum_min = Min('salary_gross_annual', output=models.IntegerField()),
+            sum_max = Max('salary_gross_annual', output=models.IntegerField()),
+            sum_count = Count('salary_input'),
+            )
+        salaries_monthly = {key: int(value/12) for key, value in salaries_annual.items()}
+        #count shouldn't have been divided by 12
+        salaries_monthly['sum_count'] = salaries_annual['sum_count']
+        return salaries_monthly
 
     @property
     def interviews(self):
         return Interview.objects.selected(company=self.pk).order_by('-date')
 
     @property
+    def sum_interviews(self):
+        """
+        Return average interview rating for the company.
+        """
+        return self.interviews.aggregate(sum_avg=Avg('rating'))
+
+    @property
     def scores(self):
+        """
+        Return average of all ratings for the company.
+        """
         return  self.reviews.aggregate(
             overallscore = Avg('overallscore'),
             advancement = Avg('advancement'),
@@ -422,5 +453,4 @@ class Interview(ApprovableModel):
     @property
     def scores(self):
         """"Used by method calculating number of rating stars for display."""
-        return {'rating': self.rating,
-                }
+        return {'rating': self.rating,}

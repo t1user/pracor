@@ -20,15 +20,22 @@ pracr | {{ company.name }} | {{ name }}
 <div class="container">
     <section>
         <h3>{{ model|item_list_title }}</h3>
-        {% include "reviews/_company_header.html" %}
+        <div class="row">
+            <div class="seven columns">
+                <a href="{{ company.get_absolute_url }}"><h1>{{ company.name }}</h1></a>
+                <a href="{{ company.website }}" target="_blank">{{ company.website }}</a><p>
+            </div>
+
+                {% include model|file_header %}
+        </div>
+
         <article>
-            <a href="{% url model company.pk company.slug %}" class="button button-primary"><i class="material-icons">add</i>Dodaj {{ model|item_name_singular }}</a>
+            <a href="{% url model company.pk company.slug %}" class="button button-primary add-button"><i class="material-icons">add</i>Dodaj {{ model|item_name_singular }}</a>
         </article>
     </section>
 </div>
 
 <section>
-
     {% for object in object_list %}
     <article class="container">
         {% include model|file with scores=object.scores %}

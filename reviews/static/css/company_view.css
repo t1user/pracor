@@ -93,7 +93,8 @@ table {
 
 @media screen and (max-width: 700px) {
 .stars {
-    font-size: 2.5rem;
+    font-size: 4.5rem;
+    padding-bottom: 1rem;
 }
 }
 
@@ -120,7 +121,11 @@ table {
 
     .counter-button .counter-title {
         font-size: 1.7rem;
-        }
+    }
+
+    .add-button {
+        margin-top: 2rem;
+    }
 }
 
 
@@ -206,6 +211,9 @@ table {
     margin: 1rem 0;
 }
 
+.i-rating-title {
+    vertical-align: bottom;
+}
 
 @media screen and (max-width: 790px) {
     .desktop {
@@ -247,6 +255,10 @@ table {
         max-width: 11rem;
     }
 
+.i-rating-title {
+    vertical-align: top;
+}
+    
 }
 
 
@@ -281,7 +293,10 @@ td .fa {
 }
 
 @media screen and (min-width: 900px) {
-    .avg-salary, .particulars {
-        margin-top: 2.5rem;
+    .avg-salary {
+        margin-top:0;
+    }
+    .salary-bonus {
+        margin-top: 2rem;
     }
 }

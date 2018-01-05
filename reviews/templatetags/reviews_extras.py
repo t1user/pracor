@@ -91,24 +91,15 @@ def file_name(model):
     """
     Return correct file to render Reviews, Salaries or Interviews.
     """
-    depluralize = {
-        'reviews': 'review',
-        'salaries': 'salary',
-        'interviews': 'interview',
-    }
+    return 'reviews/_{}_item.html'.format(model)
 
-    if model in ['reviews', 'salaries', 'interviews']:
-        model = depluralize[model]
-
-    dictionary = {
-        'review': 'reviews/_review_item.html',
-        'salary': 'reviews/_salary_item.html',
-        'interview': 'reviews/_interview_item.html',
-    }
-
-    return dictionary[model]
-
-
+@register.filter('file_header')
+def file_header(model):
+    """
+    Return correct file to render headers for Reviews, Salaries or Interviews.
+    """
+    return 'reviews/_{}_header.html'.format(model)
+    
 @register.filter('translate')
 def translate_item(item):
     """
@@ -181,10 +172,14 @@ def make_percent(obj, item):
     return '55%'
 
 
-@register.filter('min_v')
-def min_v(obj, item):
+@register.filter('min_slider')
+def min_slider(obj, item):
     return obj[item+'_min']
 
-@register.filter('max_v')
-def max_v(obj, item):
+@register.filter('max_slider')
+def max_slider(obj, item):
     return obj[item+'_max']
+
+@register.filter('count_slider')
+def count_slider(obj, item):
+    return obj[item+'_count']

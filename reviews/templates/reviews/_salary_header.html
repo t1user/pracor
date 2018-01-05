@@ -1,0 +1,48 @@
+{% load reviews_extras %}
+{% load humanize %}
+
+{% if object.salaries.count %}
+</div>
+<div class="row">
+    <div class="four columns">
+        <h5 class="salary-bonus">Zarobki zasadnicze</h5>
+    </div>
+    <div class="three columns">
+        <i>średnio</i>
+        <div class="avg-salary">
+            PLN 
+            {{ object.sum_salaries.sum_avg|intcomma }}
+        </div>
+        <div class="particulars">
+            brutto miesięcznie
+        </div>
+    </div>
+    <div class="four columns">
+        {% include "reviews/_salary_slider.html" with object=company.sum_salaries item='sum' %}
+    </div>
+</div>
+<div class="row">
+    <div class="twelve columns">
+        <div class="u-pull-right">
+            <i>na podstawie {{ company.sum_salaries.sum_count }} wpis{{ company.sum_salaries.sum_count|pluralize:"u,ów" }}</i>
+        </div>
+    </div>
+
+
+{% endif %}
+{% comment %}
+<article class="four columns">
+    {% if object.salaries.count %}
+    <div>Średnia pensja zasadnicza</div>
+
+    <div style="font-size:2.5rem">
+        PLN
+        {{ object.sum_salaries.sum_avg|intcomma }}
+    </div>
+    {#<div>(zakres: PLN {{ company.sum_salaries.sum_min|intcomma }} - {{ company.sum_salaries.sum_max|intcomma }})</div> #}
+    {#% include "reviews/_salary_slider.html" with object=company.sum_salaries item='sum' %#}
+    <div>brutto miesięcznie</div>
+    <i>na podstawie {{ company.sum_salaries.sum_count }} wpis{{ company.sum_salaries.sum_count|pluralize:"u,ów" }}</i>
+    {% endif %}
+</article>
+{% endcomment %}

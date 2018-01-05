@@ -1,27 +1,22 @@
 {% load reviews_extras %}
 {% load humanize %}
 
-{% comment %}
-to be compliant with Salary model manager can be run with item='salary', 'bonus', 'bonus_anual'
-{% endcomment %}
+{% if object|count_slider:item > 1 %}
+<i>zakres:</i>
+<table class="u-full-width salary-slider">
+    <tr>
+        <td class="u-pull-right" style="width:{{ object|width:item }}">
+            <i class="fa fa-caret-down fa-2x" aria-hidden="true"></i>
+        </td>
+    </tr>
+    <tr class="u-full-width marker-line">
+        <td class="u-pull-left">
+            {{ object|min_slider:item|intcomma }}
+        </td>
+        <td class="u-pull-right">
+            {{ object|max_slider:item|intcomma }}
+        </td>
+    </tr>
+</table>
+{% endif %}
 
-<div class="four columns">
-    {% if object.salary_count > 1 %}
-    <i>zakres:</i>
-    <table class="u-full-width salary-slider">
-        <tr>
-            <td class="u-pull-right" style="width:{{ object|width:item }}">
-                <i class="fa fa-caret-down fa-2x" aria-hidden="true"></i>
-            </td>
-        </tr>
-        <tr class="u-full-width marker-line">
-            <td class="u-pull-left">
-                {{ object|min_v:item|intcomma }}
-            </td>
-            <td class="u-pull-right">
-                {{ object|max_v:item|intcomma }}
-            </td>
-        </tr>
-    </table>
-    {% endif %}
-</div>

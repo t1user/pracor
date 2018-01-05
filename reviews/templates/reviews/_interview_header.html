@@ -1,0 +1,8 @@
+{% load reviews_extras %}
+
+{% if company.interviews.count %}
+<article class="five columns">
+    <div>Średnia ocena rozmów</div>
+    <div>{% include "reviews/_display_stars.html" with scores=company.sum_interviews.sum_avg|stars %}</div>
+    {% endif %}
+</article>

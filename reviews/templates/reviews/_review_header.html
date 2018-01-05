@@ -1,0 +1,7 @@
+{% load reviews_extras %}
+<article class="five columns">
+    {% if company.reviews.count %}
+    <div>Średnia z ocen ogólnych</div>
+    <div>{% include "reviews/_display_stars.html" with scores=company.scores.overallscore|stars %}</div>
+    {% endif %}
+</article>

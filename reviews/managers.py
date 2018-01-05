@@ -28,7 +28,7 @@ class SelectedManager(models.Manager):
     def selected(self, **kwargs):
         return self.filter(**kwargs).exclude(approved=False)
 
-
+    
 class SalaryManager(SelectedManager):
     """
     Group salary input data into presentable items.
@@ -54,6 +54,7 @@ class SalaryManager(SelectedManager):
             bonus_annual_min = Min('bonus_gross_annual'),
             bonus_annual_avg = Avg('bonus_gross_annual'),
             bonus_annual_max = Max('bonus_gross_annual'),
+            bonus_annual_count = Count('bonus_gross_annual'),
             #distinct=True available only in Django2.0, that's why ArrayAgg is overriden
             bonus_periods = ArrayAgg('bonus_period', distinct=True), 
         )

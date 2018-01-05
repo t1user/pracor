@@ -10,9 +10,6 @@
 
 <div class="row">
     <div class="twelve columns">
-        {% comment %}
-        {% include "reviews/_background.html" %}
-        {% endcomment %}
         <div class="salary">
             <h4>
             {{ object.position__position }} |
@@ -27,11 +24,7 @@
 </div>
 <div class="row">
     <div class="four columns">
-        <h5>Zarobki zasadnicze</h5>    
-        <div class="particulars">
-            brutto
-            {{ object.period|period }}
-        </div>
+        <h5 class="salary-bonus">Zarobki zasadnicze</h5>    
     </div>
     <div class="three columns">
         {% if object.salary_count > 1 %}
@@ -41,27 +34,20 @@
             {{ object.currency }}
             {{ object.salary_avg|intcomma }}
         </div>
+        <div class="particulars">
+            brutto
+            {{ object.period|period }}
+        </div>
     </div>
-
+    <div class="four columns">
     {% include 'reviews/_salary_slider.html' with item='salary' %}
-
+    </div>
 </div>
 
 {% if object.bonus_avg %}
-<hr/>
 <div class="row">
     <div class="four columns">
-        <h5>Premia</h5>    
-        <div class="particulars">
-            brutto
-            {% if object.bonus_periods|length < 2 %}
-            {{ object.bonus_periods.0|bonus_period }}
-            {% else %}
-            rocznie
-            <br/>
-            <i>wypłacana: {{ object.bonus_periods|bonus_period }}</i>
-            {% endif %}
-        </div>
+        <h5 class="salary-bonus">Premia</h5>    
     </div>
     <div class="three columns">
         {% if object.bonus_count > 1 %}
@@ -77,15 +63,34 @@
             {{ object.bonus_annual_avg|intcomma }}
             {% endif %}
         </div>
+        <div class="particulars">
+            brutto
+            {% if object.bonus_periods|length < 2 %}
+            {{ object.bonus_periods.0|bonus_period }}
+            {% else %}
+            rocznie
+            {% endif %}
+        </div>
     </div>
-
+    
     {% if object.bonus_periods|length < 2 %}
-    {% include 'reviews/_salary_slider.html' with item='bonus' %}
+    <div class="four columns">
+        {% include 'reviews/_salary_slider.html' with item='bonus' %}
+    </div>
     {% else %}
-    {% include 'reviews/_salary_slider.html' with item='bonus_annual' %}
+    <div class="four columns">
+        {% include 'reviews/_salary_slider.html' with item='bonus_annual' %}
+    </div>
     {% endif %}
     
 </div>
+{% if object.bonus_periods|length > 1 %}
+<div class="row">
+    <div class="twelve columns">
+        <i>wypłacana: {{ object.bonus_periods|bonus_period }}</i>
+    </div>
+</div>
+{% endif %}
 {% endif %}
 
 <div class="row">
