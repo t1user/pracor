@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Avg, Max, Min, Count
-from django.contrib.postgres.aggregates import StringAgg
+from django.contrib.postgres.aggregates import StringAgg, ArrayAgg
 
 
 class SelectedManager(models.Manager):
@@ -37,6 +37,6 @@ class SalaryManager(SelectedManager):
             bonus_avg = Avg('bonus_anual', output_field=models.IntegerField()),
             bonus_max = Max('bonus_anual'),
             bonus_count = Count('bonus_anual'),
-            bonus_periods = StringAgg('bonus_period', ',', distinct=True),
+            bonus_periods = ArrayAgg('bonus_period') #distinct=True available only in Django2.0,
         )
 

@@ -112,7 +112,7 @@ def file_name(model):
 @register.filter('translate')
 def translate_item(item):
     """
-    Translate model name to required Polish url component name.
+    Translate model name to required Polish url segment name.
     """
     dictionary = {
         'review': 'opinie',
@@ -133,20 +133,15 @@ def translate_period(item):
     except AttributeError:
         return ''
 
-
-# return Salary.get_period_display(item)
-
+    
 @register.filter('bonus_period')
-def translate_bonus_period(item):
-    items = item.split(',')
-    print('items: ', items)
+def translate_bonus_period(items):
+    items = set(items)
     output = []
-    for i in items:
-        print(i)
+    for item in items:
         try:
-            obj = Salary.objects.filter(bonus_period=i).last()
+            obj = Salary.objects.filter(bonus_period=item).last()
             output.append(obj.get_bonus_period_display())
-            print(output)
         except AttributeError:
             output += ''
     return output
@@ -178,21 +173,16 @@ def item_list_tittle(item):
     return dictionary[item]
 
 
-@register.filter('make_percent')
-def make_percent(distance, range):
-    if range != 0:
-        return str((distance / range) * 100 + 5
-                   ) + '%'
-    return '55%'
-
 @register.filter('width')
 def make_per(obj, item):
     if item == 'salary':
         distance=(obj['salary_max'] - obj['salary_avg'])
         range=(obj['salary_max'] - obj['salary_min'])
-    else:
+    elif item == 'bonus':
         distance=(obj['bonus_max'] - obj['bonus_avg'])
         range=(obj['bonus_max'] - obj['bonus_min'])
+    else:
+        return '55%'
     if range != 0:
         return str((distance / range) * 100 + 5) + '%'
     return '55%'
