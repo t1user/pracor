@@ -136,7 +136,6 @@ def translate_period(item):
     
 @register.filter('bonus_period')
 def translate_bonus_period(items):
-    items = set(items)
     output = []
     for item in items:
         try:
@@ -144,7 +143,7 @@ def translate_bonus_period(items):
             output.append(obj.get_bonus_period_display())
         except AttributeError:
             output += ''
-    return output
+    return ', '.join(output)
 
 @register.filter('gross_net')
 def translate_gross_net(item):
@@ -174,17 +173,18 @@ def item_list_tittle(item):
 
 
 @register.filter('width')
-def make_per(obj, item):
-    if item == 'salary':
-        distance=(obj['salary_max'] - obj['salary_avg'])
-        range=(obj['salary_max'] - obj['salary_min'])
-    elif item == 'bonus':
-        distance=(obj['bonus_max'] - obj['bonus_avg'])
-        range=(obj['bonus_max'] - obj['bonus_min'])
-    else:
-        return '55%'
+def make_percent(obj, item):
+    distance=(obj[item+'_max'] - obj[item+'_avg'])
+    range=(obj[item+'_max'] - obj[item+'_min'])
     if range != 0:
         return str((distance / range) * 100 + 5) + '%'
     return '55%'
 
 
+@register.filter('min_v')
+def min_v(obj, item):
+    return obj[item+'_min']
+
+@register.filter('max_v')
+def max_v(obj, item):
+    return obj[item+'_max']

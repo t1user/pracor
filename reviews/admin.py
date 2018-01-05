@@ -125,9 +125,10 @@ class ReviewAdmin(ModelAdminModified):
 
 @admin.register(Salary)
 class SalaryAdmin(ModelAdminModified):
-    readonly_fields = ('date', 'company', 'base_monthly',
-                       'base_annual', 'total_monthly', 'total_annual', 'reviewer',
-                       'reviewer', 'reviewed_date', 'company', 'position')
+    readonly_fields = ('date', 'company', 'position',
+                       'salary_gross_input_period', 'salary_gross_annual',
+                       'bonus_gross_input_period', 'bonus_gross_annual',
+                       'reviewer', 'reviewed_date',)
     list_display = ('id', 'company', 'position', 'approved', 'reviewer')
     search_fields = ['company__name', 'position__user__email']
     fieldsets = (
@@ -139,7 +140,8 @@ class SalaryAdmin(ModelAdminModified):
                        ('bonus_input', 'bonus_period', 'bonus_gross_net')),
         }),
         ('Dane wyliczone', {
-            'fields': (('base_monthly', 'base_annual',), ('total_monthly', 'total_annual'))
+            'fields': (('salary_gross_input_period', 'salary_gross_annual',),
+                       ('bonus_gross_input_period', 'bonus_gross_annual',))
         }),
         ModelAdminModified.approval,
     )

@@ -246,19 +246,24 @@ class Salary(ApprovableModel):
     salary_input = models.PositiveIntegerField('pensja')
     period = models.CharField('', max_length=1, default='M', choices=PERIOD)
     gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
-    salary_input_gross = models.PositiveIntegerField('pensja brutto', editable=False, default=0)
 
     bonus_input = models.PositiveIntegerField('premia', default=0,
                                               blank=True, null=True)
     bonus_period = models.CharField('', max_length=1, default='R', choices=PERIOD)
     bonus_gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
-    bonus_anual = models.PositiveIntegerField('premia rocznie', null=True, blank=True,
-                                              default=0, editable=False)
-    
-    base_monthly = models.PositiveIntegerField('Pensja zasadnicza miesięcznie',
+
+    #following values are calculated by save() and used in reports
+    salary_gross_input_period = models.PositiveIntegerField('pensja brutto',
+                                                            editable=False, default=0)
+    salary_gross_annual = models.PositiveIntegerField('pensja brutto rocznie',
                                                default=0, editable=False)
-    base_annual = models.PositiveIntegerField('Pensja zasadnicza rocznie',
+    bonus_gross_input_period = models.PositiveIntegerField('premia brutto',
                                               default=0, editable=False)
+    bonus_gross_annual = models.PositiveIntegerField('premia brutto rocznie', null=True,
+                                                    blank=True, default=0, editable=False)
+
+
+    
 
     total_monthly = models.PositiveIntegerField('Pensja całkowita miesięcznie',
                                                 default=0, editable=False)
@@ -275,21 +280,14 @@ class Salary(ApprovableModel):
         return 'id_{}_{}'.format(self.id, self.company)
 
     def save(self, *args, **kwargs):
-        self.salary_input_gross = self.convert(
-            currency = self.currency,
-            period = self.period,
-            gross_net = self.gross_net,
-            salary = self.salary_input,
-            )
-        self.bonus_anual = self.bonus_input
+        self.convert()
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('company_page',
                        kwargs={'pk': self.company.id})
 
-    @staticmethod
-    def convert(currency='PLN', period='M', gross_net='G', salary=1):
+    def convert(self):
         """
         Converts input numbers to comparable basis.
         """
@@ -335,25 +333,42 @@ class Salary(ApprovableModel):
                     B = ((N - 86620) / ((1 - ch) * (1 - z - r_2))) + limit_zus
             return round(B / 100, 0) * 100
 
-        if gross_net == 'N':
-            period_devisor = {
-                'G': 2008, #number of work hours in 2018
-                'D': 365,
-                'M': 12,
-                'K': 4,
-                'R': 1,
-                }
-            annual_salary = period_devisor[period] * salary
-            gross_anual_salary = net_to_gross(annual_salary)
-            gross_period_salary = round(gross_anual_salary / period_devisor[period], 0)
-            return gross_period_salary
-        return salary
+        period_devisor = {
+            'G': 2008, #number of work hours in 2018
+            'D': 365,
+            'M': 12,
+            'K': 4,
+            'R': 1,
+        }
+
+        salary_annual = period_devisor[self.period] * self.salary_input
+        
+        if self.gross_net == 'N':
+            self.salary_gross_annual = net_to_gross(salary_annual)
+        else:
+            self.salary_gross_annual = salary_annual
+            
+        self.salary_gross_input_period = round(self.salary_gross_annual /
+                                               period_devisor[self.period], 0)
+
+        if self.bonus_input:
+            bonus_annual = period_devisor[self.bonus_period] * self.bonus_input
+            if self.bonus_gross_net == 'N':
+                salary_net_annual = gross_to_net(self.salary_gross_annual)
+                total_comp_net_annual = bonus_annual + salary_net_annual
+                total_comp_gross_annual = net_to_gross(total_comp_net_annual)
+                self.bonus_gross_annual = total_comp_gross_annual - self.salary_gross_annual
+            else:
+                self.bonus_gross_annual = bonus_annual
+
+            self.bonus_gross_input_period = round(self.bonus_gross_annual /
+                                                  period_devisor[self.bonus_period], 0)
 
 
 class Interview(ApprovableModel):
     HOW_GOT = [
         ('A', 'Ogłoszenie'),
-        ('B', 'Kontakty profesjonalne'),
+        ('B', 'Kontakty zawodowe'),
         ('C', 'Head-hunter'),
         ('D', 'Znajomi/rodzina'),
         ('E', 'Seks z decydentem'),
