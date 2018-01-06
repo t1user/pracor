@@ -278,8 +278,7 @@ class Salary(ApprovableModel):
     period = models.CharField('', max_length=1, default='M', choices=PERIOD)
     gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
 
-    bonus_input = models.PositiveIntegerField('premia', default=0,
-                                              blank=True, null=True)
+    bonus_input = models.PositiveIntegerField('premia', blank=True, null=True)
     bonus_period = models.CharField('', max_length=1, default='R', choices=PERIOD)
     bonus_gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
 
@@ -287,20 +286,13 @@ class Salary(ApprovableModel):
     salary_gross_input_period = models.PositiveIntegerField('pensja brutto',
                                                             editable=False, default=0)
     salary_gross_annual = models.PositiveIntegerField('pensja brutto rocznie',
-                                               default=0, editable=False)
+                                                      default=0, editable=False)
     bonus_gross_input_period = models.PositiveIntegerField('premia brutto',
-                                              default=0, editable=False)
+                                                           null=True, editable=False)
     bonus_gross_annual = models.PositiveIntegerField('premia brutto rocznie', null=True,
-                                                    blank=True, default=0, editable=False)
-
+                                                     editable=False)
 
     
-
-    total_monthly = models.PositiveIntegerField('Pensja całkowita miesięcznie',
-                                                default=0, editable=False)
-    total_annual = models.PositiveIntegerField('Pensja całkowita rocznie',
-                                               default=0, editable=False)
-
     objects = SalaryManager()
 
     class Meta:
@@ -312,6 +304,11 @@ class Salary(ApprovableModel):
 
     def save(self, *args, **kwargs):
         self.convert()
+        #make sure that zeros are not counted as inputs with values
+        if self.bonus_input == 0:
+            self.bonus_input = None
+            self.bonus_gross_input_period = None
+            self.bonus_gross_annual = None
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):

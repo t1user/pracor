@@ -77,10 +77,6 @@ form li {
 }
 /*end styling radios */
 
-.required {
-    color: red;
-}
-
 label[for=id_start_date_year]:before {
     content: "Data rozpoczęcia:\A";
     white-space: pre;

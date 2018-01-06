@@ -96,7 +96,6 @@ class RegisterSuccess(TemplateView):
         #context['session_data'] = self.request.session['linkedin_data']
         return context
 
-
     
 class CreateProfileView(LoginRequiredMixin, View):
     """
@@ -105,7 +104,7 @@ class CreateProfileView(LoginRequiredMixin, View):
     """
     user_form_class = CreateProfileForm_user
     profile_form_class = CreateProfileForm_profile
-    template_name = "reviews/create_profile.html"
+    template_name = "registration/create_profile.html"
 
     def get(self, request, *args, **kwargs):
         if request.user.last_name == '':
@@ -130,8 +129,8 @@ class CreateProfileView(LoginRequiredMixin, View):
         return render(request, self.template_name,
                           {'user_form': user_form,
                            'profile_form': profile_form})
-        
 
+    
 class LoginErrorView(View):
     """
     Redirected to if there's a social auth login error and the error is not
@@ -141,5 +140,4 @@ class LoginErrorView(View):
     template_name = "registration/login_error.html"
 
     def get(self, request, *args, **kwargs):
-        print(kwargs)
         return render(request,self.template_name)

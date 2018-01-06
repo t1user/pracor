@@ -238,3 +238,8 @@ nav a.icon, nav a.glass {
     list-style: none;
     font-style: italic;
 }
+
+
+.required {
+    color: red;
+}

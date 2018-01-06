@@ -1,28 +1,39 @@
 {% extends 'base.html' %}
 
+
+{% load static %}
+
+
 {% block content %}
 <div class="container">
     <div class="row">
+
         <div class="seven columns">
             <h2>Rejestracja</h2>
             <form action="" method="post">
-              {% csrf_token %}
-              <div class="errors">
-                  {{ form.non_field_errors }}
-              </div>
+                {% csrf_token %}
+                <div class="errors">
+                    {{ form.non_field_errors }}
+                </div>
 
-              {% for field in form %}
-              <p>
-                  {{ field.label_tag }}
-                  {{ field }}
-                  <div class="error">
-                      {{ field.errors }}
-                  </div>
-              </p>
-              {% endfor %}
+                {% for field in form %}
+                <div class="form_field {{ field.field.widget.attrs.class }}">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label|safe }}
+                        {% if field.field.required %}
+                        <span class="required">*</span>
+                        {% endif %}
+                    </label>
+                    {{ field.errors }}
+                    {{ field }}
+                </div>
+                {% endfor %}
+                
                 <input class="button-primary" type="submit" value="Utwórz konto"/>
             </form>
+            <div class="required"><i>*Pola wymagane</i></div>
         </div>
+
         <aside class="five columns">
             {% for field in form %}
             {% if field.help_text %}
@@ -31,6 +42,20 @@
             {% endif %}
             {% endfor %}
         </aside>
+
     </div>
 </div>
 {% endblock %}
+
+
+{% comment %}
+
+
+<p>
+    {{ field.label_tag }}
+    {{ field }}
+    <div class="error">
+        {{ field.errors }}
+    </div>
+</p>
+{% endcomment %}

@@ -40,11 +40,20 @@
         </div>
     </div>
     <div class="four columns">
-    {% include 'reviews/_salary_slider.html' with item='salary' %}
+        {% include 'reviews/_salary_slider.html' with item='salary' %}
+    </div>
+</div>
+<div class="row">
+    <div class="twelve columns">
+        <div class="u-pull-right">
+            <i>na podstawie {{ object.salary_count }} wpis{{object.salary_count|pluralize:"u,ów" }}</i>
+        </div>
     </div>
 </div>
 
+
 {% if object.bonus_avg %}
+
 <div class="row">
     <div class="four columns">
         <h5 class="salary-bonus">Premia</h5>    
@@ -82,8 +91,8 @@
         {% include 'reviews/_salary_slider.html' with item='bonus_annual' %}
     </div>
     {% endif %}
-    
 </div>
+
 {% if object.bonus_periods|length > 1 %}
 <div class="row">
     <div class="twelve columns">
@@ -91,12 +100,15 @@
     </div>
 </div>
 {% endif %}
-{% endif %}
 
 <div class="row">
     <div class="twelve columns">
         <div class="u-pull-right">
-            <i>na podstawie {{ object.salary_count }} wpis{{object.salary_count|pluralize:"u,ów" }}</i>
+            <i>na podstawie {{ object.bonus_count }} wpis{{object.bonus_count|pluralize:"u,ów" }}</i>
         </div>
     </div>
 </div>
+
+
+{% endif %}
+

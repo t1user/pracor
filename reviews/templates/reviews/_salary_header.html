@@ -2,6 +2,42 @@
 {% load humanize %}
 
 {% if object.salaries.count %}
+
+<div class="four columns">
+    PLN brutto miesięcznie
+    {% include "reviews/_salary_slider.html" with object=company.sum_salaries item='sum' %}
+    </div>
+</div>
+<div class="row">
+    <div class="twelve columns">
+        <div class="u-pull-right">
+            <i>na podstawie {{ company.sum_salaries.sum_count }} wpis{{ company.sum_salaries.sum_count|pluralize:"u,ów" }}</i>
+        </div>
+    </div>
+
+    {% endif %}
+
+
+
+
+
+{% comment %}
+{% if object.salaries.count %}
+
+<article class="four columns counter">
+    <div class="counter-button">
+        <div class="counter-link">{{ object.salaries.count }}</div>
+        <div class="counter-title">stanowisk</div>
+    </div>
+    <i>na podstawie {{ company.sum_salaries.sum_count }} wpis{{ company.sum_salaries.sum_count|pluralize:"u,ów" }}</i>
+
+</article>
+{% endif %}
+{% comment %}
+
+{% comment %}
+This is alternative version of the header.
+{% if object.salaries.count %}
 </div>
 <div class="row">
     <div class="four columns">
@@ -28,9 +64,12 @@
         </div>
     </div>
 
-
 {% endif %}
+
+{% endcomment %}
+    
 {% comment %}
+    This is alternative version of the header.
 <article class="four columns">
     {% if object.salaries.count %}
     <div>Średnia pensja zasadnicza</div>

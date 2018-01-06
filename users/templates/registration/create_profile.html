@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
+{% load reviews_extras %}
+
 
 {% block css %}
 <style>
     form li {
-    display: inline-block;
-    list-style: none;
-    margin: 0 2rem 0 0;    
+        display: inline-block;
+        list-style: none;
+        margin: 0 2rem 0 0;    
     }
     .send {
-        padding: 5rem 0;
+        padding-top: 2rem;
         }
 </style>
 {% endblock css %}
@@ -19,27 +21,29 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <h1>Rejestracja - profil</h1>
+          <h1>Rejestracja - profil</h1>
+          <p>Poniższe dane są wykorzstywane tylko do zbiorczych statystyk.</p>
             <form action="" method="POST">
                 {% csrf_token %}
                 <formset>
 
-                  {{ user_form }}
+
 
                 </formset>
 
                 <formset>
 
-                {{ profile_form }}
+                {% include 'reviews/_render_form.html' with form=profile_form %}
 
                 </formset>
 
 
                 <p class="send">
-                <input type="submit" value="dalej" class="button-primary">
+                    <input type="submit" value="dalej" class="button-primary">
                 </p>
                 
             </form>
+            <div class="required"><i>*Pola wymagane</i></div>
         </div>
     </div>
 </div>

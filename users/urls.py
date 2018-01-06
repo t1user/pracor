@@ -12,6 +12,4 @@ urlpatterns = [
 
     url(r'^complete/linkedin-oauth2/', LoginErrorView.as_view(), name='login_error'),
 
-
-
 ]
