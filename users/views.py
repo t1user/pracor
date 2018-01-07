@@ -54,28 +54,17 @@ class CreateProfileView(LoginRequiredMixin, View):
     template_name = "registration/create_profile.html"
 
     def get(self, request, *args, **kwargs):
-        if request.user.last_name == '':
-            user_form = self.user_form_class()
-        else:
-            user_form = {}
         profile_form = self.profile_form_class()
         return render(request, self.template_name,
-                      {'user_form': user_form,
-                       'profile_form': profile_form})
+                      {'profile_form': profile_form})
 
     def post(self, request, *args, **kwargs):
-        user_form = self.user_form_class(request.POST, instance=request.user)
-        #profile = Profile.objects.get(user=request.user)
         profile_form = self.profile_form_class(request.POST, instance=request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            #profile = profile_form.save(commit=False)
-            #profile.user = request.user
+        if profile_form.is_valid():
             profile_form.save()
             return redirect('register_success')
         return render(request, self.template_name,
-                          {'user_form': user_form,
-                           'profile_form': profile_form})
+                          {'profile_form': profile_form})
 
     
 class LoginErrorView(View):
