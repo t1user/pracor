@@ -24,7 +24,6 @@ h1 {
 }
 
 
-
 .container {
     background-color: #ffffff;
     padding: 1.5rem;
@@ -33,6 +32,12 @@ h1 {
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
 }
 
+/* override skeleton to be full width on large phones */
+@media (min-width: 400px) {
+  .container {
+    width: 100%;
+     }
+}
 
 .message-stripe {
     background-color: #d9d9d9;
@@ -50,14 +55,6 @@ h1 {
     /*color: #0CAA41;*/
     font-size: 2.2rem;
     letter-spacing: 0.2rem;
-}
-
-
-main {
-    /*width:  90%;
-    max-width: 96rem;
-    margin: 0 auto;*/
-
 }
 
 footer {
@@ -80,7 +77,6 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
 }
 
 nav img {
@@ -88,17 +84,17 @@ nav img {
     vertical-align: middle;
 }
 
-.search-bar {
+.search-bar form {
     display: inline-flex;
     padding-top: 3rem;
 }
 
-.search-field {
+.search-bar form input {
     height: 4rem;
     width: 30rem;
 }
 
-.submit-button {
+.search-bar form button {
     height: 4rem;
     text-align: left;
     padding: .1rem;
@@ -106,6 +102,9 @@ nav img {
     border: none;
     color: white;
     vertical-align: middle;
+    background-color: #0CAA41;
+    border-color: #0CAA41;
+
 }
 
 .topnav {
@@ -135,7 +134,7 @@ nav a.icon, nav a.glass {
 }
 
 @media screen and (max-width: 830px) {
-    .search-field {
+    .search-bar form input {
         width: 15rem;
     }
 
@@ -175,13 +174,11 @@ nav a.icon, nav a.glass {
     nav .search-bar {
         display: none;
     }
-
    
     nav {
         justify-content: center;
         width: 100%;
         }
-
 }
 
 .search-mobile {
@@ -189,18 +186,25 @@ nav a.icon, nav a.glass {
 }
 
 .search-mobile form {
-    margin: 0 2rem;
+    margin: 1rem 2rem 0 2rem;
     padding-top: 1rem;
 }
 
 .search-mobile form input {
     width: 80%;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    margin-bottom: 0;
+}
+
+.search-mobile form button {
+    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    padding: 0 1rem;
 }
 
 .search-mobile.responsive {
     display: block;
- }
+}
+    
 
 /* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
 @media screen and (max-width: 600px) {
@@ -226,7 +230,6 @@ nav a.icon, nav a.glass {
      }
 
 } 
-
 /* end styling responsive top navbar */
 
 

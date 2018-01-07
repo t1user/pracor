@@ -51,10 +51,7 @@
             {% block searchbar %}
             <!-- searchbar  -->
             <div class="search-bar">
-                <form action="{% url 'company_search' '' %}" method="POST">
-                    <input type="search" id="search" placeholder="Wyszukaj firmę..." name="company_name" class="search-field auto-search" aria-label="wyszukaj firmę" autocomplete="off" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
-                    {% csrf_token %}
-                </form>
+                {% include "_search.html" %}
             </div>
             {% endblock searchbar %}
             
@@ -74,12 +71,10 @@
             {% endblock menu %}
         </nav>
         {% endblock nav %}
+        
         <!-- searchbar for mobile only -->
         <div id="mobile-searchbar" class="search-mobile">
-            <form action="{% url 'company_search' '' %}" method="POST">
-                <input type="search" placeholder="Wyszukaj firmę..." name="company_name" class="search-field auto-search" aria-label="wyszukaj firmę" autocomplete="off" required/><button type="submit" class="submit-button"><i class="material-icons">search</i></button>
-                {% csrf_token %}
-            </form>
+            {% include "_search.html" %}
         </div>
 
         <main>

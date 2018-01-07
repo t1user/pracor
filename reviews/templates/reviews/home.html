@@ -34,16 +34,11 @@
         </div>
         <div class="row">
             <div class="twelve columns">
-                <form action="{% url 'company_search' '' %}" method="POST">
-                    {% csrf_token %}
-                    <div class="errors">
-                        {{ form.non_field_errors }}
-                        {{ form.company_name.errors }}
-                    </div>
-                    <div class="search">
-                        <input type="search" placeholder="Wyszukaj firmę..." name="company_name" aria-label="wyszukaj firmę" class="auto-search" autocomplete="off" required/><button type="submit" class="button-primary"><i class="material-icons">search</i></button>
-                    </div>
-                </form>
+                <div class="search">
+
+                    {% include "_search.html" %}
+                    
+                </div>
             </div>
         </div>
     </div>
