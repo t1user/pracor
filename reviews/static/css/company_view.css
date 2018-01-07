@@ -3,17 +3,18 @@
 
 
 @media screen and (min-width: 600px) {
-.stars {
-    font-size: 4.8rem;
-}
+    .stars {
+        font-size: 4.8rem;
+    }
 
-table .stars {
-    font-size: 2.4rem;
-}
+    table .stars {
+        font-size: 3.2rem;
+    }
 
-.right-block {
-    padding-top: 1.2rem;
-}}
+    .right-block {
+        padding-top: 1.2rem;
+    }
+}
 
 .overall {
     display: inline-flex;
@@ -92,10 +93,10 @@ table {
 
 
 @media screen and (max-width: 700px) {
-.stars {
-    font-size: 4.5rem;
-    padding-bottom: 1rem;
-}
+    .stars {
+        font-size: 4.5rem;
+        padding-bottom: 1rem;
+    }
 }
 
 .counter-button .counter-title {

@@ -22,36 +22,8 @@ class CompanySelectForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['company_name'].choices = (list(self.companies) +
                                                [('None', 'Na liście nie ma firmy, w której pracuję')])
-"""
-    def clean_company_name(self):
-        data = self.cleaned_data.get('company_name')
-        if data in QS_CHOICES:
-            try:
-                data = MyModel.objects.get(id=data)
-            except MyModel.DoesNotExist:
-                raise forms.ValidationError('foo')
-        return data
-"""
 
-
-class CompanySelectFormOld(forms.Form):
-    """
-    NOT IN USE.
-    Creates a RadioSelect with options given in kwarg 'companies' plus empty_label.
-    """
-    # queryset is a required parameter, so here an empty queryset is passed
-    company_name = forms.ModelChoiceField(widget=RadioReversed(),
-                                          queryset=Company.objects.none(),
-                                          empty_label='Na liście nie ma firmy, w której pracuję',
-                                          label='',
-                                          )
-
-    def __init__(self, *args, **kwargs):
-        self.companies = kwargs.pop('companies')
-        super().__init__(*args, **kwargs)
-        self.fields['company_name'].queryset = self.companies
-
-
+        
 class ProfanitiesFilter():
     """
     Custom validator to filter out swear words.
@@ -137,7 +109,6 @@ class CompanyCreateForm(forms.ModelForm):
         return url
 
 
-
 class PositionForm(forms.ModelForm):
 
     class Meta:
@@ -185,6 +156,23 @@ class PositionForm(forms.ModelForm):
         return self.cleaned_data['location'].title()
 
 
+class TextLengthValidator():
+    """
+    Verify whether user input meets the minimum length requirement.
+    """
+    def __init__(self, requirement=20):
+        self.req = requirement
+        
+    def __call__(self, text):
+        words = text.split(' ')
+        length = len(words)
+        if length < self.req:
+            miss = self.req - length
+            raise forms.ValidationError(
+                'Za krótki wpis, wymagane {req} słow (brakuje {miss})'.format(
+                    miss=miss, req=self.req), code='invalid')
+
+        
 class ReviewForm(forms.ModelForm):
 
     class Meta:
@@ -224,9 +212,21 @@ class ReviewForm(forms.ModelForm):
             'comment': forms.Textarea(),
         }
 
+        help_texts = {
+            'title': 'Jedno zdanie podsumowujące opinię',
+            'pros': 'Minimum 20 słów (2-3 zdania). Konieczne by opinia była wyważona.',
+            'cons': 'Minimum 20 słów (2-3 zdania). Konieczne by opinia była wyważona.',
+            'comment': 'Inne uwagi o tym co mogłoby sprawić, że praca w tej firmie byłaby lepsza.',
+            }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        min_length = 20
+        self.fields['pros'].validators.append(TextLengthValidator(min_length))
+        self.fields['cons'].validators.append(TextLengthValidator(min_length))
+
 
 class SalaryForm(forms.ModelForm):
-    #period = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'inline',}))
 
     class Meta:
         model = Salary
@@ -295,10 +295,13 @@ class InterviewForm(forms.ModelForm):
         widgets = {
             'difficulty': forms.RadioSelect(),
             'impressions': forms.Textarea(),
-            #'got_offer': forms.RadioSelect(),
             'rating': RadioSelectModified(),
         }
 
-        """help_texts = {
-            'difficulty': '1 - bardzo łatwo, 5 - bardzo trudno',
-            }"""
+        help_texts = {
+            'department': 'Jeśli nie możesz podać dokładnej nazwy departamentu, określ obszar, np: kadry, finanse, oddział xyz, itp.',
+            'how_got': 'Skąd dowiedziałaś/łeś się o wolnym stanowisku, jak trafiłaś/łeś do firmy.',
+            'questions': 'Jak przebiegał proces rekrutacyjny i jakie pytania zadano na różnych jego etapach.',
+            'impressions': 'Pozytywne i negatywne strony procesu rekrutacyjnego.',
+            'rating': 'Jak oceniasz całość doświadczenia rekrutacyjnego w firmie.',
+            }

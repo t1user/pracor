@@ -429,8 +429,8 @@ class Interview(ApprovableModel):
                                max_length=1, choices=HOW_GOT, default=None)
     difficulty = models.PositiveIntegerField('trudność',
                                              choices=DIFFICULTY, default=None)
-    got_offer = models.BooleanField('dostał ofertę',)
-    questions = models.TextField('pytania', null=True, blank=True)
+    got_offer = models.BooleanField('dostał ofertę?',)
+    questions = models.TextField('proces i pytania', null=True, blank=True)
     impressions = models.TextField('wrażenia')
     rating = models.PositiveIntegerField('ocena', choices=RATINGS, default=None)
 

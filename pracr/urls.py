@@ -16,6 +16,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import LoginView
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.views.generic import RedirectView
 
 
 urlpatterns = [
@@ -30,4 +32,7 @@ urlpatterns = [
     url(r'^', include('reviews.urls')),
     
     url(r'^', include('users.urls')),
+
+    url(r'^favicon.ico$', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico')),
+                                               name='favicon')
 ]

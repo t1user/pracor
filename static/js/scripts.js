@@ -33,7 +33,7 @@ m.addEventListener("click", function() {
 }
 )
 
-
+/* on mobile - expand and collapse menu with add buttons*/
 function listItems() {
     var x = document.getElementById("actionButton");
     if (x.className === "action-button") {
@@ -46,6 +46,7 @@ function listItems() {
 /* autocomplete for search form */
 $(function() {
   $(".auto-search").autocomplete({
+    delay: 150,
     source: "/search/",
     minLength: 3,
     select: function(event, ui) {
@@ -57,43 +58,19 @@ $(function() {
 
 
 $(".auto-position").autocomplete({
-    source: function(request, response) {
-        $.ajax({
-            url:'',
-            dataType: 'json',
-            data:{
-                'term': request.term,
-                'field': this.element['0']['id']
-            },
-            success: function(data) {
-                response(data);
-                }
-        })
-    },
-    minLength: 3,
+  delay: 150,
+  source: function(request, response) {
+    $.ajax({
+      url:'',
+      dataType: 'json',
+      data:{
+        'term': request.term,
+        'field': this.element['0']['id']
+      },
+      success: function(data) {
+        response(data);
+      }
+    })
+  },
+  minLength: 3,
 });
-
-
-
-/*
-
-$(function() {
-  $(".auto-position").autocomplete({
-    source: function(request, response) {
-        $.ajax({
-            url:'',
-            dataType: 'json',
-            data:{
-                'field': $(this).val(this.item.val),
-                },
-            success: function(data){
-                response(data);
-                }
-            })},
-    minLength: 4,
-    select: function(event, ui) {
-      location.href="/" + ui.item.id;
-}
-});
-})
-*/

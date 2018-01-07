@@ -51,6 +51,7 @@ form div.rating_stars label {
     width: 4.8rem;
     height: 4.8rem;
     background: url('img/ic_star_border_black_24px.svg') 0/4.8rem;
+    margin-top: 0;
     
 }
 
@@ -86,7 +87,29 @@ label[for=id_start_date_year]:before {
     display: inline-block;
 }
 
-.help {
-    font-style: italic;
-    font-size: 1.4rem;
+input, textarea, select {
+    margin-bottom: 0;
+    margin-top: 0;
 }
+
+label {
+    margin-top: 1rem;
+}
+
+@media screen and (min-width: 700px) { 
+    label {
+        margin-top: 1.5rem;
+    }
+}
+
+
+li label {
+    margin-top: 0;
+}
+
+.help {
+    color: rgb(30, 174, 219);
+    font-style: italic;
+    font-size: 1.5rem;
+}
+

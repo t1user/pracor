@@ -10,9 +10,12 @@
         
         <title>
             {% block title %}
-            pracr - społecznościowa baza danych o pracodawcach i zarobkach
+            pracor - społecznościowa baza danych o pracodawcach i zarobkach
             {% endblock title %}
         </title>
+        
+        <!-- Favicon -->
+        <link rel="icon" href="{% static 'img/favicon.ico' %}" %}>
 
         <!--Import Google Icon Font-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -42,7 +45,7 @@
         <nav>
             {% block logo %}
             <!-- brand logo -->
-            <a href="{% url 'home' %}"><img src="{% static 'img/logo_new_white.png' %}"></a>
+            <a href="{% url 'home' %}"><img src="{% static 'img/logo_new_pracor_white.png' %}"></a>
             {% endblock %}
             {% block searchbar %}
             <!-- searchbar  -->
@@ -57,7 +60,6 @@
             <!-- menu items -->
             <div class="topnav" id="myTopnav">
                 {% if not user.is_authenticated %}
-                <a href="#">Option</a>
                 <a href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
                 {% else %}
                 <a>{{ request.user }}</a>
@@ -92,15 +94,17 @@
             {% block content %}
 
             {% endblock content %}
-
         </main>
-
-
         
         <footer>
-
-            Tu będzie footer.
-            
+            <div class="row">
+                <div class="six columns">
+                    &copy Copyright 2018
+                </div>
+                <div class="six-columns">
+                    pracor@pracor.pl
+                </div>
+            </div>
         </footer>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript">
