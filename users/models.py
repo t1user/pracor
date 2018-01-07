@@ -66,13 +66,14 @@ class Profile(models.Model):
         verbose_name_plural = "Profile"
         
     SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
-    career_year = range(2017, 1970, -1)
+    career_year = range(2017, 1959, -1)
     CAREER_YEAR = [(i, i) for i in career_year]
     
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE, editable=False)
     contributed = models.BooleanField('Zrobił wpis', default=False)
-    sex = models.CharField("płeć", max_length=1, choices=SEX, default=None,)
+    sex = models.CharField("płeć", max_length=1, choices=SEX, default=None,
+                           null=True, blank=True)
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)

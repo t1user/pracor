@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="pl">
     <head>
-        <meta name="description" content="pracr to portal gdzie użytkownicy anonimowo dzielą się opiniami o pracodawcach i danymi o zarobkach. Anonimowość jest gwarantowana."/>
+        <meta name="description" content="pracor to portal gdzie użytkownicy anonimowo dzielą się opiniami o pracodawcach i danymi o zarobkach. Anonimowość jest gwarantowana."/>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -47,6 +47,7 @@
             <!-- brand logo -->
             <a href="{% url 'home' %}"><img src="{% static 'img/logo_new_pracor_white.png' %}"></a>
             {% endblock %}
+            
             {% block searchbar %}
             <!-- searchbar  -->
             <div class="search-bar">
@@ -56,6 +57,7 @@
                 </form>
             </div>
             {% endblock searchbar %}
+            
             {% block menu %}
             <!-- menu items -->
             <div class="topnav" id="myTopnav">
