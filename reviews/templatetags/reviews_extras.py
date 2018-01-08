@@ -123,7 +123,7 @@ def translate_period(item):
         return obj.get_period_display()
     except AttributeError:
         return ''
-
+    
     
 @register.filter('bonus_period')
 def translate_bonus_period(items):

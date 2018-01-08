@@ -1,12 +1,10 @@
-import csv
-import re
 
 from django import forms
-#from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 
 from .models import Company, Interview, Position, Review, Salary
 from .widgets import RadioReversed, RadioSelectModified
+from .validators import ProfanitiesFilter, TextLengthValidator
 
 
 class CompanySearchForm(forms.Form):
@@ -22,53 +20,7 @@ class CompanySelectForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['company_name'].choices = (list(self.companies) +
                                                [('None', 'Na liście nie ma firmy, w której pracuję')])
-
         
-class ProfanitiesFilter():
-    """
-    Custom validator to filter out swear words.
-    First file has words that are matched inside other words.
-    Second file has words that are matched only as full words.
-    """
-    #makeing those class variables ensures this code is called only once - after
-    #starting server
-    words = ''
-    with open('reviews/profanities_filter/prof_fil_broad.txt') as f:
-        i = csv.reader(f, delimiter='\n')
-        for item in i:
-            words += item[0]
-            words += '|'
-
-    more_words = ''
-    with open('reviews/profanities_filter/prof_fil.txt') as f:
-        i = csv.reader(f, delimiter='\n')
-        for item in i:
-            text_item = '\\b{}\\b|'.format(item[0])
-            more_words += text_item
-
-    words += more_words
-    pattern = re.compile(words, re.IGNORECASE)
-
-    def __call__(self, value):
-        matches = self.pattern.findall(value)
-        matches = [match for match in matches if match != '']
-        full_words = value.split(' ')
-        full_matched_words = []
-        for word in full_words:
-            for match in matches:
-                if match in word:
-                    full_matched_words.append(word.lower().rstrip(',!?:;.'))
-        matches = set(full_matched_words)
-        # if partial words matched, get the full words, of which they are part
-        if matches:
-            if len(matches) == 1:
-                value = ''.join(matches)
-            else:
-                value = ', '.join(matches)
-            raise forms.ValidationError('Niedopuszczalne wyrażenia: {}'.format(value),
-                                        params={'value': value},
-                                        )
-
 
 class CensoredField(forms.CharField):
     """
@@ -114,7 +66,8 @@ class PositionForm(forms.ModelForm):
     class Meta:
         model = Position
         fields = ['position', 'department', 'location',
-                  'start_date_year', 'start_date_month', 'employment_status']
+                  'start_date_year', 'start_date_month', 'end_date_year', 'end_date_month',
+                  'employment_status',]
 
         field_classes = {
             'position': CensoredField,
@@ -122,21 +75,27 @@ class PositionForm(forms.ModelForm):
             'location': CensoredField,
         }
 
+        #start date and end date labels added through css
         labels = {
             'position': 'stanowisko',
             'department': 'departament',
             'location': 'miasto',
             'start_date_year': 'rok',
             'start_date_month': 'miesiąc',
+            'end_date_year': 'rok',
+            'end_date_month': 'miesiąc',
             'employment_status': 'rodzaj umowy',
         }
 
         widgets = {
-            #'position': forms.TextInput(attrs={'class': 'auto-position'}),
-            #'department': forms.TextInput(attrs={'class': 'auto-position'}),
-            #'location': forms.TextInput(attrs={'class': 'auto-position'}),
             'start_date_year': forms.Select(attrs={'class': 'inline'}),
             'start_date_month': forms.Select(attrs={'class': 'inline'}),
+            'end_date_year': forms.Select(attrs={'class': 'inline'}),
+            'end_date_month': forms.Select(attrs={'class': 'inline'}),
+        }
+
+        help_texts = {
+            'department': 'Jeśli nie możesz podać dokładnej nazwy departamentu, określ obszar, np: kadry, finanse, oddział xyz, itp.',
         }
 
     def __init__(self, *args, **kwargs):
@@ -154,23 +113,6 @@ class PositionForm(forms.ModelForm):
 
     def clean_location(self):
         return self.cleaned_data['location'].title()
-
-
-class TextLengthValidator():
-    """
-    Verify whether user input meets the minimum length requirement.
-    """
-    def __init__(self, requirement=20):
-        self.req = requirement
-        
-    def __call__(self, text):
-        words = text.split(' ')
-        length = len(words)
-        if length < self.req:
-            miss = self.req - length
-            raise forms.ValidationError(
-                'Za krótki wpis, wymagane {req} słow (brakuje {miss})'.format(
-                    miss=miss, req=self.req), code='invalid')
 
         
 class ReviewForm(forms.ModelForm):
@@ -245,7 +187,7 @@ class SalaryForm(forms.ModelForm):
             'period': forms.Select(attrs={'class': 'inline'}),
             'gross_net': forms.Select(attrs={'class': 'inline'}),
 
-            'bonus_input': forms.NumberInput(attrs={'step': 1000, 'class': 'inline'}),
+            'bonus_input': forms.NumberInput(attrs={'class': 'inline break_before'}),
             'bonus_period': forms.Select(attrs={'class': 'inline', }),
             'bonus_gross_net': forms.Select(attrs={'class': 'inline'}),
         }
@@ -270,7 +212,6 @@ class InterviewForm(forms.ModelForm):
                                        widget=forms.RadioSelect(
                                            choices=((True, 'Tak'), (False, 'Nie'))),
                                        )
-
     class Meta:
         model = Interview
         fields = [

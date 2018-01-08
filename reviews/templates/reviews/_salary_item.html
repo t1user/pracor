@@ -12,19 +12,22 @@
     <div class="twelve columns">
         <div class="salary">
             <h4>
-            {{ object.position__position }} |
-            {{ object.position__location }}
-            {% if object.position__department %}
-            |
-            {{ object.position__department }}
-            {% endif %}
+                {{ object.position__position }} |
+                {{ object.position__location }}
+                {% if object.position__department %}
+                |
+                {{ object.position__department }}
+                {% endif %}
             </h4>
+            {% if object.position__employment_status == 'B' %}
+            <div>Praca na część etatu</div>
+            {% endif %}
         </div>
     </div>
 </div>
 <div class="row">
     <div class="four columns">
-        <h5 class="salary-bonus">Zarobki zasadnicze</h5>    
+        <h5 class="salary-bonus">Zarobki zasadnicze</h5>
     </div>
     <div class="three columns">
         {% if object.salary_count > 1 %}

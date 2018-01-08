@@ -4,8 +4,14 @@
     <div>{{ object.position.department|capfirst }} |&nbsp;</div>
     {% endif %}
     <div>{{ object.position.location|title }} |&nbsp;</div>
-    <div>{{ object.position.get_employment_status_display }}</div>
-    <div>{{ object.years_at_company }}</div>
+    <div>{{ object.position.get_employment_status_display }} |&nbsp;</div>
+    <div>
+    {% if object.position.end_date_year == 0 %}
+    były pracownik
+    {% else %}
+    obecny pracownik
+    {% endif %}
+    </div>
 </div>
 
-        
+    

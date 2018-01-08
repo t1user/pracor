@@ -8,6 +8,7 @@ from django.utils.text import slugify
 from unidecode import unidecode
 
 from .managers import SelectedManager, SalaryManager
+from .validators import PercentValidator
 
 
 class ApprovableModel(models.Model):
@@ -97,19 +98,11 @@ class Company(ApprovableModel):
     @property
     def sum_salaries(self):
         """
-        Return average, min and max of all annual salaries in the company.
+        Return average, min and max of all annual salaries in the company as
+        a dictionary.
         """
-        salaries_annual = Salary.objects.selected(company=self.pk).aggregate(
-            sum_avg = Avg('salary_gross_annual', output=models.IntegerField()),
-            sum_min = Min('salary_gross_annual', output=models.IntegerField()),
-            sum_max = Max('salary_gross_annual', output=models.IntegerField()),
-            sum_count = Count('salary_input'),
-            )
-        salaries_monthly = {key: int(value/12) for key, value in salaries_annual.items()}
-        #count shouldn't have been divided by 12
-        salaries_monthly['sum_count'] = salaries_annual['sum_count']
-        return salaries_monthly
-
+        return Salary.objects.sums(company=self.pk)
+        
     @property
     def interviews(self):
         return Interview.objects.selected(company=self.pk).order_by('-date')
@@ -150,22 +143,21 @@ class Company(ApprovableModel):
 class Position(models.Model):
 
     STATUS_ZATRUDNIENIA = [
-        ('A', 'Pełen etat'),
-        ('B', 'Część etatu'),
-        ('C', 'Zlecenie'),
-        ('D', 'Samozazatrudnienie'),
-        ('E', 'Inne'),
+        ('A', 'pełen etat'),
+        ('B', 'część etatu'),
     ]
 
-    years = range(datetime.datetime.now().year, 1970, -1)
+    years = range(datetime.datetime.now().year, 1959, -1)
     YEARS = [(i, i) for i in years]
+    YEARS_E = YEARS[:]
+    YEARS_E.insert(0, (0, 'obecnie'))
     months = range(1, 13)
     MONTHS = [(i, '{:02}'.format(i)) for i in months]
 
     date = models.DateTimeField(auto_now_add=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              on_delete=models.SET_NULL)
-    # company_name used to store name before entry is associated with a
+    # company_name used to store name before entry is associated with
     # Company database record
     company_name = models.CharField(max_length=100, null=True, blank=True)
     company_linkedin_id = models.CharField(
@@ -182,6 +174,10 @@ class Position(models.Model):
                                                    choices=MONTHS, default=None)
     start_date_year = models.PositiveIntegerField(null=True,
                                                   choices=YEARS, default=None)
+    end_date_month = models.PositiveIntegerField(null=True,
+                                                   choices=MONTHS, default=None)
+    end_date_year = models.PositiveIntegerField(null=True,
+                                                  choices=YEARS_E, default=None)
     employment_status = models.CharField(max_length=1,
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')
@@ -201,7 +197,7 @@ class Position(models.Model):
             user = self.user.email
         else:
             user = ''
-        return self.position + ' - ' + company + ' - ' + user
+        return '{} - {} - {}'.format(self.position, company, user)
 
 
 class Review(ApprovableModel):
@@ -257,6 +253,7 @@ class Salary(ApprovableModel):
     PERIOD = [
         ('G', 'na godzinę'),
         ('D', 'dziennie'),
+        ('T', 'tygodniowo'),
         ('M', 'miesięcznie'),
         ('K', 'kwartalnie'),
         ('R', 'rocznie'),
@@ -264,6 +261,12 @@ class Salary(ApprovableModel):
     GROSS_NET = [
         ('G', 'brutto'),
         ('N', 'netto'),
+    ]
+    CONTRACT = [
+        ('A', 'umowa o pracę'),
+        ('B', 'umowa-zlecenie'),
+        ('C', 'samozatrudnienie'),
+        ('D', 'inne'),
     ]
 
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
@@ -291,6 +294,7 @@ class Salary(ApprovableModel):
                                                            null=True, editable=False)
     bonus_gross_annual = models.PositiveIntegerField('premia brutto rocznie', null=True,
                                                      editable=False)
+    contract_type = models.CharField('rodzaj umowy', max_length=1, default='A', choices=CONTRACT)
 
     
     objects = SalaryManager()
@@ -363,7 +367,8 @@ class Salary(ApprovableModel):
 
         period_devisor = {
             'G': 2008, #number of work hours in 2018
-            'D': 365,
+            'D': 251, #number of work hours in 2018
+            'T': 52,
             'M': 12,
             'K': 4,
             'R': 1,

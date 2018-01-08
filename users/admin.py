@@ -24,6 +24,7 @@ class PositionInline(admin.StackedInline):
     model = Position
     extra = 0
     raw_id_fields = ('company',)
+    readonly_fields = ('date',)
 
 
 class ReviewInline(PositionInline):

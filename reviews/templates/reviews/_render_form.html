@@ -2,6 +2,11 @@
 <fieldset>
     {{ form.non_field_errors }}
     {% for field in form %}
+
+    {% if 'break_before' in field.field.widget.attrs.class %}
+    <br/>
+    {% endif %}
+    
     <div class="form_field {{ field.field.widget.attrs.class }}">
         <label for="{{ field.id_for_label }}">
             {{ field.label|safe }}
@@ -15,5 +20,6 @@
         <div class="help">{{ field.help_text|safe }}</div>
         {% endif %}
     </div>
+
     {% endfor %}
 </fieldset>

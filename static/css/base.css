@@ -111,7 +111,7 @@ nav img {
     float: right;
 }
 
-nav a {
+nav a, nav span {
     padding: 1.4rem 1.6rem;
     text-decoration: none;
     font-size: 2rem;
@@ -119,11 +119,12 @@ nav a {
     text-align: center;
 }
 
+
 .topnav  a:hover {
     color: #e7fdef;
 }
 
-nav a.icon, nav a.glass {
+nav .icon, nav .glass {
     display: none;
 }
 
@@ -152,19 +153,19 @@ nav a.icon, nav a.glass {
     .topnav {
         display: none;
     }
-    nav a.icon {
+    nav span.icon {
         display: block;
         position: absolute;
         top: 0;
         right: 0;
     }
 
-    nav a.icon:hover,
-    nav a.glass:hover {
+    nav span.icon:hover,
+    nav span.glass:hover {
         color: white;
     }
     
-    nav a.glass  {
+    nav span.glass  {
         display: block;
         position: absolute;
         top: 0;

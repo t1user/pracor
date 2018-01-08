@@ -83,6 +83,27 @@ label[for=id_start_date_year]:before {
     white-space: pre;
 }
 
+label[for=id_end_date_year]:before {
+    content: "Data zakończenia:\A";
+    white-space: pre;
+}
+
+@media screen and (min-width: 410px) {
+    label[for=id_start_date_month],
+    #id_start_date_month
+     {
+        margin-right: 12rem;
+    }
+}
+
+@media screen and (min-width: 850px) and (max-width: 950px) {
+    label[for=id_start_date_month],
+    #id_start_date_month
+     {
+        margin-right: 5rem;
+    }
+}
+
 .inline {
     display: inline-block;
 }
