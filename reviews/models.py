@@ -145,6 +145,7 @@ class Position(models.Model):
     STATUS_ZATRUDNIENIA = [
         ('A', 'pełen etat'),
         ('B', 'część etatu'),
+        ('C', 'praktyka'),
     ]
 
     years = range(datetime.datetime.now().year, 1959, -1)
@@ -249,6 +250,21 @@ class Review(ApprovableModel):
                 }
 
 
+class Benefit(ApprovableModel):
+    name = models.CharField(max_length=100)
+    core = models.BooleanField(default=False)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,
+                               on_delete=models.CASCADE, related_name='created_by')
+    source = models.ForeignKey(Company, verbose_name='firma',
+                               on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'benefit'
+        verbose_name_plural = 'benefity'
+
+    def __str__(self):
+        return self.name
+
 class Salary(ApprovableModel):
     PERIOD = [
         ('G', 'na godzinę'),
@@ -298,6 +314,7 @@ class Salary(ApprovableModel):
     
     contract_type = models.CharField('rodzaj umowy', max_length=1, default='A', choices=CONTRACT)
     comments = models.CharField('uwagi', max_length=200, blank=True)
+    benefits = models.ManyToManyField(Benefit, blank=True, verbose_name='benefity')
 
     
     objects = SalaryManager()
@@ -428,7 +445,8 @@ class Interview(ApprovableModel):
         ('D', 'Znajomi/rodzina'),
         ('E', 'Seks z decydentem'),
         ('F', 'Targi/prezentacje'),
-        ('F', 'Inne'),
+        ('G', 'Strona internetowa firmy'),
+        ('H', 'Inne'),
     ]
     DIFFICULTY = [
         (1, 'B. łatwo'),
@@ -478,3 +496,4 @@ class Interview(ApprovableModel):
     def scores(self):
         """"Used by method calculating number of rating stars for display."""
         return {'rating': self.rating,}
+    

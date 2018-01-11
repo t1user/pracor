@@ -1,8 +1,9 @@
 
 from django import forms
 from django.forms import ModelForm
+from django.db.models import Q
 
-from .models import Company, Interview, Position, Review, Salary
+from .models import Company, Interview, Position, Review, Salary, Benefit
 from .widgets import RadioReversed, RadioSelectModified
 from .validators import ProfanitiesFilter, TextLengthValidator
 
@@ -169,7 +170,9 @@ class ReviewForm(forms.ModelForm):
 
 
 class SalaryForm(forms.ModelForm):
-
+    other = forms.CharField(label='Inne benefity',
+                            help_text='Opcjonalnie, wymień po przecinku inne benefity poza tymi na liście')
+    
     class Meta:
         model = Salary
         fields = [
@@ -182,6 +185,8 @@ class SalaryForm(forms.ModelForm):
             #'bonus_gross_net', currently not implemented, all inputs gross
             'contract_type',
             'comments',
+            'benefits',
+            'other'
         ]
         widgets = {
             'currency': forms.TextInput(attrs={'size': 3}),
@@ -192,6 +197,7 @@ class SalaryForm(forms.ModelForm):
             'bonus_input': forms.NumberInput(attrs={'class': 'inline break_before'}),
             'bonus_period': forms.Select(attrs={'class': 'inline', }),
             'bonus_gross_net': forms.Select(attrs={'class': 'inline'}),
+            'benefits': forms.CheckboxSelectMultiple(),
         }
 
         labels = {
@@ -204,16 +210,35 @@ class SalaryForm(forms.ModelForm):
             }
 
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request, company, *args, **kwargs):
         """
         Override to avoid displaying 'required' asterics next to
         certain fields.
         """
         super().__init__(*args, **kwargs)
+        self.request = request
+        self.company = company
+        #chose only core items or relevant to the company
+        self.fields['benefits'].queryset = Benefit.objects.filter(
+            Q(core=True) | Q(source=self.company)
+            )
+                                                               
         self.fields['period'].required = False
         #self.fields['gross_net'].required = False
         self.fields['bonus_period'].required = False
-        #self.fields['bonus_gross_net'].required = False      
+        #self.fields['bonus_gross_net'].required = False
+        self.fields['other'].required = False
+
+    """
+    def save(self, *args, **kwargs):
+        other_benefit_list = self.cleaned_data['other'].split(',')
+        for benefit in other_benefit_list:
+            Benefit.objects.create(name=benefit.strip(),
+                                   author=self.request.user,
+                                   source = self.company,
+            )
+        super().save(*args, **kwargs)
+    """
 
 
 class InterviewForm(forms.ModelForm):

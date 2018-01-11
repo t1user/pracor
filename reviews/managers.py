@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Avg, Max, Min, Count, Aggregate
-
+from django.contrib.postgres.aggregates.general import StringAgg
 
 class ArrayAgg(Aggregate):
     """
@@ -41,6 +41,7 @@ class SalaryManager(SelectedManager):
             'position__location',
             'position__department',
             'position__employment_status',
+            'contract_type',
             'currency',
             'period',
         ).annotate(
@@ -57,7 +58,8 @@ class SalaryManager(SelectedManager):
             bonus_annual_max = Max('bonus_gross_annual'),
             bonus_annual_count = Count('bonus_gross_annual'),
             #distinct=True available only in Django2.0, that's why ArrayAgg is overriden
-            bonus_periods = ArrayAgg('bonus_period', distinct=True), 
+            bonus_periods = ArrayAgg('bonus_period', distinct=True),
+            benefits = StringAgg('benefits__name', distinct=True, delimiter=','),
         )
 
 

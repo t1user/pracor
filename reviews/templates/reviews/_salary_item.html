@@ -23,6 +23,11 @@
             {% if object.position__employment_status == 'B' %}
             Praca na część etatu
             {% endif %}
+            
+            {% if object.position__employment_status == 'B' and object.contract_type != 'A' %}
+             | 
+            {% endif %}
+            
             {% if object.contract_type != 'A' %}
             {{ object.contract_type|contract }}
             {% endif %}
@@ -120,3 +125,9 @@
 
 {% endif %}
 
+
+
+{% if object.benefits %}
+<h5>Benefity</h5>
+{{ object.benefits }}
+{% endif %}

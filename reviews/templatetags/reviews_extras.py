@@ -132,7 +132,7 @@ def translate_period(item):
     """
     try:
         obj = Salary.objects.filter(contract_type=item).last()
-        return obj.get_period_display()
+        return obj.get_contract_type_display()
     except AttributeError:
         return ''
     

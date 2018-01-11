@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import RadioSelect, Textarea, TextInput
 from django.utils import timezone
 
-from .models import Company, Interview, Position, Review, Salary
+from .models import Company, Interview, Position, Review, Salary, Benefit
 
 admin.site.site_header = 'pracr - administracja'
 
@@ -175,3 +175,14 @@ class PositionAdmin(admin.ModelAdmin):
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('get_change_message', 'object_repr',
                     'action_time', 'user', 'action_flag')
+
+@admin.register(Benefit)
+class BenefitAdmin(admin.ModelAdmin):
+    
+    readonly_fields = ('author', 'reviewed_date')
+
+    def save_model(self, request, obj, form, change):
+        """Adds user as author of the instance."""
+        obj.author = request.user
+        super().save_model(request, obj, form, change)
+

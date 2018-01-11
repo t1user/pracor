@@ -449,7 +449,8 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         self.request.user.profile.contributed = True
         self.request.user.profile.save(update_fields=['contributed'])
         success_message(self.request)
-        return HttpResponseRedirect(self.get_success_url())
+        print(self.__dict__)
+        return redirect(self.get_success_url())
 
     def form_invalid(self, form, **kwargs):
         """
@@ -522,6 +523,22 @@ class SalaryCreate(TokenVerifyMixin, ContentCreateAbstract):
     form_class = SalaryForm
     template_name = "reviews/salary_form.html"
 
+    def get_form_kwargs(self):
+        """
+        Form needs request, because it adds user to as author of new benefits.
+        Same for Company.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        kwargs['company'] = self.company
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        """
+        self.company is required by self.get_form_kwargs()
+        """
+        self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        return super().get(request, *args, **kwargs)
 
 class InterviewCreate(LoginRequiredMixin, TokenVerifyMixin, CreateView):
     form_class = InterviewForm
