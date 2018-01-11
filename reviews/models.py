@@ -264,9 +264,8 @@ class Salary(ApprovableModel):
     ]
     CONTRACT = [
         ('A', 'umowa o pracę'),
-        ('B', 'umowa-zlecenie'),
+        ('B', 'zlecenie/umowa o dzieło'),
         ('C', 'samozatrudnienie'),
-        ('D', 'inne'),
     ]
 
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
@@ -283,6 +282,8 @@ class Salary(ApprovableModel):
 
     bonus_input = models.PositiveIntegerField('premia', blank=True, null=True)
     bonus_period = models.CharField('', max_length=1, default='R', choices=PERIOD)
+
+    #this choice is currently not implemented, all input values are gross
     bonus_gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
 
     #following values are calculated by save() and used in reports
@@ -294,7 +295,9 @@ class Salary(ApprovableModel):
                                                            null=True, editable=False)
     bonus_gross_annual = models.PositiveIntegerField('premia brutto rocznie', null=True,
                                                      editable=False)
+    
     contract_type = models.CharField('rodzaj umowy', max_length=1, default='A', choices=CONTRACT)
+    comments = models.CharField('uwagi', max_length=200, blank=True)
 
     
     objects = SalaryManager()
@@ -336,11 +339,19 @@ class Salary(ApprovableModel):
         r_2 = 0.32  # stawka powyzej progu podatkowego
         tax_1 = 15395.04  # podatek płacony przy brutto=step
 
-        def gross_to_net(B):
+        def gross_to_net(B, zus=zus, ch=ch, z=z, ku=ku, kw=kw):
             """
-            Przelicza ROCZNE przychody brutto na dochód netto przy standardowej
-            umowie o pracę. Wynik zaokrąglony do najbliższej 100zl.
+            Przelicza ROCZNE przychody brutto na dochód netto. Jeśli nie podano
+            żadnych **kwargs to jest to standardowa umowa o pracę. W przeciwnym
+            wypadku trzeba określić parametry, które są różne niż przy standardowej
+            umowie o pracę.
             """
+
+            #jeśli kwotę wolną podano w procentach, użyj podanej liczby,
+            #w przeciwnym wypadku użyj liczby podanej kwotowo w założeniach
+            if ku < 1:
+                ku = ku * B * (1 - zus - ch)
+
             base = B * (1 - zus - ch) - ku
             if base < step:
                 N = B * (1 - zus - ch) * (1 - z - r_1) + ku * r_1 + kw
@@ -349,25 +360,35 @@ class Salary(ApprovableModel):
                     (ku + step) * r_2 - tax_1 + kw
             else:
                 N = 86620 + (B - limit_zus) * (1 - ch) * (1 - z - r_2)
-                return round(N / 100, 0) * 100
+            return N
 
-        def net_to_gross(N):
+        def net_to_gross(N, zus=zus, ch=ch, z=z, ku=ku, kw=kw):
             """
-            Przelicza ROCZNE dochody netto na przychód brutto przy standardowej
-            umowie o pracę. Wynik zaokrąglony do najbliższej 100zl.
+            Przelicza ROCZNE dochody netto na przychód brutto. Jeśli nie podano
+            żadnych **kwargs to jest to standardowa umowa o pracę. W przeciwnym
+            wypadku trzeba określić parametry, które są różne niż  przy standardowej
+            umowie o pracę.
             """
-            B = (N - ku * r_1 - kw) / ((1 - zus - ch) * (1 - z - r_1))
+
+            #jeśli kwotę wolną podano w procentach, użyj podanej liczby,
+            #w przeciwnym wypadku użyj liczby podanej kwotowo w założeniach
+            if ku < 1:
+                B = (N - kw) / ((1 - zus - ch) * (1 - z - r_1 + .2 *r_1))
+                ku = ku * B * (1 - zus - ch)
+            else:
+                B = (N - ku * r_1 - kw) / ((1 - zus - ch) * (1 - z - r_1))
             base = B * (1 - zus - ch) - ku
+
             if base >= step:
                 B = (N + tax_1 - kw - (ku + step) * r_2) / \
                     ((1 - zus - ch) * (1 - z - r_2))
                 if B > limit_zus:
                     B = ((N - 86620) / ((1 - ch) * (1 - z - r_2))) + limit_zus
-            return round(B / 100, 0) * 100
+            return B
 
         period_devisor = {
             'G': 2008, #number of work hours in 2018
-            'D': 251, #number of work hours in 2018
+            'D': 251, #number of work days in 2018
             'T': 52,
             'M': 12,
             'K': 4,
@@ -375,7 +396,8 @@ class Salary(ApprovableModel):
         }
 
         salary_annual = period_devisor[self.period] * self.salary_input
-        
+
+        #net to gross conversion
         if self.gross_net == 'N':
             self.salary_gross_annual = net_to_gross(salary_annual)
         else:

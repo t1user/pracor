@@ -123,6 +123,18 @@ def translate_period(item):
         return obj.get_period_display()
     except AttributeError:
         return ''
+
+    
+@register.filter('contract')
+def translate_period(item):
+    """
+    Rosolve salary.contract_type database choices into display values.
+    """
+    try:
+        obj = Salary.objects.filter(contract_type=item).last()
+        return obj.get_period_display()
+    except AttributeError:
+        return ''
     
     
 @register.filter('bonus_period')

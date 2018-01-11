@@ -173,13 +173,15 @@ class SalaryForm(forms.ModelForm):
     class Meta:
         model = Salary
         fields = [
-            'currency',
+            #'currency', currently not implemented
             'salary_input',
             'period',
-            'gross_net',
+            #'gross_net', currently not implemented, all inputs gross
             'bonus_input',
             'bonus_period',
-            'bonus_gross_net',
+            #'bonus_gross_net', currently not implemented, all inputs gross
+            'contract_type',
+            'comments',
         ]
         widgets = {
             'currency': forms.TextInput(attrs={'size': 3}),
@@ -192,6 +194,16 @@ class SalaryForm(forms.ModelForm):
             'bonus_gross_net': forms.Select(attrs={'class': 'inline'}),
         }
 
+        labels = {
+            'salary_input': 'Pensja brutto',
+            'bonus_input': 'Premia brutto',
+            }
+
+        help_texts = {
+            'comments': 'Wszelkie uwagi, które dodatkowo określają charakter otrzymywanego wynagrodznia. Uwagi te nie zostaną opublikowane',
+            }
+
+
     def __init__(self, *args, **kwargs):
         """
         Override to avoid displaying 'required' asterics next to
@@ -199,9 +211,9 @@ class SalaryForm(forms.ModelForm):
         """
         super().__init__(*args, **kwargs)
         self.fields['period'].required = False
-        self.fields['gross_net'].required = False
+        #self.fields['gross_net'].required = False
         self.fields['bonus_period'].required = False
-        self.fields['bonus_gross_net'].required = False
+        #self.fields['bonus_gross_net'].required = False      
 
 
 class InterviewForm(forms.ModelForm):

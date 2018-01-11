@@ -19,9 +19,14 @@
                 {{ object.position__department }}
                 {% endif %}
             </h4>
+            <div>
             {% if object.position__employment_status == 'B' %}
-            <div>Praca na część etatu</div>
+            Praca na część etatu
             {% endif %}
+            {% if object.contract_type != 'A' %}
+            {{ object.contract_type|contract }}
+            {% endif %}
+            </div>
         </div>
     </div>
 </div>
