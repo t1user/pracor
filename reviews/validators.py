@@ -1,6 +1,8 @@
 import csv
 import re
 
+from django import forms
+
 
 class ProfanitiesFilter():
     """

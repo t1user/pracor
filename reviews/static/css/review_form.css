@@ -134,3 +134,7 @@ li label {
     font-size: 1.5rem;
 }
 
+#id_benefits label {
+    font-weight: 400;
+    font-size: 15px;
+}

@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.db import models
-from django.forms import RadioSelect, Textarea, TextInput
+from django.forms import RadioSelect, Textarea, TextInput, CheckboxSelectMultiple
 from django.utils import timezone
 
 from .models import Company, Interview, Position, Review, Salary, Benefit
+
 
 admin.site.site_header = 'pracr - administracja'
 
@@ -131,6 +132,7 @@ class SalaryAdmin(ModelAdminModified):
                        'reviewer', 'reviewed_date',)
     list_display = ('id', 'company', 'position', 'approved', 'reviewer')
     search_fields = ['company__name', 'position__user__email']
+    filter_horizontal = ['benefits',]
     fieldsets = (
         (None, {
             'fields': ('date', 'company', 'position', 'currency',),
@@ -143,8 +145,13 @@ class SalaryAdmin(ModelAdminModified):
             'fields': (('salary_gross_input_period', 'salary_gross_annual',),
                        ('bonus_gross_input_period', 'bonus_gross_annual',))
         }),
+        ('Benefity', {
+            'fields': ('benefits',),
+            }),
         ModelAdminModified.approval,
     )
+    """formfield_overrides = {
+        models.ManyToManyField: {'widget': CheckboxSelectMultiple() },}"""
 
 
 @admin.register(Interview)
@@ -180,7 +187,7 @@ class LogEntryAdmin(admin.ModelAdmin):
 class BenefitAdmin(admin.ModelAdmin):
     
     readonly_fields = ('author', 'reviewed_date')
-
+    list_display = ('name', 'approved', 'reviewer',)
     def save_model(self, request, obj, form, change):
         """Adds user as author of the instance."""
         obj.author = request.user

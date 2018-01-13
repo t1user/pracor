@@ -449,7 +449,6 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         self.request.user.profile.contributed = True
         self.request.user.profile.save(update_fields=['contributed'])
         success_message(self.request)
-        print(self.__dict__)
         return redirect(self.get_success_url())
 
     def form_invalid(self, form, **kwargs):
@@ -529,8 +528,10 @@ class SalaryCreate(TokenVerifyMixin, ContentCreateAbstract):
         Same for Company.
         """
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        kwargs['company'] = self.company
+        kwargs.update({
+            'request': self.request,
+            'company': self.company,
+            })
         return kwargs
 
     def get(self, request, *args, **kwargs):

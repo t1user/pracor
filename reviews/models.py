@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
 
-from .managers import SelectedManager, SalaryManager
+from .managers import SelectedManager, SalaryManager, ArrayAgg #modified version of ArrayAgg
 from .validators import PercentValidator
 
 
@@ -114,6 +114,15 @@ class Company(ApprovableModel):
         """
         return self.interviews.aggregate(sum_avg=Avg('rating'))
 
+    @property
+    def benefits(self):
+        """
+        Return a list of pk's of all benefits that have been reported for the company.
+        """
+        benefits = self.salary_set.aggregate(
+            benefits=ArrayAgg('benefits', distinct=True))
+        return benefits['benefits']
+    
     @property
     def scores(self):
         """
@@ -251,12 +260,10 @@ class Review(ApprovableModel):
 
 
 class Benefit(ApprovableModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     core = models.BooleanField(default=False)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE, related_name='created_by')
-    source = models.ForeignKey(Company, verbose_name='firma',
-                               on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = 'benefit'

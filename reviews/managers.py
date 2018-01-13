@@ -59,7 +59,7 @@ class SalaryManager(SelectedManager):
             bonus_annual_count = Count('bonus_gross_annual'),
             #distinct=True available only in Django2.0, that's why ArrayAgg is overriden
             bonus_periods = ArrayAgg('bonus_period', distinct=True),
-            benefits = StringAgg('benefits__name', distinct=True, delimiter=','),
+            benefits = StringAgg('benefits__name', distinct=True, delimiter=', '),
         )
 
 

@@ -1,3 +1,4 @@
+from itertools import chain
 
 from django import forms
 from django.forms import ModelForm
@@ -6,6 +7,7 @@ from django.db.models import Q
 from .models import Company, Interview, Position, Review, Salary, Benefit
 from .widgets import RadioReversed, RadioSelectModified
 from .validators import ProfanitiesFilter, TextLengthValidator
+
 
 
 class CompanySearchForm(forms.Form):
@@ -169,9 +171,30 @@ class ReviewForm(forms.ModelForm):
         self.fields['cons'].validators.append(TextLengthValidator(min_length))
 
 
+class OtherBenefitsField(CensoredField):
+    def to_python(self, value):
+        other_benefit_list = value.split(',')
+        new_benefits_list = []
+        print('step 1')
+        existing_benefits = Benefit.objects.filter(name__in=other_benefit_list)
+        print('step 2')
+        for existing in existing_benefits:
+            other_beneft_list.remove(existing.name)
+        print('step 3')
+        for benefit in other_benefit_list:
+            new_benefit = Benefit.objects.create(name=benefit.strip(),
+                                   author=self.request.user,
+                                   source = self.company,
+            )
+            new_benefits_list.append(new_benefit)
+        print('step 4')
+        return chain(new_benefits_list, existing_benefits)
+
+        
+
 class SalaryForm(forms.ModelForm):
-    other = forms.CharField(label='Inne benefity',
-                            help_text='Opcjonalnie, wymień po przecinku inne benefity poza tymi na liście')
+    other = CensoredField(label='Inne benefity',
+                            help_text='Opcjonalnie, wymień po przecinku inne benefity, które Ci przysługują poza tymi na liście')
     
     class Meta:
         model = Salary
@@ -207,21 +230,25 @@ class SalaryForm(forms.ModelForm):
 
         help_texts = {
             'comments': 'Wszelkie uwagi, które dodatkowo określają charakter otrzymywanego wynagrodznia. Uwagi te nie zostaną opublikowane',
+            'benefits': 'Zaznacz benefity, które Ci przysługują',
             }
 
 
     def __init__(self, request, company, *args, **kwargs):
         """
         Override to avoid displaying 'required' asterics next to
-        certain fields.
+        certain fields and limit options displayed in 'benefits'
+        field to core and those previously mentioned for 
+        the company.
         """
         super().__init__(*args, **kwargs)
         self.request = request
         self.company = company
-        #chose only core items or relevant to the company
+        #choose only core items or relevant to the company
+        extra_benefits = self.company.benefits
         self.fields['benefits'].queryset = Benefit.objects.filter(
-            Q(core=True) | Q(source=self.company)
-            )
+            Q(core=True) | Q(pk__in=extra_benefits)
+            ) #display only 20 items
                                                                
         self.fields['period'].required = False
         #self.fields['gross_net'].required = False
@@ -229,16 +256,34 @@ class SalaryForm(forms.ModelForm):
         #self.fields['bonus_gross_net'].required = False
         self.fields['other'].required = False
 
-    """
-    def save(self, *args, **kwargs):
+
+    def clean_other(self):
         other_benefit_list = self.cleaned_data['other'].split(',')
+        new_benefits_list = []
+        existing_benefits = Benefit.objects.filter(name__in=other_benefit_list)
+        for existing in existing_benefits:
+            other_benefit_list.remove(existing.name)
         for benefit in other_benefit_list:
-            Benefit.objects.create(name=benefit.strip(),
+            new_benefit = Benefit.objects.create(name=benefit.strip(),
                                    author=self.request.user,
-                                   source = self.company,
             )
-        super().save(*args, **kwargs)
-    """
+            new_benefits_list.append(new_benefit)
+        return chain(new_benefits_list, existing_benefits)
+
+
+
+ 
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'other' in cleaned_data.keys():
+            benefits = cleaned_data['benefits']
+            other = cleaned_data['other']
+            cleaned_data['benefits'] = chain(benefits, other)
+        return cleaned_data
+
+    
+
+
 
 
 class InterviewForm(forms.ModelForm):
