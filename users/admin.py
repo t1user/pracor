@@ -20,7 +20,7 @@ class SocialDjangoInline(admin.StackedInline):
         return False
 
 
-class PositionInline(admin.StackedInline):
+class PositionInline(admin.TabularInline):
     model = Position
     extra = 0
     raw_id_fields = ('company',)
@@ -61,7 +61,7 @@ class ProfileInline(admin.StackedInline):
         ('Pola linkedin', {
             'classes': ('collapse',),
             'fields': ('linkedin_id', 'linkedin_url'),
-        }),
+            }),
     )
     list_filter = ('contributed',)
 
@@ -72,11 +72,9 @@ class UserAdmin(DjangoUserAdmin):
 
     inlines = (ProfileInline, SocialDjangoInline, PositionInline,
                ReviewInline, SalaryInline, InterviewInline)
+    readonly_fields = ('last_login', 'date_joined')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {
-            'classes': ('collapse',),
-            'fields': ('first_name', 'last_name',)}),
         (_('Permissions'), {
             'classes': ('collapse',),
             'fields': ('is_active', 'is_staff', 'is_superuser',

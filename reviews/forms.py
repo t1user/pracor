@@ -102,6 +102,11 @@ class PositionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        #request and company are required by Salary form and obsolete here
+        if 'request' in kwargs:
+            kwargs.pop('request')
+        if 'company' in kwargs:
+            kwargs.pop('company')
         super().__init__(*args, **kwargs)
         self.fields['position'].widget.attrs['class'] = 'auto-position'
         self.fields['department'].widget.attrs['class'] = 'auto-position'
@@ -171,27 +176,6 @@ class ReviewForm(forms.ModelForm):
         self.fields['cons'].validators.append(TextLengthValidator(min_length))
 
 
-class OtherBenefitsField(CensoredField):
-    def to_python(self, value):
-        other_benefit_list = value.split(',')
-        new_benefits_list = []
-        print('step 1')
-        existing_benefits = Benefit.objects.filter(name__in=other_benefit_list)
-        print('step 2')
-        for existing in existing_benefits:
-            other_beneft_list.remove(existing.name)
-        print('step 3')
-        for benefit in other_benefit_list:
-            new_benefit = Benefit.objects.create(name=benefit.strip(),
-                                   author=self.request.user,
-                                   source = self.company,
-            )
-            new_benefits_list.append(new_benefit)
-        print('step 4')
-        return chain(new_benefits_list, existing_benefits)
-
-        
-
 class SalaryForm(forms.ModelForm):
     other = CensoredField(label='Inne benefity',
                             help_text='Opcjonalnie, wymień po przecinku inne benefity, które Ci przysługują poza tymi na liście')
@@ -248,7 +232,7 @@ class SalaryForm(forms.ModelForm):
         extra_benefits = self.company.benefits
         self.fields['benefits'].queryset = Benefit.objects.filter(
             Q(core=True) | Q(pk__in=extra_benefits)
-            ) #display only 20 items
+            )
                                                                
         self.fields['period'].required = False
         #self.fields['gross_net'].required = False
@@ -264,7 +248,10 @@ class SalaryForm(forms.ModelForm):
         for existing in existing_benefits:
             other_benefit_list.remove(existing.name)
         for benefit in other_benefit_list:
-            new_benefit = Benefit.objects.create(name=benefit.strip(),
+            benefit = benefit.strip()
+            if benefit == '':
+                continue
+            new_benefit = Benefit.objects.create(name=benefit,
                                    author=self.request.user,
             )
             new_benefits_list.append(new_benefit)

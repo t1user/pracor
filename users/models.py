@@ -63,7 +63,7 @@ class User(AbstractUser):
 class Profile(models.Model):
     class Meta:
         verbose_name = "Profil"
-        verbose_name_plural = "Profile"
+        verbose_name_plural = "Profil"
         
     SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
     career_year = range(2017, 1959, -1)
@@ -77,6 +77,7 @@ class Profile(models.Model):
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)
+    
     linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
     linkedin_url = models.URLField(null=True, blank=True)
     visited_companies = models.ManyToManyField(Company, through='Visit')

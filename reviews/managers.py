@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Avg, Max, Min, Count, Aggregate
+from django.db.models import Avg, Max, Min, Count, Sum, Aggregate, F
 from django.contrib.postgres.aggregates.general import StringAgg
 
 class ArrayAgg(Aggregate):
@@ -36,6 +36,10 @@ class SalaryManager(SelectedManager):
     use_for_related_fields = True
 
     def groups(self, **kwargs):
+
+        def benefits(list):
+            return  [a.name for a in self.filter(pk__in=list)]
+        
         return self.selected(**kwargs).values(
             'position__position',
             'position__location',
@@ -59,7 +63,16 @@ class SalaryManager(SelectedManager):
             bonus_annual_count = Count('bonus_gross_annual'),
             #distinct=True available only in Django2.0, that's why ArrayAgg is overriden
             bonus_periods = ArrayAgg('bonus_period', distinct=True),
-            benefits = StringAgg('benefits__name', distinct=True, delimiter=', '),
+            #benefits = Sum('benefits'),
+            #benefits =  StringAgg('benefits__name', distinct=True, delimiter=', '),
+            object_list = ArrayAgg('id'),
+            #benefits=[a.benefits.all() for a in self.filter(pk__in=ArrayAgg('id'))]
+        )
+
+    def benefits(self, **kwargs):
+        return self.groups(**kwargs).annotate(
+            benefits=[a.benefits.all() for a in self.filter(pk__in=F('object_list'))]
+            #=  StringAgg('benefits__name', distinct=True, delimiter=', '),
         )
 
 

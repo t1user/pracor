@@ -6,7 +6,7 @@ from django.utils import timezone
 from .models import Company, Interview, Position, Review, Salary, Benefit
 
 
-admin.site.site_header = 'pracr - administracja'
+admin.site.site_header = 'pracor - administracja'
 
 #myModels = [Position]
 
