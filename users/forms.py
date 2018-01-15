@@ -74,7 +74,7 @@ class CreateProfileForm_profile(forms.ModelForm):
     
     class Meta:
         model = Profile
-        fields = ['sex', 'career_start_year']
+        fields = ['sex', 'career_start_year', 'education']
 
         widgets = {
             'sex': forms.RadioSelect()

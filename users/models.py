@@ -68,6 +68,17 @@ class Profile(models.Model):
     SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
     career_year = range(2017, 1959, -1)
     CAREER_YEAR = [(i, i) for i in career_year]
+    EDU = [
+        ('A', 'wyższe'),
+        ('A0', 'student'),
+        ('A1', 'MBA'),
+        ('A2', 'stopień naukowy'),
+        ('A3', 'inne podyplomowe'),
+        ('B', 'średnie'),
+        ('C', 'gimnazjalne'),
+        ('D', 'zasadnicze'),
+        ('E', 'podstawowe'),
+        ]
     
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE, editable=False)
@@ -77,7 +88,9 @@ class Profile(models.Model):
     career_start_year = models.PositiveIntegerField("rok rozpoczęcia kariery",
                                                     choices=CAREER_YEAR,
                                                     null=True, blank=True)
-    
+    education = models.CharField("wykształcenie",
+                                 max_length=2, choices=EDU, default=None,
+                                 blank=True, null=True)
     linkedin_id = models.CharField(max_length= 10, null=True, blank=True)
     linkedin_url = models.URLField(null=True, blank=True)
     visited_companies = models.ManyToManyField(Company, through='Visit')
