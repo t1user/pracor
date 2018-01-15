@@ -92,8 +92,11 @@ class Company(ApprovableModel):
     
     @property
     def salaries(self):
-        return Salary.objects.groups(
-            company=self.pk).order_by('-salary_count')
+        return Salary.objects.groups(company=self.pk).order_by('-salary_count')
+
+    @property
+    def salaries_count(self):
+        return len(Salary.objects.groups(company=self.pk))
 
     @property
     def sum_salaries(self):

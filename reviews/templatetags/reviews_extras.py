@@ -1,5 +1,6 @@
 from django import template
 from reviews.models import Review, Salary
+from django.contrib.postgres.aggregates.general import StringAgg
 
 register = template.Library()
 
@@ -195,3 +196,15 @@ def max_slider(obj, item):
 @register.filter('count_slider')
 def count_slider(obj, item):
     return obj[item+'_count']
+
+
+@register.filter('benefits')
+def benefits(obj_list):
+    """
+    Return string of all Benefit names related to the Salaries, 
+    whose id's are passed in obj_list.
+    """
+    return(Salary.objects.filter(
+        id__in=obj_list).aggregate(list=StringAgg(
+            'benefits__name', distinct=True, delimiter = ', '))['list'])
+

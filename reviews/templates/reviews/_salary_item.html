@@ -126,8 +126,9 @@
 {% endif %}
 
 
-
-{% if object.benefits %}
+{% with list=object.salary_object_list|benefits %}
+{% if list %}
 <h5>Benefity</h5>
-{{ object.benefits }}
+{{ list }}
 {% endif %}
+{% endwith %}

@@ -36,10 +36,14 @@ class SalaryManager(SelectedManager):
     use_for_related_fields = True
 
     def groups(self, **kwargs):
+        """
+        This is what is presented for Company.salaries.
 
-        def benefits(list):
-            return  [a.name for a in self.filter(pk__in=list)]
-        
+        Groups lack benefits - many to many field
+        (they are fetched separately in a template filter),
+        because adding this annotation screws up Count to include 
+        the number of m2m fields in salary_count.
+        """
         return self.selected(**kwargs).values(
             'position__position',
             'position__location',
@@ -48,34 +52,25 @@ class SalaryManager(SelectedManager):
             'contract_type',
             'currency',
             'period',
-        ).annotate(
-            salary_min = Min('salary_gross_input_period'),
-            salary_avg = Avg('salary_gross_input_period', output_field=models.IntegerField()),
-            salary_max = Max('salary_gross_input_period'),
-            salary_count = Count('salary_gross_input_period'),
-            bonus_min = Min('bonus_gross_input_period'),
-            bonus_avg = Avg('bonus_gross_input_period', output_field=models.IntegerField()),
-            bonus_max = Max('bonus_gross_input_period'),
-            bonus_count = Count('bonus_gross_input_period'),
-            bonus_annual_min = Min('bonus_gross_annual'),
-            bonus_annual_avg = Avg('bonus_gross_annual'),
-            bonus_annual_max = Max('bonus_gross_annual'),
-            bonus_annual_count = Count('bonus_gross_annual'),
-            #distinct=True available only in Django2.0, that's why ArrayAgg is overriden
-            bonus_periods = ArrayAgg('bonus_period', distinct=True),
-            #benefits = Sum('benefits'),
-            #benefits =  StringAgg('benefits__name', distinct=True, delimiter=', '),
-            object_list = ArrayAgg('id'),
-            #benefits=[a.benefits.all() for a in self.filter(pk__in=ArrayAgg('id'))]
+            ).annotate(
+                salary_min = Min('salary_gross_input_period'),
+                salary_avg = Avg('salary_gross_input_period', output_field=models.IntegerField()),
+                salary_max = Max('salary_gross_input_period'),
+                salary_count = Count('salary_gross_input_period'),
+                bonus_min = Min('bonus_gross_input_period'),
+                bonus_avg = Avg('bonus_gross_input_period', output_field=models.IntegerField()),
+                bonus_max = Max('bonus_gross_input_period'),
+                bonus_count = Count('bonus_gross_input_period'),
+                bonus_annual_min = Min('bonus_gross_annual'),
+                bonus_annual_avg = Avg('bonus_gross_annual'),
+                bonus_annual_max = Max('bonus_gross_annual'),
+                bonus_annual_count = Count('bonus_gross_annual'),
+                #distinct=True available only in Django2.0, that's why ArrayAgg is overriden
+                bonus_periods = ArrayAgg('bonus_period', distinct=True),
+                salary_object_list = ArrayAgg('id', distinct=True)
         )
 
-    def benefits(self, **kwargs):
-        return self.groups(**kwargs).annotate(
-            benefits=[a.benefits.all() for a in self.filter(pk__in=F('object_list'))]
-            #=  StringAgg('benefits__name', distinct=True, delimiter=', '),
-        )
-
-
+    
     def sums(self, **kwargs):
         """
         Return average, min and max of all annual salaries in the company.
