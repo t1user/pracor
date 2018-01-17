@@ -42,20 +42,36 @@ h1 {
 .message-stripe {
     background-color: #d9d9d9;
     box-shadow: none;
-    margin-bottom: 0;
     padding-bottom: 0;
     padding-top: 0;
+
 }
 
-
+.messages {
+    margin: 0;
+}
 .message-stripe li {
     list-style-type: none;
     font-style: italic;
-    color:  rgb(30, 174, 219);
     /*color: #0CAA41;*/
-    font-size: 2.2rem;
+    font-size: 2rem;
     letter-spacing: 0.2rem;
 }
+
+/* styling for different type of message tags */
+.success {
+    color:  rgb(30, 174, 219);
+}
+
+.info {
+    color: #0CAA41
+}
+
+.warning {
+    color: red;
+}
+
+/* end styling for message tags */
 
 footer {
     position: absolute;

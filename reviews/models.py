@@ -209,7 +209,7 @@ class Position(models.Model):
             user = self.user.email
         else:
             user = ''
-        return '{} - {} - {}'.format(self.position, company, user)
+        return 'id {} - {} - {} - {}'.format(self.id, self.position, company, user)
 
 
 class Review(ApprovableModel):
@@ -219,9 +219,10 @@ class Review(ApprovableModel):
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
-    position = models.ForeignKey(Position, verbose_name='stanowisko',
+    #null=True to keep Review when Position is deleted
+    position = models.OneToOneField(Position, verbose_name='stanowisko',
                                  on_delete=models.SET_NULL,
-                                 null=True, blank=True, editable=False)
+                                 null=True, editable=False)
     title = models.CharField('tytuł', max_length=100)
     pros = models.TextField('zalety')
     cons = models.TextField('wady')
@@ -296,9 +297,9 @@ class Salary(ApprovableModel):
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
-    position = models.ForeignKey(Position, verbose_name="stanowisko",
+    position = models.OneToOneField(Position, verbose_name="stanowisko",
                                  on_delete=models.SET_NULL,
-                                 null=True, blank=True, editable=False)
+                                 null=True, editable=False)
 
     currency = models.CharField('waluta', max_length=3, default='PLN')
     salary_input = models.PositiveIntegerField('pensja')

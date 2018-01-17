@@ -1,4 +1,5 @@
 import hashlib
+import datetime
 from pprint import pprint
 
 from django.conf import settings
@@ -16,6 +17,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 from django.views.generic.detail import SingleObjectMixin
 from django.db import models
 from django.db.models import Q, F
+from django.utils import timezone
 
 from users.models import Visit
 
@@ -26,11 +28,17 @@ from .models import Company, Interview, Position, Review, Salary
 
 def success_message(request):
     """
-    Used to display flash message after succesful submission of a form
+    Used to display flash message after succesful submission of a form.
     """
     messages.add_message(request, messages.SUCCESS, 'Zapisano dane. Dzięki!')
 
-
+def failure_message(request, item, days):
+    """
+    Used to display flash message informing that user cannot submit data.
+    """
+    messages.add_message(request, messages.WARNING,
+                         'Już mamy Twoje dane! {} dla tej firmy możesz ponownie dodać za {} dni.'.format(item, days))
+    
 class AccessBlocker(UserPassesTestMixin):
     """
     Works with UserPassesTestMixin to block access to certain views for users
@@ -344,9 +352,59 @@ class CompanyDelete(LoginRequiredMixin, SuperuserAccessBlocker, DeleteView):
     success_url = reverse_lazy('home')
 
 
+class TokenVerifyMixin:
+    """
+    Prevent resubmission of the same form. After saving form data, store
+    hashed csrf in session. On form submission check its csrf against the one
+    stored in session.
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Check for resubmission of the same form.
+        """
+        if self.check_token():
+            self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+            return redirect(self.company)
+        return super().post(request, *args, **kwargs)
+
+    def hash_token(self):
+        """
+        Get csrf token and hash it. 
+        Hashing is probably unnessesary, but what the hell...
+        """
+        token = self.request.POST.get('csrfmiddlewaretoken')
+        hash = hashlib.sha1(token.encode('utf-8')).hexdigest()
+        return hash
+
+    def save_token(self):
+        """
+        Store hashed csrf token in session, so that track can be kept on which
+        forms have already been saved to database. Allows for prevention of
+        multiple submissions of the same form.
+        """
+        self.request.session['token'] = self.hash_token()
+
+    def check_token(self):
+        """
+        Compare csrf token with the one stored in session.
+        """
+        token = self.hash_token()
+        stored_token = self.request.session.get('token')
+        if token == stored_token:
+            return True
+
+    def form_valid(self, *args, **kwargs):
+        """
+        Store hashed csrf token in session.
+        """
+        self.save_token()
+        return super().form_valid(*args, **kwargs)
+
+
 class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
     """
-    Creates custom CreateView class to be inherited by views creating
+    Custom CreateView class to be inherited by views creating
     Reviews and Salaries. On top of standard CreateView functionality
     allows for rendering and processing of an additional form,
     which creates or recalls correct Position object.
@@ -364,13 +422,13 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         )
         return results
 
+
     def get_context_data(self, **kwargs):
         """
         Add  Company object to context as well as second
         form called 'position_form'.
         """
         context = super().get_context_data(**kwargs)
-        self.company = get_object_or_404(Company, pk=self.kwargs['id'])
         context['company'] = self.company
         context['form'].instance.company = self.company
         if 'position_form' not in kwargs and self.two_forms():
@@ -383,16 +441,28 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         """
         If user has a position associated with the Company they're trying to review,
         this Position instance should be associated with the review.
-        TODO:
-        PROPERLY HANDLE MORE THAN ONE POSITION INSTANCE.
         """
         position_instance = Position.objects.filter(company=self.company,
                                                     user=self.request.user)
         if position_instance:
             return position_instance[position_instance.count() - 1]
 
+    def test_position(self, position):
+        """
+        Test if there exists a valid (less than 90 days old) item (Salary or Review) 
+        for the existing position.
+        """
+        if position:
+            item = self.form_class.Meta.model.objects.filter(position=position)[0]
+            days = timezone.now() - item.date - datetime.timedelta(days=90)
+            if days.days < 0:
+                self.days_until_next = -days.days
+                return True
+            return False
+            
     def two_forms(self):
-        if self.get_position_instance():
+        if self.get_position_instance() \
+           and self.test_position(self.get_position_instance()):
             return False
         else:
             return True
@@ -404,6 +474,21 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         """
         return self.position_form_class(**self.get_form_kwargs())
 
+    def get(self, request, *args, **kwargs):
+        """
+        Check if user is allowed to post this content, ie there should
+        be only one Salary or Review for every Position.
+        """
+        self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        #if a content item (salary or review) already exists for this position
+        #and its newer than 90 days don't allow to proceed
+        if self.get_position_instance() and self.test_position(self.get_position_instance()):
+            failure_message(self.request,
+                            self.form_class.Meta.model._meta.verbose_name_plural,
+                            self.days_until_next)
+            return redirect(self.company)
+        return super().get(request, *args, **kwargs)
+    
     def post(self, request, *args, **kwargs):
         """
         Instantiate two forms with passed POST data and validate them.
@@ -463,56 +548,6 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
             return super().form_invalid(form, **kwargs)
 
 
-class TokenVerifyMixin:
-    """
-    Prevent resubmission of the same form. After saving form data, store
-    hashed csrf in session. On form submission check its csrf against the one
-    stored in session.
-    """
-
-    def post(self, request, *args, **kwargs):
-        """
-        Check for resubmission of the same form.
-        """
-        if self.check_token():
-            self.company = get_object_or_404(Company, pk=self.kwargs['id'])
-            return redirect(self.company)
-        return super().post(request, *args, **kwargs)
-
-    def hash_token(self):
-        """
-        Get csrf token and hash it. 
-        Hashing is probably unnessesary, but what the hell...
-        """
-        token = self.request.POST.get('csrfmiddlewaretoken')
-        hash = hashlib.sha1(token.encode('utf-8')).hexdigest()
-        return hash
-
-    def save_token(self):
-        """
-        Store hashed csrf token in session, so that track can be kept on which
-        forms have already been saved to database. Allows for prevention of
-        multiple submissions of the same form.
-        """
-        self.request.session['token'] = self.hash_token()
-
-    def check_token(self):
-        """
-        Compare csrf token with the one stored in session.
-        """
-        token = self.hash_token()
-        stored_token = self.request.session.get('token')
-        if token == stored_token:
-            return True
-
-    def form_valid(self, *args, **kwargs):
-        """
-        Store hashed csrf token in session.
-        """
-        self.save_token()
-        return super().form_valid(*args, **kwargs)
-
-
 class ReviewCreate(TokenVerifyMixin, ContentCreateAbstract):
     form_class = ReviewForm
     template_name = "reviews/review_form.html"
@@ -533,13 +568,6 @@ class SalaryCreate(TokenVerifyMixin, ContentCreateAbstract):
             'company': self.company,
             })
         return kwargs
-
-    def get(self, request, *args, **kwargs):
-        """
-        self.company is required by self.get_form_kwargs()
-        """
-        self.company = get_object_or_404(Company, pk=self.kwargs['id'])
-        return super().get(request, *args, **kwargs)
 
 class InterviewCreate(LoginRequiredMixin, TokenVerifyMixin, CreateView):
     form_class = InterviewForm

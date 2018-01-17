@@ -101,7 +101,7 @@ class CompanyAdmin(ModelAdminModified):
 
 @admin.register(Review)
 class ReviewAdmin(ModelAdminModified):
-    list_display = ('id', 'title', 'company', 'approved', 'reviewer')
+    list_display = ('id', 'title', 'company', 'position', 'approved', 'reviewer')
     list_display_links = ('id', 'title',)
     readonly_fields = ('date', 'id', 'overallscore',
                        'worklife', 'advancement', 'compensation',
@@ -176,7 +176,7 @@ class InterviewAdmin(ModelAdminModified):
 class PositionAdmin(admin.ModelAdmin):
     list_display = ('user', 'company', 'position', 'department', 'location', )
     search_fields = ('user__email', 'company__name',)
-    readonly_fields = ('user', 'company',)
+    readonly_fields = ('user', 'company', 'date')
 
 
 @admin.register(admin.models.LogEntry)
