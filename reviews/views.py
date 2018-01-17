@@ -453,7 +453,9 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         for the existing position.
         """
         if position:
-            item = self.form_class.Meta.model.objects.filter(position=position)[0]
+            item = self.form_class.Meta.model.objects.filter(position=position)
+            if item:
+                item=item[0]
             days = timezone.now() - item.date - datetime.timedelta(days=90)
             if days.days < 0:
                 self.days_until_next = -days.days
@@ -573,6 +575,24 @@ class InterviewCreate(LoginRequiredMixin, TokenVerifyMixin, CreateView):
     form_class = InterviewForm
     model = Interview
 
+    def get(self, request, *args, **kwargs):
+        """
+        Check if user is allowed to post, ie. has not posted Interview
+        for this Company in the last 90 days.
+        """
+        company = get_object_or_404(Company, pk=self.kwargs['id'])
+        item = Interview.objects.filter(company=company,
+                                        user=request.user)
+        if item:
+            item=item[0]
+            days = timezone.now() - item.date - datetime.timedelta(days=90)
+            if days.days < 0:
+                days_until_next = -days.days
+                failure_message(self.request, 'Raport z rozmowy',
+                                days_until_next)
+                return redirect(company)
+        return super().get(request, *args, **kwargs)
+        
     def form_valid(self, form):
         form.instance.company = get_object_or_404(
             Company, pk=self.kwargs['id'])
