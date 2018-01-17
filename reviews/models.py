@@ -171,8 +171,7 @@ class Position(models.Model):
 
 
     date = models.DateTimeField(auto_now_add=True, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
-                             on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # company_name used to store name before entry is associated with
     # Company database record
     company_name = models.CharField(max_length=100, null=True, blank=True)
@@ -180,7 +179,7 @@ class Position(models.Model):
         max_length=25, null=True, blank=True)
     # company used to associate position with Company database record, blank
     # before the association
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL,
+    company = models.ForeignKey(Company, on_delete=models.CASCADE,
                                 blank=True, null=True)
     linkedin_id = models.PositiveIntegerField(blank=True, null=True)
     location = models.CharField(max_length=50, null=True)
@@ -219,10 +218,8 @@ class Review(ApprovableModel):
     date = models.DateTimeField('data', auto_now_add=True, editable=False)
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
-    #null=True to keep Review when Position is deleted
     position = models.OneToOneField(Position, verbose_name='stanowisko',
-                                 on_delete=models.SET_NULL,
-                                 null=True, editable=False)
+                                 on_delete=models.CASCADE, editable=False)
     title = models.CharField('tytuł', max_length=100)
     pros = models.TextField('zalety')
     cons = models.TextField('wady')
@@ -266,7 +263,7 @@ class Benefit(ApprovableModel):
     name = models.CharField(max_length=100, unique=True)
     core = models.BooleanField(default=False)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               on_delete=models.CASCADE, related_name='created_by')
+                               on_delete=models.SET_NULL, null=True, related_name='created_by')
 
     class Meta:
         verbose_name = 'benefit'
@@ -298,8 +295,8 @@ class Salary(ApprovableModel):
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
     position = models.OneToOneField(Position, verbose_name="stanowisko",
-                                 on_delete=models.SET_NULL,
-                                 null=True, editable=False)
+                                    on_delete=models.CASCADE,
+                                    editable=False)
 
     currency = models.CharField('waluta', max_length=3, default='PLN')
     salary_input = models.PositiveIntegerField('pensja')
@@ -473,9 +470,10 @@ class Interview(ApprovableModel):
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
 
-    company = models.ForeignKey(Company,
-                                on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE, related_name='user')
     position = models.CharField('stanowisko',
                                 max_length=100)
     department = models.CharField('departament',

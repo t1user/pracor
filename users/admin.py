@@ -69,9 +69,9 @@ class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no email field."""
 
     inlines = (ProfileInline, SocialDjangoInline, PositionInline,)
-    readonly_fields = ('last_login', 'date_joined')
+    readonly_fields = ('last_login', 'date_joined', 'id')
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
+        (None, {'fields': ('email', 'password', 'id')}),
         (_('Permissions'), {
             'classes': ('collapse',),
             'fields': ('is_active', 'is_staff', 'is_superuser',

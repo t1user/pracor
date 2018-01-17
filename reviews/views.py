@@ -576,6 +576,7 @@ class InterviewCreate(LoginRequiredMixin, TokenVerifyMixin, CreateView):
     def form_valid(self, form):
         form.instance.company = get_object_or_404(
             Company, pk=self.kwargs['id'])
+        form.instance.user = self.request.user
         success_message(self.request)
         return super().form_valid(form)
 

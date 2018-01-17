@@ -159,16 +159,16 @@ class SalaryAdmin(ModelAdminModified):
 
 @admin.register(Interview)
 class InterviewAdmin(ModelAdminModified):
-    list_display = ('id', 'company', 'rating',
+    list_display = ('id', 'company', 'rating', 'user',
                     'got_offer', 'approved', 'reviewer')
     list_display_links = ('id', 'company')
     search_fields = ['company__name']
     radio_fields = {'difficulty': admin.HORIZONTAL}
     readonly_fields = ('date', 'company', 'reviewer',
-                       'reviewed_date', 'rating')
+                       'reviewed_date', 'rating', 'user')
     fieldsets = (
         (None, {
-            'fields': ('date', 'company', 'position', 'department', 'how_got', 'got_offer',
+            'fields': ('user', 'date', 'company', 'position', 'department', 'how_got', 'got_offer',
                        'difficulty', 'questions', 'impressions', 'rating'), }),
         ModelAdminModified.approval,
     )
