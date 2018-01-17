@@ -18,33 +18,27 @@ class SocialDjangoInline(admin.StackedInline):
 
     def has_add_permission(self, request):
         return False
-
-
-class PositionInline(admin.TabularInline):
+    
+    
+class PositionInline(admin.StackedInline):
     model = Position
     extra = 0
     raw_id_fields = ('company',)
-    readonly_fields = ('date',)
+    show_change_link = True
+    readonly_fields = ('items',)
 
-
-class ReviewInline(PositionInline):
-    model = Review
-    formfield_overrides = {
-        models.CharField: {'widget': TextInput(attrs={'size': 60})},
-        models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 60})}
-    }
-
-
-class SalaryInline(PositionInline):
-    model = Salary
-
-    """
-    def get_queryset(self, request):
-        return self.model.objects.filter(position__user=obj)
-    """
-
-class InterviewInline(PositionInline):
-    model = Interview
+    def items(self, obj):
+        review = Review.objects.filter(position=obj)
+        salary = Salary.objects.filter(position=obj)
+        if review:
+            review=' opinia: {}'.format(review[0])
+        else:
+            review=''
+        if salary:
+            salary=' zarobki: {}'.format(salary[0])
+        else:
+            salary=''
+        return str(review) + str(salary)
 
 
 class VisitInline(admin.TabularInline):
@@ -74,8 +68,7 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no email field."""
 
-    inlines = (ProfileInline, SocialDjangoInline, PositionInline,
-               ReviewInline, SalaryInline, InterviewInline)
+    inlines = (ProfileInline, SocialDjangoInline, PositionInline,)
     readonly_fields = ('last_login', 'date_joined')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),

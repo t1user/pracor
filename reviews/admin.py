@@ -37,15 +37,17 @@ class ItemInline(admin.TabularInline):
 
 class ReviewInline(ItemInline):
     model = Review
-
+    show_change_link = True
 
 class SalaryInline(ItemInline):
     model = Salary
     readonly_fields = ('benefits',)
+    show_change_link = True
 
 
 class InterviewInline(ItemInline):
     model = Interview
+    show_change_link = True
 
 
 @admin.register(Company)
@@ -176,6 +178,7 @@ class InterviewAdmin(ModelAdminModified):
 class PositionAdmin(admin.ModelAdmin):
     list_display = ('user', 'company', 'position', 'department', 'location', )
     search_fields = ('user__email', 'company__name',)
+    inlines = (ReviewInline, SalaryInline)
     readonly_fields = ('user', 'company', 'date')
 
 
