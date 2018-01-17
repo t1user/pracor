@@ -18,7 +18,7 @@ class SocialDjangoInline(admin.StackedInline):
 
     def has_add_permission(self, request):
         return False
-    
+
     
 class PositionInline(admin.StackedInline):
     model = Position
@@ -40,7 +40,20 @@ class PositionInline(admin.StackedInline):
             salary=''
         return str(review) + str(salary)
 
+class InterviewInline(admin.TabularInline):
+    model = Interview
+    extra = 0
+    fk_name = 'user'
+    raw_id_fields = ('company',)
+    show_change_link = True
 
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size': 20})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 20})}
+    }
+
+
+    
 class VisitInline(admin.TabularInline):
     model = Visit
     classes = ('collapse',)
@@ -68,7 +81,7 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no email field."""
 
-    inlines = (ProfileInline, SocialDjangoInline, PositionInline,)
+    inlines = (ProfileInline, SocialDjangoInline, PositionInline, InterviewInline)
     readonly_fields = ('last_login', 'date_joined', 'id')
     fieldsets = (
         (None, {'fields': ('email', 'password', 'id')}),
