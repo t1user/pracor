@@ -29,7 +29,7 @@ class ModelAdminModified(admin.ModelAdmin):
 class ItemInline(admin.TabularInline):
     classes = ('collapse',)
     extra = 0
-    exclude = ('approved', 'reviewer', 'reviewed_date',)
+    exclude = ('reviewer', 'reviewed_date',)
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 30})}
     }
@@ -41,6 +41,7 @@ class ReviewInline(ItemInline):
 
 class SalaryInline(ItemInline):
     model = Salary
+    readonly_fields = ('benefits',)
 
 
 class InterviewInline(ItemInline):

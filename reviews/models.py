@@ -166,6 +166,9 @@ class Position(models.Model):
     YEARS_E.insert(0, (0, 'obecnie'))
     months = range(1, 13)
     MONTHS = [(i, '{:02}'.format(i)) for i in months]
+    MONTHS_E = MONTHS[:]
+    MONTHS_E.insert(0, ('', '--'))
+
 
     date = models.DateTimeField(auto_now_add=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
@@ -183,14 +186,10 @@ class Position(models.Model):
     location = models.CharField(max_length=50, null=True)
     position = models.CharField(max_length=100)
     department = models.CharField(max_length=100, blank=True, null=True)
-    start_date_month = models.PositiveIntegerField(null=True,
-                                                   choices=MONTHS, default=None)
-    start_date_year = models.PositiveIntegerField(null=True,
-                                                  choices=YEARS, default=None)
-    end_date_month = models.PositiveIntegerField(null=True,
-                                                   choices=MONTHS, default=None)
-    end_date_year = models.PositiveIntegerField(null=True,
-                                                  choices=YEARS_E, default=None)
+    start_date_month = models.PositiveIntegerField(choices=MONTHS)
+    start_date_year = models.PositiveIntegerField(choices=YEARS)
+    end_date_month = models.PositiveIntegerField(null=True, blank=True, choices=MONTHS_E)
+    end_date_year = models.PositiveIntegerField(choices=YEARS_E)
     employment_status = models.CharField(max_length=1,
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')

@@ -171,7 +171,7 @@ class ReviewForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        min_length = 20
+        min_length = 20 #number of words required in the field
         self.fields['pros'].validators.append(TextLengthValidator(min_length))
         self.fields['cons'].validators.append(TextLengthValidator(min_length))
 

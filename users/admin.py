@@ -38,6 +38,10 @@ class ReviewInline(PositionInline):
 class SalaryInline(PositionInline):
     model = Salary
 
+    """
+    def get_queryset(self, request):
+        return self.model.objects.filter(position__user=obj)
+    """
 
 class InterviewInline(PositionInline):
     model = Interview

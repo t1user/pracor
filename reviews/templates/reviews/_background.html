@@ -6,7 +6,7 @@
     <div>{{ object.position.location|title }} |&nbsp;</div>
     <div>{{ object.position.get_employment_status_display }} |&nbsp;</div>
     <div>
-    {% if object.position.end_date_year == 0 %}
+    {% if object.position.end_date_year %}
     były pracownik
     {% else %}
     obecny pracownik
