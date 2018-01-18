@@ -474,10 +474,8 @@ class Interview(ApprovableModel):
     date = models.DateTimeField(auto_now_add=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, related_name='user')
-    position = models.CharField('stanowisko',
-                                max_length=100)
-    department = models.CharField('departament',
-                                  max_length=100, blank=True)
+    position = models.CharField('stanowisko', max_length=100)
+    department = models.CharField('departament', max_length=100, blank=True)
     how_got = models.CharField('droga do interview',
                                max_length=1, choices=HOW_GOT, default=None)
     difficulty = models.PositiveIntegerField('trudność',

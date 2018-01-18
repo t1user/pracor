@@ -315,3 +315,11 @@ class InterviewForm(forms.ModelForm):
             'impressions': 'Pozytywne i negatywne strony procesu rekrutacyjnego.',
             'rating': 'Jak oceniasz całość doświadczenia rekrutacyjnego w firmie.',
             }
+
+
+    def clean_position(self):
+        return self.cleaned_data['position'].title()
+
+    def clean_department(self):
+        if self.cleaned_data['department']:
+            return self.cleaned_data['department'].title()
