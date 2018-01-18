@@ -15,8 +15,7 @@ from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView, RedirectView)
 from django.views.generic.detail import SingleObjectMixin
-from django.db import models
-from django.db.models import Q, F
+from django.db.models import Q
 from django.utils import timezone
 
 from users.models import Visit
@@ -162,11 +161,13 @@ class CompanySearchView(AjaxViewMixin, CompanySearchBase):
 class NoSlugRedirectMixin:
     """
     If view called by GET without a slug, redirect to url with slug. Otherwise, ignore.
-    Must be inherited by a CBV, which implements get_object() method.
+    Must be inherited by a CBV with get, which: 1. sets self.object 2. returns self.no_slug().
     """
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
+    def no_slug(self, request, *args, **kwargs):
+        """
+        Check if view has been called with proper slug, if not redirect.
+        """
         if kwargs.pop('slug') != self.object.slug:
             #preserve GET parameters if any
             args = request.META.get('QUERY_STRING', '')
@@ -190,6 +191,13 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
     template_name = 'reviews/company_view.html'
     context_object_name = 'company'
 
+    def get(self, request, *args, **kwargs):
+        """
+        Required to implement NoSlugRedirectMixin.
+        """
+        self.object = self.get_object()
+        return self.no_slug(request, *args, **kwargs)
+    
     def get_context_data(self, **kwargs):
         """
         Record visit and
@@ -218,7 +226,7 @@ class CompanyItemsRedirectView(RedirectView):
     pass
 
 
-class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker,
+class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
                            SingleObjectMixin,  ListView):
     """
     Abstract base class for displaying lists of Review, Salary, Interview.
@@ -233,23 +241,10 @@ class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker,
     def get(self, request, *args, **kwargs):
         """
         Provide Company object for SingleObjectMixin. Redirect if called
-        without slug. Cannot inherit NoSlugRedirectMixin because of MRO clash.
+        without slug (implemented by NoSlugRedirectMixin).
         """
         self.object = self.get_object(queryset=Company.objects.all())
         return self.no_slug(request, *args, **kwargs)
-
-    def no_slug(self, request, *args, **kwargs):
-        """
-        Check if view has been called with proper slug, if not redirect.
-        """
-        if kwargs.pop('slug') != self.object.slug:
-            args = request.META.get('QUERY_STRING', '')
-            if args:
-                args = '?{}'.format(args)
-            url = reverse(resolve(request.path_info).url_name,
-                          kwargs={'slug': self.object.slug, **kwargs}) + args
-            return redirect(url)
-        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
