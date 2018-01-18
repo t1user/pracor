@@ -14,7 +14,7 @@ import getpass
 user = getpass.getuser()
 
 proj_path = "/home/" + user + "/pracr/"
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
+
 sys.path.append(proj_path)
 import pracr.wsgi
 
