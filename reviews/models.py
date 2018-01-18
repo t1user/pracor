@@ -188,7 +188,7 @@ class Position(models.Model):
     start_date_month = models.PositiveIntegerField(choices=MONTHS)
     start_date_year = models.PositiveIntegerField(choices=YEARS)
     end_date_month = models.PositiveIntegerField(null=True, blank=True, choices=MONTHS_E)
-    end_date_year = models.PositiveIntegerField(choices=YEARS_E)
+    end_date_year = models.PositiveIntegerField(choices=YEARS_E, default=0)
     employment_status = models.CharField(max_length=1,
                                          choices=STATUS_ZATRUDNIENIA,
                                          default='A')
