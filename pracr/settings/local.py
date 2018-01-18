@@ -22,6 +22,8 @@ DATABASES = {
     }
 }
 
+STATIC_URL = '/static/'
+
 
 """
 LOGGING = {
