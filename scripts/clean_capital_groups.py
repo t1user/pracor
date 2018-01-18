@@ -58,7 +58,7 @@ for company in companies:
             name_s = name.split(' ')
             for i in name_s:
                 if i.upper() in company.name.upper():
-                    #print('Company: ', company, '-->', 'Parent: ', parent)
+                    print('Company: ', company, '-->', 'Parent: ', parent, encoding='utf-8')
                     # companies not deleted immediately so that their children
                     # can found
                     for_deletion.append(company.pk)

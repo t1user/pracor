@@ -1,6 +1,5 @@
 import hashlib
 import datetime
-from pprint import pprint
 
 from django.conf import settings
 from django.contrib.auth.mixins import (LoginRequiredMixin,
@@ -107,8 +106,6 @@ class AjaxViewMixin:
                         'label': item.get(field),
                         'value': item.get(field)}
                 options.append(item)
-            # print(options)
-            # option = set(options)
             return JsonResponse(options, safe=False)
         else:
             return super().get(request, *args, **kwargs)
@@ -622,11 +619,9 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
         # companies is a list of tuples of (position.id, company_name)
         companies = request.session['companies']
         names = [name[1] for name in companies]
-        print('from session: ', companies)
         candidates = {}
         new_names = []
         for company in companies:
-            print('iteration: ', company)
             company_db = CompanySearchBase.get_results(self, company[1])
             # company_db = Company.objects.filter(name__icontains=company[1])
             if company_db.count() > 0:

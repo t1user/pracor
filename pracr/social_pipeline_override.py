@@ -1,8 +1,6 @@
 from reviews.models import Position
 from django.urls import reverse
 
-import pprint
-
 def drop_username(*args, **kwargs):
     """Fix for a problem with username, which social_auth tries to save to user model,
     usermodel has no username (users are identified by email)"""
@@ -12,23 +10,12 @@ def drop_username(*args, **kwargs):
 
 def save_data(**kwargs):
     """Saves data retrived from linkedinin into the database."""
-    pprint.pprint(kwargs)
-    print()
-    print('Strategy: ', kwargs['strategy'].__dict__)
-    print('Storage: ', kwargs['storage'].__dict__)
-    print('Session: ', kwargs['strategy'].__dict__['session'].__dict__)
-    print()
-
-    
     new_user = kwargs['is_new']
     new_association = kwargs['new_association']
     params = kwargs['response']
     positions = params['positions']['values']
     user = kwargs['user']
     session =  kwargs['strategy'].session
-
-    print('New user:', new_user)
-    print('New association:', new_association)
 
     # retrive existing positions for the user, match them with their linkedin positions
     # and create new positions if there are any new linkedin positions
@@ -42,7 +29,6 @@ def save_data(**kwargs):
     new = []
     if existing_positions:
         new = list(positions)
-        print(new)
         for item in positions:
             for existing in existing_positions:
                 if item['id'] == existing.linkedin_id:
@@ -50,19 +36,9 @@ def save_data(**kwargs):
     else:
         for item in positions:
             new.append(item)
-            print('nowa pozycja: ', item)
 
     # create new position for every linkedin position not yet in the database
     for position in new:
-        """
-        For testing only.
-        print(position['company']['name'],
-              position['id'],
-              position['location']['name'],
-              position['title'],
-              position['startDate']['month'],
-              position['startDate']['year'])
-        """
         if position:
             new_position = Position(user=user,
                                     company_name=position['company']['name'],
@@ -79,13 +55,11 @@ def save_data(**kwargs):
             # unless a way is found to access this field, this should
             # be removed (together with associate_by_email function)
             web_site = position['company'].get('website-url')
-            print('web-site from linkedin: ', web_site)
             if web_site:
                 # try to match the company in the db by website
                 company =  associate_by_email(web_site)
                 if company:
                     new_position.company = company
-            print('new position: ', new_position)
             new_position.save()
 
 
@@ -129,10 +103,8 @@ def associate_by_email(web_site):
     """
     If a linkedin company has a website-url, try to associate it with the database by website.
     """
-    print('inside associate by email')
     try:
         company = Company.objects.get(website=web_site)
-        print('associated company: ', company)
         return company
     except Company.DoesNotExist:
         pass
