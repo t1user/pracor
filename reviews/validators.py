@@ -13,14 +13,14 @@ class ProfanitiesFilter():
     #makeing those class variables ensures this code is called only once - after
     #starting server
     words = ''
-    with open('reviews/profanities_filter/prof_fil_broad.txt') as f:
+    with open('reviews/profanities_filter/prof_fil_broad.txt', encoding='utf-8') as f:
         i = csv.reader(f, delimiter='\n')
         for item in i:
             words += item[0]
             words += '|'
 
     more_words = ''
-    with open('reviews/profanities_filter/prof_fil.txt') as f:
+    with open('reviews/profanities_filter/prof_fil.txt', encoding='utf-8') as f:
         i = csv.reader(f, delimiter='\n')
         for item in i:
             text_item = '\\b{}\\b|'.format(item[0])

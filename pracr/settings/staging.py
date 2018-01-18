@@ -16,8 +16,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'USER': 'tomek',
         'PASSWORD': 'Cookie123',
-        'NAME': 'pracrdb',
+        'NAME': 'pracr',
         'HOST': 'localhost',
         'PORT': '',
     }
 }
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static_root"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
