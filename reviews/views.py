@@ -448,10 +448,10 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
             item = self.form_class.Meta.model.objects.filter(position=position)
             if item:
                 item=item[0]
-            days = timezone.now() - item.date - datetime.timedelta(days=90)
-            if days.days < 0:
-                self.days_until_next = -days.days
-                return True
+                days = timezone.now() - item.date - datetime.timedelta(days=90)
+                if days.days < 0:
+                    self.days_until_next = -days.days
+                    return True
             return False
             
     def two_forms(self):
