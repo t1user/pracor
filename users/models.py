@@ -64,9 +64,9 @@ class Profile(models.Model):
     class Meta:
         verbose_name = "Profil"
         verbose_name_plural = "Profil"
-        
+    year = timezone.now().year
     SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
-    career_year = range(2017, 1959, -1)
+    career_year = range(year, 1959, -1)
     CAREER_YEAR = [(i, i) for i in career_year]
     EDU = [
         ('A', 'wyższe'),

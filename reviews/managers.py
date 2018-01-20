@@ -62,7 +62,7 @@ class SalaryManager(SelectedManager):
                 bonus_max = Max('bonus_gross_input_period'),
                 bonus_count = Count('bonus_gross_input_period'),
                 bonus_annual_min = Min('bonus_gross_annual'),
-                bonus_annual_avg = Avg('bonus_gross_annual'),
+                bonus_annual_avg = Avg('bonus_gross_annual', output_field=models.IntegerField()),
                 bonus_annual_max = Max('bonus_gross_annual'),
                 bonus_annual_count = Count('bonus_gross_annual'),
                 #distinct=True available only in Django2.0, that's why ArrayAgg is overriden

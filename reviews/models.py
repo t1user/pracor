@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Avg, Max, Min, Count, Func
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 from unidecode import unidecode
 
@@ -159,8 +160,8 @@ class Position(models.Model):
         ('B', 'część etatu'),
         ('C', 'praktyka'),
     ]
-
-    years = range(datetime.datetime.now().year, 1959, -1)
+    year = timezone.now().year
+    years = range(year, 1959, -1)
     YEARS = [(i, i) for i in years]
     YEARS_E = YEARS[:]
     YEARS_E.insert(0, (0, 'obecnie'))
@@ -304,7 +305,7 @@ class Salary(ApprovableModel):
     gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
 
     bonus_input = models.PositiveIntegerField('premia', blank=True, null=True)
-    bonus_period = models.CharField('', max_length=1, default='R', choices=PERIOD)
+    bonus_period = models.CharField('', max_length=1, null=True, choices=PERIOD)
 
     #this choice is currently not implemented, all input values are gross
     bonus_gross_net = models.CharField('', max_length=1, default='G', choices=GROSS_NET)
@@ -335,6 +336,8 @@ class Salary(ApprovableModel):
 
     def save(self, *args, **kwargs):
         self.convert()
+        if self.bonus_input == None or self.bonus_input == 0:
+            self.bonus_period = None
         #make sure that zeros are not counted as inputs with values
         if self.bonus_input == 0:
             self.bonus_input = None

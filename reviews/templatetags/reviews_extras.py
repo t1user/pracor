@@ -142,6 +142,8 @@ def translate_period(item):
 def translate_bonus_period(items):
     output = []
     for item in items:
+        if item is None:
+            continue
         try:
             obj = Salary.objects.filter(bonus_period=item).last()
             output.append(obj.get_bonus_period_display())
