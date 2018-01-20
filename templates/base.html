@@ -3,6 +3,16 @@
 <!DOCTYPE html>
 <html lang="pl">
     <head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112817315-1"></script>
+        <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+
+         gtag('config', 'UA-112817315-1');
+        </script>
+
         <meta name="description" content="pracor to portal gdzie użytkownicy anonimowo dzielą się opiniami o pracodawcach i danymi o zarobkach. Anonimowość jest gwarantowana."/>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,7 +51,7 @@
     </head>
     
     <body>
-      {% block nav %}
+        {% block nav %}
         <nav>
             {% block logo %}
             <!-- brand logo -->
