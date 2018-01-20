@@ -78,7 +78,7 @@
         <div class="avg-salary">
             {{ object.currency }}
 
-            {% if object.bonus_periods|length < 2 %}
+            {% if object.bonus_periods|bonus_period_count < 2 %}
             {{ object.bonus_avg|intcomma }}
 
             {% else %}
@@ -87,7 +87,7 @@
         </div>
         <div class="particulars">
             brutto
-            {% if object.bonus_periods|length < 2 %}
+            {% if object.bonus_periods|bonus_period_count < 2 %}
             {{ object.bonus_periods.0|bonus_period }}
             {% else %}
             rocznie

@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Avg, Max, Min, Count, Sum, Aggregate, F
+from django.db.models import Avg, Max, Min, Count, Sum, Aggregate, F, Q
 from django.contrib.postgres.aggregates.general import StringAgg
 
 class ArrayAgg(Aggregate):

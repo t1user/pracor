@@ -136,7 +136,10 @@ def translate_period(item):
         return obj.get_contract_type_display()
     except AttributeError:
         return ''
-    
+
+@register.filter('bonus_period_count')
+def bonus_period_count(items):
+    return len(list(filter(None, items)))
     
 @register.filter('bonus_period')
 def translate_bonus_period(items):
