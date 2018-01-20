@@ -439,24 +439,30 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         if position_instance:
             return position_instance[position_instance.count() - 1]
 
-    def test_position(self, position):
+    def test_position(self):
         """
         Test if there exists a valid (less than 90 days old) item (Salary or Review) 
         for the existing position.
         """
-        if position:
-            item = self.form_class.Meta.model.objects.filter(position=position)
+        if self.position:
+            print(self.position)
+            item = self.form_class.Meta.model.objects.filter(position=self.position)
             if item:
                 item=item[0]
                 days = timezone.now() - item.date - datetime.timedelta(days=90)
                 if days.days < 0:
                     self.days_until_next = -days.days
-                    return True
-            return False
-            
+                    return False
+        return True
+                
     def two_forms(self):
-        if self.get_position_instance() \
-           and self.test_position(self.get_position_instance()):
+        """
+        Show two forms, ie. let user create another Position instance, if:
+        - they don't have a position for this Company
+        - they have a position but haven't submitted this type of item (salary, review)
+        - they have a position, submitted item, but this item is more than 90days old
+        """
+        if self.position and self.test_position:
             return False
         else:
             return True
@@ -474,9 +480,10 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         be only one Salary or Review for every Position.
         """
         self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        self.position = self.get_position_instance()
         #if a content item (salary or review) already exists for this position
         #and its newer than 90 days don't allow to proceed
-        if self.get_position_instance() and self.test_position(self.get_position_instance()):
+        if self.position and not self.test_position():
             failure_message(self.request,
                             self.form_class.Meta.model._meta.verbose_name_plural,
                             self.days_until_next)
@@ -490,6 +497,7 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         """
         self.object = None
         self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        self.position = self.get_position_instance()
         form = self.get_form()
         # returns True if the second form is required.
         if self.two_forms():
@@ -553,7 +561,7 @@ class SalaryCreate(TokenVerifyMixin, ContentCreateAbstract):
 
     def get_form_kwargs(self):
         """
-        Form needs request, because it adds user to as author of new benefits.
+        Form needs request, because it adds user as author of new benefits.
         Same for Company.
         """
         kwargs = super().get_form_kwargs()
