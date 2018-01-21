@@ -104,7 +104,8 @@ class AjaxViewMixin:
             for item in results:
                 item = {'id': item.get('id'),
                         'label': item.get(field),
-                        'value': item.get(field)}
+                        'value': item.get(field),
+                        'slug': item.get('slug')}
                 options.append(item)
             return JsonResponse(options, safe=False)
         else:

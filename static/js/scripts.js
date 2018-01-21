@@ -46,11 +46,11 @@ function listItems() {
 /* autocomplete for search form */
 $(function() {
   $(".auto-search").autocomplete({
-    delay: 150,
+    delay: 75,
     source: "/search/",
     minLength: 3,
     select: function(event, ui) {
-      location.href="/" + ui.item.id;
+      location.href="/" + ui.item.id + "/" + ui.item.slug;
 }
 });
 });
@@ -58,7 +58,7 @@ $(function() {
 
 
 $(".auto-position").autocomplete({
-  delay: 150,
+  delay: 75,
   source: function(request, response) {
     $.ajax({
       url:'',
