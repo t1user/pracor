@@ -24,7 +24,7 @@ DATABASES = {
 STATIC_URL = '/static_root/'
 
 
-LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), log)
+LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'log')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -38,7 +38,14 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'applogfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_ROOT, 'pracr.log'),
+            'maxBytes': 1024*1024*15, # 15MB
+            'backupCount': 10,
+        },
     },
     'loggers': {
         'django': {
@@ -51,13 +58,4 @@ LOGGING = {
             'level': 'DEBUG',
         },
     },
-    'applogfile': {
-        'level':'DEBUG',
-        'class':'logging.handlers.RotatingFileHandler',
-        'filename': os.path.join(LOG_ROOT, 'pracr.log'),
-        'maxBytes': 1024*1024*15, # 15MB
-        'backupCount': 10,
-    },
-    
-    
 }
