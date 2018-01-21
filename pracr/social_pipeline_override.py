@@ -10,13 +10,18 @@ def drop_username(*args, **kwargs):
 
 def save_data(**kwargs):
     """Saves data retrived from linkedinin into the database."""
-    new_user = kwargs['is_new']
-    new_association = kwargs['new_association']
-    params = kwargs['response']
-    positions = params['positions']['values']
-    user = kwargs['user']
-    session =  kwargs['strategy'].session
+    new_user = kwargs.get('is_new')
+    new_association = kwargs.get('new_association')
+    params = kwargs.get('response')
+    positions = params.get('positions').get('values')
+    user = kwargs.get('user')
+    session =  kwargs.get('strategy').session
 
+    # if user profile has not positions, just exit pipeline
+    if positions is None:
+        return
+    
+    
     # retrive existing positions for the user, match them with their linkedin positions
     # and create new positions if there are any new linkedin positions
     try:

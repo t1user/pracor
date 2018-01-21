@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
@@ -138,3 +139,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
+
+
+ADMINS = ['tomasz2605@gmail.com',]
+MANAGERS = ADMINS
+SERVER_EMAIL = 'pracor@pracor.pl'
+EMAIL_HOST = 'smtp.mail.yahoo.com'
+EMAIL_HOST_USER = 'tom.kramer007@yahoo.com'
+EMAIL_HOST_PASSWORD = 'Cookie123!@'
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+EMAILS_USE_LOCALTIME = True
+EMAIL_TIMEOUT = 30

@@ -445,7 +445,6 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         for the existing position.
         """
         if self.position:
-            print(self.position)
             item = self.form_class.Meta.model.objects.filter(position=self.position)
             if item:
                 item=item[0]
@@ -647,7 +646,6 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
         request.session['new_names'] = new_names
         forms = {}
         if candidates:
-            print(candidates)
             form_choices = {}
             for candidate, company_tuple in candidates.items():
                 # will be used as choices parameter on the form
@@ -683,7 +681,6 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
                     company_pk = None
                 position_pk = form.cleaned_data.get('position')
                 position = Position.objects.get(pk=position_pk)
-                print(company_pk is None)
                 if company_pk:
                     company = Company.objects.get(pk=company_pk)
                     position.company = company
@@ -694,13 +691,11 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
             if request.session.get('new_names') or new_names:
                 request.session['new_names'] += new_names
 
-            print('new_names: ', request.session.get('new_names'))
             if request.session['new_names']:
                 index = len(request.session['new_names']) - 1
                 return redirect('company_create', company=request.session['new_names'][index][1])
             else:
                 return redirect('home')
         else:
-            print(forms)
             return render(request, self.template_name,
                           {'forms': forms})
