@@ -143,12 +143,6 @@ LOGOUT_REDIRECT_URL = "login"
 
 ADMINS = [('Tom', 'tomasz2605@gmail.com'),]
 MANAGERS = ADMINS
-SERVER_EMAIL = 'tom.kramer007@yahoo.com'
-EMAIL_HOST = 'smtp.mail.yahoo.com'
-EMAIL_HOST_USER = 'tom.kramer007@yahoo.com'
-EMAIL_HOST_PASSWORD = 'Cookie123!@'
-EMAIL_USE_SSL = True
-#EMAIL_USE_TLS = True
-EMAIL_PORT = 465
+CONTACT_EMAILS=['tomasz2605@gmail.com',]
 EMAILS_USE_LOCALTIME = True
 

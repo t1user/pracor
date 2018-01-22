@@ -1,10 +1,10 @@
 from .base import *
+from pracr.sendgrid_key import SENDGRID_API_KEY
 
 DEBUG = False
 
+
 ALLOWED_HOSTS = ['35.198.181.157',]
-
-
 
 
 
@@ -23,7 +23,7 @@ DATABASES = {
 }
 STATIC_URL = '/static_root/'
 
-
+"""
 LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'log')
 LOGGING = {
     'version': 1,
@@ -59,6 +59,20 @@ LOGGING = {
         },
     },
 }
+"""
 
-EMAIL_BACKEND = 'sendgrid_beckend.SendgridBackend'
-SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
+
+EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+#required by debug_toolbars
+INSTALLED_APPS += [
+    'debug_toolbar',
+    ]
+
+MIDDLEWARE += [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
+
+INTERNAL_IPS = ['127.0.0.1', '89.73.79.21']
+#end required by debu_toolbars
