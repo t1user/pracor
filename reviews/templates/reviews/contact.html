@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/review_form.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Kontakt</h1>
+            <h4>Użyj formularza poniżej żeby wysłać wiadomość do adminstratorów serwisu</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="eight columns">
+            <article>
+                <form method="POST" action="" autocomplete="off">
+                    {% csrf_token %}
+                    {% include "reviews/_render_form.html" with form=form %}
+                    <input type="submit" class="button-primary" value="Wyślij"/>
+                </form>
+                <div class="required"><i>*Pola wymagane</i></div>
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+                

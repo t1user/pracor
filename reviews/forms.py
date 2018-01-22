@@ -323,3 +323,11 @@ class InterviewForm(forms.ModelForm):
     def clean_department(self):
         if self.cleaned_data['department']:
             return self.cleaned_data['department'].title()
+
+
+class ContactForm(forms.Form):
+    your_email = forms.EmailField(label='Twój email',)
+    subject = forms.CharField(label='Temat', strip=True)
+    message = forms.CharField(label='Wiadomość', strip=True, widget=forms.Textarea())
+
+    

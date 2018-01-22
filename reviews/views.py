@@ -2,6 +2,7 @@ import hashlib
 import datetime
 
 from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin,
                                         UserPassesTestMixin)
@@ -12,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy, resolve
 from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  TemplateView, UpdateView, RedirectView)
+                                  TemplateView, UpdateView, RedirectView, FormView)
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import Q
 from django.utils import timezone
@@ -20,7 +21,7 @@ from django.utils import timezone
 from users.models import Visit
 
 from .forms import (CompanyCreateForm, CompanySearchForm, CompanySelectForm,
-                    InterviewForm, PositionForm, ReviewForm, SalaryForm)
+                    InterviewForm, PositionForm, ReviewForm, SalaryForm, ContactForm)
 from .models import Company, Interview, Position, Review, Salary
 
 
@@ -700,3 +701,28 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
         else:
             return render(request, self.template_name,
                           {'forms': forms})
+
+
+class ContactView(FormView):
+    """
+    CURRENTLY NOT IN USE.
+    """
+    form_class = ContactForm
+    success_url = '/'
+    template_name = 'reviews/contact.html'
+
+
+    def form_valid(self, form):
+        """
+        Send message input by user to admins.
+        """
+
+        subject = '[pracor kontakt] {}'.format(form.cleaned_data['subject'])
+        message = 'Wiadomość od: {} \n\n{}'.format(form.cleaned_data['your_email'],
+                                                   form.cleaned_data['message'])
+        send_mail(
+            subject,
+            message,
+            settings.SERVER_EMAIL,
+            settings.ADMINS)
+        return super().form_valid(form)

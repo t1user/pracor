@@ -50,4 +50,6 @@ urlpatterns = [
 
     url(r'^dodaj/rozmowy/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$',
         InterviewCreate.as_view(), name='interview'),
+
+    url(r'^kontakt/$', ContactView.as_view(), name='contact')
 ]
