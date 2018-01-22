@@ -59,3 +59,6 @@ LOGGING = {
         },
     },
 }
+
+EMAIL_BACKEND = 'sendgrid_beckend.SendgridBackend'
+SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']

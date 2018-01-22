@@ -720,9 +720,15 @@ class ContactView(FormView):
         subject = '[pracor kontakt] {}'.format(form.cleaned_data['subject'])
         message = 'Wiadomość od: {} \n\n{}'.format(form.cleaned_data['your_email'],
                                                    form.cleaned_data['message'])
-        send_mail(
-            subject,
-            message,
-            settings.SERVER_EMAIL,
-            settings.ADMINS)
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.SERVER_EMAIL,
+                settings.ADMINS)
+            messages.add_message(self.request, messages.SUCCESS, 'Wiadomość została wysłana.')
+        except:
+            messages.add_message(self.request, messages.WARNING, 'Wystąpił błąd, spróbuj ponownie.')
+            return redirect('contact')
+        
         return super().form_valid(form)
