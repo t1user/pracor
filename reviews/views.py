@@ -721,12 +721,11 @@ class ContactView(FormView):
         message = 'Wiadomość od: {} \n\n{}'.format(form.cleaned_data['your_email'],
                                                    form.cleaned_data['message'])
         print(self.request.META['REMOTE_ADDR'])
-        print('dupa')
         try:
             send_mail(
                 subject,
                 message,
-                'tomasz2605@gmail.com',
+                'kontakt@pracor.pl',
                 settings.CONTACT_EMAILS,
                 fail_silently=False)
             messages.add_message(self.request, messages.SUCCESS, 'Wiadomość została wysłana.')
