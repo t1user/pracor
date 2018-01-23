@@ -705,7 +705,7 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
 
 class ContactView(FormView):
     """
-    CURRENTLY NOT IN USE.
+    Currently not linked to the main site.
     """
     form_class = ContactForm
     success_url = '/'

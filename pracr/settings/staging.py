@@ -61,6 +61,26 @@ LOGGING = {
 }
 """
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
 
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
@@ -75,4 +95,4 @@ MIDDLEWARE += [
     ]
 
 INTERNAL_IPS = ['127.0.0.1', '89.73.79.21']
-#end required by debu_toolbars
+#end required by debug_toolbars

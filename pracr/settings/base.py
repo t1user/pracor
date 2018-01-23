@@ -141,8 +141,12 @@ LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 
 
-ADMINS = [('Tom', 'tomasz2605@gmail.com'),]
+ADMINS = [('Tom', 'tomasz2605@gmail.com'),
+          ('Group Admin', 'admin@pracor.pl')]
 MANAGERS = ADMINS
-CONTACT_EMAILS=['tomasz2605@gmail.com',]
 EMAILS_USE_LOCALTIME = True
+SERVER_EMAIL = 'admin@pracor.pl'
 
+
+#used in views to specify to whom contact info should be sent
+CONTACT_EMAILS=['tomasz2605@gmail.com', 'kontakt@pracor.pl']
