@@ -17,6 +17,8 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import Q
 from django.utils import timezone
+from django import forms
+
 
 from users.models import Visit
 
@@ -447,6 +449,7 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         for the existing position.
         """
         if self.position:
+            #get the position and check how old it is
             item = self.form_class.Meta.model.objects.filter(position=self.position)
             if item:
                 item=item[0]
@@ -463,7 +466,9 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         - they have a position but haven't submitted this type of item (salary, review)
         - they have a position, submitted item, but this item is more than 90days old
         """
-        if self.position and self.test_position:
+        if self.position:
+            if self.test_position:
+                return True
             return False
         else:
             return True
@@ -714,13 +719,15 @@ class ContactView(FormView):
 
     def form_valid(self, form):
         """
-        Send message input by user to admins.
+        Send user message to admins.
         """
-
+        sender = form.cleaned_data['your_email']
+        if self.request.user.is_authenticated:
+            #override to make sure the readonly form field hasn't been tampered with
+            sender = self.request.user.email
         subject = '[pracor kontakt] {}'.format(form.cleaned_data['subject'])
-        message = 'Wiadomość od: {} \n\n{}'.format(form.cleaned_data['your_email'],
+        message = 'Wiadomość od: {} \n\n{}'.format(sender,
                                                    form.cleaned_data['message'])
-        print(self.request.META['REMOTE_ADDR'])
         try:
             send_mail(
                 subject,
@@ -729,8 +736,47 @@ class ContactView(FormView):
                 settings.CONTACT_EMAILS,
                 fail_silently=False)
             messages.add_message(self.request, messages.SUCCESS, 'Wiadomość została wysłana.')
+            self.record_send()
         except:
             messages.add_message(self.request, messages.WARNING, 'Wystąpił błąd, spróbuj ponownie.')
             return redirect('contact')
-        
         return super().form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Don't proceed before checking if the user can send message.
+        """
+        if self.check_if_can_send():
+            return super().get(request, *args, **kwargs)
+        return redirect(self.get_success_url())
+    
+    def get_success_url(self, *args, **kwargs):
+        """
+        Go back to where you came from.
+        """
+        return self.request.GET.get('next', reverse('home'))
+    
+    def get_context_data(self, **kwargs):
+        #required to prevent user leakage after logout
+        self.initial = {}
+        if self.request.user.is_authenticated:
+            self.initial.update({'your_email': self.request.user.email})
+            context = super().get_context_data(**kwargs)
+            context['form'].fields['your_email'].widget.attrs['readonly']=True
+            return context
+        return super().get_context_data(**kwargs)
+
+    def record_send(self):
+        no_messages = self.request.session.get('sent_emails', 0)
+        no_messages += 1
+        self.request.session['sent_emails'] = no_messages
+        
+
+    def check_if_can_send(self):
+        if self.request.session.get('sent_emails', 0) > 2:
+            messages.add_message(self.request, messages.INFO,
+                                 'Dostaliśmy już 3 Twoje wiadomości. Daj nam je przeczytać -:)')
+            return False
+        return True
+        
+        

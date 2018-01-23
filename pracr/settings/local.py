@@ -36,6 +36,7 @@ MIDDLEWARE += [
 INTERNAL_IPS = ['127.0.0.1', ]
 #end required by debu_toolbars
 
+"""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -82,7 +83,7 @@ LOGGING = {
         }
     }
 }
-
+"""
 
 
 """
