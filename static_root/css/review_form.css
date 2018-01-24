@@ -5,7 +5,7 @@ form {
     }
 
 
-input[type=text], textarea {
+input[type=text], input[type=email], textarea {
     width: 100%;
     }
 
