@@ -19,7 +19,7 @@
 
             {% if searchterm and not search_results %}
             <h1>Nie znaleziono firmy '{{ searchterm }}'</h1>
-            <p>Możesz ją dodać do naszej bazy danych.</p>
+            <p>Możesz ją dodać do bazy danych.</p>
             <a href= "{% url 'company_create' searchterm_joined %}" class="button">Dodaj firmę</a>
             {% endif %}
         </div>
