@@ -16,27 +16,26 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.contrib.auth.views import LoginView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.generic import RedirectView
 
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    
     url(r'^', include('social_django.urls', namespace='social')),
     
     # has to be before auth, as redifines login
-    url(r'^login/', LoginView.as_view(redirect_authenticated_user=True), name='login'),
+    url(r'^', include('users.urls')),
+
     url(r'^', include('django.contrib.auth.urls')),
     
     url(r'^', include('reviews.urls')),
-    
-    url(r'^', include('users.urls')),
 
     url(r'^favicon.ico$', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico')),
                                                name='favicon'),
 
+    url(r'admin/doc/', include('django.contrib.admindocs.urls')),
+    
+    url(r'^admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:

@@ -24,17 +24,14 @@ DATABASES = {
 
 STATIC_URL = '/static/'
 
-#required by debug_toolbars
+#admin docs
 INSTALLED_APPS += [
-    'debug_toolbar',
+    'django.contrib.admindocs',
     ]
-
 MIDDLEWARE += [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.contrib.admindocs.middleware.XViewMiddleware',
     ]
-
-INTERNAL_IPS = ['127.0.0.1', ]
-#end required by debu_toolbars
+#end admin docs
 
 """
 LOGGING = {

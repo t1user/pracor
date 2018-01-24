@@ -100,7 +100,7 @@ class UserAdmin(DjangoUserAdmin):
     )
 
     list_display = ('email', 'first_name', 'last_name',
-                    'get_contributed', 'get_social', 'is_staff',)
+                    'get_contributed', 'last_login', 'get_social', 'is_staff',)
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
 

@@ -61,11 +61,17 @@ class UserCreationForm(forms.ModelForm):
 
 
 class CreateProfileForm_user(forms.ModelForm):
+    """
+    Currently not in use as user is never asked for name.
+    """
     class Meta:
         model = get_user_model()
         fields = ['first_name', 'last_name']
 
 class CreateProfileForm_profile(forms.ModelForm):
+    """
+    Displayed during registration process.
+    """
     #this override is neccessary to make sure that ----- is not displayed
     #for empty option; blank=True on the model is required for admin to allow
     #for empty field if sex is unknown

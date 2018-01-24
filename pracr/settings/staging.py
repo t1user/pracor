@@ -86,13 +86,5 @@ EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
 #required by debug_toolbars
-INSTALLED_APPS += [
-    'debug_toolbar',
-    ]
+INTERNAL_IPS += ['89.73.79.21', '']
 
-MIDDLEWARE += [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ]
-
-INTERNAL_IPS = ['127.0.0.1', '89.73.79.21']
-#end required by debug_toolbars

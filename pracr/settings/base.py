@@ -32,6 +32,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'social_django',
+    'debug_toolbar',
 ]
 
 PROJECT_APPS = [
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'pracr.urls'
@@ -138,7 +140,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "logged_out"
 
 
 ADMINS = [('Tom', 'tomasz2605@gmail.com'),
@@ -150,3 +152,6 @@ SERVER_EMAIL = 'admin@pracor.pl'
 
 #used in views to specify to whom contact info should be sent
 CONTACT_EMAILS=['tomasz2605@gmail.com', 'kontakt@pracor.pl']
+
+#required by debug toolbars
+INTERNAL_IPS = ['127.0.0.1', ]

@@ -1,9 +1,12 @@
 from django import forms
 from django.contrib.auth import (authenticate, get_user_model, login,)
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, resolve_url
 from django.views import View
 from django.views.generic import TemplateView
+from django.contrib.auth.views import (LoginView, PasswordResetView, PasswordResetDoneView,
+                                       PasswordResetConfirmView, PasswordResetCompleteView,
+                                       PasswordChangeView, PasswordChangeDoneView)
 
 from .forms import CreateProfileForm_profile, CreateProfileForm_user, UserCreationForm
 from .models import User
@@ -77,3 +80,45 @@ class LoginErrorView(View):
 
     def get(self, request, *args, **kwargs):
         return render(request,self.template_name)
+
+
+class LoginCustomView(LoginView):
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        """
+        Prevent redirect loop when logged-in user tries to log in again.
+        Required if LOGOUT_REDIRECT_URL is 'login'.
+        """
+        redirect_to = super().get_success_url()
+        if redirect_to == self.request.path:
+            redirect_to = resolve_url('home')
+        return redirect_to
+
+    
+class PasswordResetCustomView(PasswordResetView):
+    template_name = 'registration/password_reset.html'
+
+
+class PasswordResetDoneCustomView(PasswordResetDoneView):
+    template_name = 'registration/password_done.html'
+
+    
+class PasswordResetConfirmCustomView(PasswordResetConfirmView):
+    template_name = 'registration/password_confirm.html'
+
+    
+class PasswordResetCompleteCustomView(PasswordResetCompleteView):
+    template_name = 'registration/password_complete.html'
+
+    
+class PasswordChangeCustomView(PasswordChangeView):
+    template_name = 'registration/password_change.html'
+
+    
+class PasswordChangeDoneCustomView(PasswordChangeDoneView):
+    template_name = 'registration/password_changed.html'
+
+    
+class LoggedOutView(TemplateView):
+    template_name = 'registration/loggedout.html'
