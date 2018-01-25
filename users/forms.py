@@ -92,17 +92,21 @@ class CreateProfileForm_profile(forms.ModelForm):
 
         
 class PasswordResetCustomForm(PasswordResetForm):
+    """
+    Override to allow users with unusable passwords (authorized by social-oauth)
+    to setup passwords.
+    """
     
-        def get_users(self, email):
-            """Given an email, return matching user(s) who should receive a reset.
+    def get_users(self, email):
+        """Given an email, return matching user(s) who should receive a reset.
 
             This allows subclasses to more easily customize the default policies
-            that prevent inactive users and users with unusable passwords from
-            resetting their password.
+            that prevent inactive users [and users with unusable passwords - not any more] 
+            from resetting their password.
             """
-            UserModel = get_user_model()
-            active_users = UserModel._default_manager.filter(**{
-                '%s__iexact' % UserModel.get_email_field_name(): email,
-                'is_active': True,
-            })
-            return (u for u in active_users)
+        UserModel = get_user_model()
+        active_users = UserModel._default_manager.filter(**{
+            '%s__iexact' % UserModel.get_email_field_name(): email,
+            'is_active': True,
+        })
+        return (u for u in active_users)

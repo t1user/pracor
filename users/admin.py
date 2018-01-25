@@ -65,9 +65,11 @@ class VisitInline(admin.TabularInline):
 class ProfileInline(admin.StackedInline):
     model = Profile
     radio_fields = {'sex': admin.HORIZONTAL}
+    readonly_fields = ('id',)
+    can_delete = False
     fieldsets = (
         (None, {
-            'fields': ('contributed', 'sex', 'career_start_year',)
+            'fields': ('contributed', 'sex', 'career_start_year', 'id')
         }),
         ('Pola linkedin', {
             'classes': ('collapse',),
@@ -99,7 +101,7 @@ class UserAdmin(DjangoUserAdmin):
         }),
     )
 
-    list_display = ('email', 'first_name', 'last_name',
+    list_display = ('email', 'id', 'first_name', 'last_name',
                     'get_contributed', 'last_login', 'get_social', 'is_staff',)
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
@@ -112,6 +114,19 @@ class UserAdmin(DjangoUserAdmin):
         return UserSocialAuth.objects.get(user=obj).provider
     get_social.short_description = "login zewnętrzny"
 
+    def get_inline_instances(self, request, obj=None):
+        """
+        Ensure Profile instance is not available while user is created
+        (because the signal to create Profile hasn't been sent yet,
+        so Profile doesn't exist).
+        """
+        if not obj:
+            return []
+        return super().get_inline_instances(request, obj)
+    
+
+
+    
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -123,6 +138,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'sex', 'date_joined', 'last_login', 'contributed')
     inlines = (VisitInline,)
     radio_fields = {'sex': admin.HORIZONTAL}
+    
     fieldsets = (
         (None, {
             'fields': (('user', 'contributed'), 'sex', 'career_start_year',)
