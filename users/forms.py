@@ -1,7 +1,7 @@
 from django import forms
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from django.forms import ModelForm
-from django.contrib.auth import password_validation
+from django.contrib.auth.forms import PasswordResetForm
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 
@@ -89,3 +89,20 @@ class CreateProfileForm_profile(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['sex'].required = False
+
+        
+class PasswordResetCustomForm(PasswordResetForm):
+    
+        def get_users(self, email):
+            """Given an email, return matching user(s) who should receive a reset.
+
+            This allows subclasses to more easily customize the default policies
+            that prevent inactive users and users with unusable passwords from
+            resetting their password.
+            """
+            UserModel = get_user_model()
+            active_users = UserModel._default_manager.filter(**{
+                '%s__iexact' % UserModel.get_email_field_name(): email,
+                'is_active': True,
+            })
+            return (u for u in active_users)

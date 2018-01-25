@@ -148,6 +148,7 @@ ADMINS = [('Tom', 'tomasz2605@gmail.com'),
 MANAGERS = ADMINS
 EMAILS_USE_LOCALTIME = True
 SERVER_EMAIL = 'admin@pracor.pl'
+DEFAULT_FROM_EMAIL = 'admin@pracor.pl'
 
 
 #used in views to specify to whom contact info should be sent

@@ -8,7 +8,8 @@ from django.contrib.auth.views import (LoginView, PasswordResetView, PasswordRes
                                        PasswordResetConfirmView, PasswordResetCompleteView,
                                        PasswordChangeView, PasswordChangeDoneView)
 
-from .forms import CreateProfileForm_profile, CreateProfileForm_user, UserCreationForm
+from .forms import (CreateProfileForm_profile, CreateProfileForm_user, UserCreationForm,
+                    PasswordResetCustomForm)
 from .models import User
 
 
@@ -97,6 +98,7 @@ class LoginCustomView(LoginView):
 
     
 class PasswordResetCustomView(PasswordResetView):
+    form_class = PasswordResetCustomForm
     template_name = 'registration/password_reset.html'
 
 
