@@ -1,0 +1,7 @@
+{% autoescape off %}
+
+W celu potwierdzenia hasła na www.pracor.pl kliknij (lub skopiuj do przeglądarki) link poniżej:
+
+http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+{% endautoescape %}

@@ -82,6 +82,8 @@ class Profile(models.Model):
     
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE, editable=False)
+    #default True, because if logged in by SocialAuth no confirmation neccessary
+    email_confirmed = models.BooleanField('Potwierdzony email', default=True)
     contributed = models.BooleanField('Zrobił wpis', default=False)
     sex = models.CharField("płeć", max_length=1, choices=SEX, default=None,
                            null=True, blank=True)

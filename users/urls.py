@@ -1,8 +1,9 @@
 from django.conf.urls import url
 
-from .views import (CreateProfileView, Register, RegisterSuccess, LoginErrorView,
+from .views import (CreateProfileView, Register, AccountActivationSentView,
+                    AccountActivateView, RegisterSuccess, LoginErrorView,
                     LoginCustomView, LoggedOutView, PasswordResetCustomView,
-                    PasswordResetDoneCustomView,PasswordResetConfirmCustomView,
+                    PasswordResetDoneCustomView, PasswordResetConfirmCustomView,
                     PasswordResetCompleteCustomView, PasswordChangeCustomView,
                     PasswordChangeDoneCustomView)
 
@@ -33,4 +34,9 @@ urlpatterns = [
     url(r'password_change/$', PasswordChangeCustomView.as_view(), name='password_change'),
 
     url(r'password_change/done/$', PasswordChangeDoneCustomView.as_view(), name='password_change_done'),
+
+    url(r'^account_activation_sent/$', AccountActivationSentView.as_view(), name='account_activation_sent'),
+
+    url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        AccountActivateView.as_view(), name='activate'),
 ]
