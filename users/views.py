@@ -1,12 +1,13 @@
 from django import forms
+from django.contrib import messages
 from django.contrib.auth import (authenticate, get_user_model, login,)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.views import (LoginView, PasswordResetView, PasswordResetDoneView,
                                        PasswordResetConfirmView, PasswordResetCompleteView,
                                        PasswordChangeView, PasswordChangeDoneView)
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.shortcuts import redirect, render, resolve_url
 from django.views import View
@@ -21,7 +22,7 @@ from .tokens import account_activation_token
 class Register(View):
     form_class = UserCreationForm
     template_name = "registration/register.html"
-    activation_email_template = 'registrations/account_activation_email.html'
+    activation_email_template = 'registration/account_activation_email.html'
 
     def get(self, request, *args, **kwargs):
         #if user is logged in, they shouldn't be able to register
@@ -40,7 +41,7 @@ class Register(View):
             subject = 'Aktywuj konto na www.pracor.pl'
             message = render_to_string(self.activation_email_template, {
                 'user': user,
-                'domain': get_current_site().domain,
+                'domain': get_current_site(request).domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
                 })
@@ -56,7 +57,7 @@ class Register(View):
 
 
 class AccountActivationSentView(TemplateView):
-    template = 'account_activation_sent.html'
+    template_name = 'registration/account_activation_sent.html'
 
 class AccountActivateView(View):
 
@@ -70,7 +71,9 @@ class AccountActivateView(View):
         if user is not None and account_activation_token.check_token(user, token):
             user.profile.email_confirmed = True
             user.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            print(request.user)
+            print(request.user.is_authenticated)
             messages.add_message(request, messages.SUCCESS, 'E-mail potwierdzony!')
             return redirect('create_profile')
         else:

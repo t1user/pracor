@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="row">
+      <div class="twelve columns">
+          <h1>Nieprawidłowy link</h1>
+          <h4>Link wygasł lub jest niewłaściwy</h4>
+          <p>Jeśli nie masz konta na pracor, możesz je <a href="{% url 'register' %}">założyć</a>.</p>
+          <a href="{% url 'home' %}" class="button">Powrót</a>
+      </div>
+      
+    </div>
+</div>
+{% endblock content %}

@@ -4,7 +4,10 @@ from pracr.sendgrid_key import SENDGRID_API_KEY
 DEBUG = False
 
 
-ALLOWED_HOSTS = ['35.198.181.157', 'www.pracor.pl', 'pracor.pl']
+ALLOWED_HOSTS = ['35.198.181.157',
+                 'www.pracor.pl',
+                 'pracor.pl',
+                 '157.181.198.35.bc.googleusercontent.com',]
 
 
 

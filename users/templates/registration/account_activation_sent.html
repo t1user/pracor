@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="row">
+      <div class="twelve columns">
+          <h1>Potwierdź email</h1>
+          <h4>Na podany adres wysłaliśmy email z linkiem do aktywacji konta</h4>
+          <p>Sprawdź swoją pocztę i potwierdź adres email.</p>
+          <p>Jeśli nie otrzymasz od nas emaila, sprawdź folder Spam.</p>
+          <p>Możemy też <a href="{% url 'password_reset' %}">wysłać linka ponownie</a>.</p>
+          <a href="{% url 'home' %}" class="button">Powrót</a>
+      </div>
+      
+    </div>
+</div>
+{% endblock content %}
