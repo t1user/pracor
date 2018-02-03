@@ -1,7 +1,7 @@
 <div class="background">
     <div>{{ object.position.position|capfirst }} |&nbsp;</div>
     {% if object.position.department %}
-    <div>{{ object.position.department|capfirst }} |&nbsp;</div>
+    <div>Departament: {{ object.position.department|capfirst }} |&nbsp;</div>
     {% endif %}
     <div>{{ object.position.location|title }} |&nbsp;</div>
     <div>{{ object.position.get_employment_status_display }} |&nbsp;</div>
