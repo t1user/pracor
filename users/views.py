@@ -35,10 +35,10 @@ class Register(View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.email_confirmed = False
+            user = form.save()
+            user.profile.email_confirmed = False
             user.save()
-            subject = 'Aktywuj konto na www.pracor.pl'
+            subject = 'Aktywuj konto na pracor.pl'
             message = render_to_string(self.activation_email_template, {
                 'user': user,
                 'domain': get_current_site(request).domain,
@@ -72,12 +72,10 @@ class AccountActivateView(View):
             user.profile.email_confirmed = True
             user.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            print(request.user)
-            print(request.user.is_authenticated)
             messages.add_message(request, messages.SUCCESS, 'E-mail potwierdzony!')
             return redirect('create_profile')
         else:
-            return render(request, 'account_activation_invalid.html')            
+            return render(request, 'registration/account_activation_invalid.html')            
             
 
 class RegisterSuccess(TemplateView):
@@ -138,6 +136,18 @@ class LoginCustomView(LoginView):
             redirect_to = resolve_url('home')
         return redirect_to
 
+
+    def form_valid(self, form):
+        """
+        Check if user activated email. If not redirect to a web-page with message.
+        """
+        user = form.get_user()
+        print(user.profile.email_confirmed)
+        print(user)
+        if not user.profile.email_confirmed:
+            return redirect('email_confirm_reminder')
+        else:
+            return super().form_valid(form)
     
 class PasswordResetCustomView(PasswordResetView):
     form_class = PasswordResetCustomForm
@@ -175,3 +185,6 @@ class LoggedOutView(TemplateView):
             return redirect('home')
         return super().get(request, *args, **kwargs)
 
+
+class EmailConfirmReminderView(TemplateView):
+    template_name = 'registration/email_confirm_reminder.html'

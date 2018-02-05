@@ -5,7 +5,7 @@ from .views import (CreateProfileView, Register, AccountActivationSentView,
                     LoginCustomView, LoggedOutView, PasswordResetCustomView,
                     PasswordResetDoneCustomView, PasswordResetConfirmCustomView,
                     PasswordResetCompleteCustomView, PasswordChangeCustomView,
-                    PasswordChangeDoneCustomView)
+                    PasswordChangeDoneCustomView, EmailConfirmReminderView)
 
 
 urlpatterns = [
@@ -39,4 +39,6 @@ urlpatterns = [
 
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         AccountActivateView.as_view(), name='activate'),
+
+    url(r'^email_not_confimed/$', EmailConfirmReminderView.as_view(), name='email_confirm_reminder')
 ]

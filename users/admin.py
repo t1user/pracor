@@ -69,7 +69,7 @@ class ProfileInline(admin.StackedInline):
     can_delete = False
     fieldsets = (
         (None, {
-            'fields': ('contributed', 'sex', 'career_start_year', 'id')
+            'fields': ('contributed', 'email_confirmed', 'sex', 'career_start_year', 'id')
         }),
         ('Pola linkedin', {
             'classes': ('collapse',),
@@ -135,13 +135,13 @@ class ProfileAdmin(admin.ModelAdmin):
     """
     readonly_fields = ('user', 'date_joined',
                        'last_login', 'visited_companies')
-    list_display = ('user', 'sex', 'date_joined', 'last_login', 'contributed')
+    list_display = ('user', 'sex', 'date_joined', 'last_login', 'contributed',)
     inlines = (VisitInline,)
     radio_fields = {'sex': admin.HORIZONTAL}
     
     fieldsets = (
         (None, {
-            'fields': (('user', 'contributed'), 'sex', 'career_start_year',)
+            'fields': (('user', 'contributed', 'email_confirmed'), 'sex', 'career_start_year',)
         }),
         (None, {
             'fields': ('date_joined', 'last_login',)
