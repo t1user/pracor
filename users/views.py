@@ -19,6 +19,22 @@ from .models import User
 from .tokens import account_activation_token
 
 
+class NoAuthenticatedUsersMixin:
+    """
+    After login, usrs are redirected to the page from which they accessed login page.
+    If they login from certain pages they shouldn't be redirected back to them 
+    after login, because those pages are not suitable for logged in users.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Make sure this page is not shown to logged in users.
+        If the user is authenticated redirect to home page instead.
+        """
+        if request.user.is_authenticated:
+            return redirect('home')
+        return super().get(request, *args, **kwargs)
+
+
 class Register(View):
     form_class = UserCreationForm
     template_name = "registration/register.html"
@@ -56,7 +72,7 @@ class Register(View):
             return render(request, self.template_name, {'form': form})
 
 
-class AccountActivationSentView(TemplateView):
+class AccountActivationSentView(NoAuthenticatedUsersMixin, TemplateView):
     template_name = 'registration/account_activation_sent.html'
 
 class AccountActivateView(View):
@@ -110,7 +126,7 @@ class CreateProfileView(LoginRequiredMixin, View):
                           {'profile_form': profile_form})
 
     
-class LoginErrorView(View):
+class LoginErrorView(NoAuthenticatedUsersMixin, View):
     """
     Redirected to if there's a social auth login error and the error is not
     caught by the middleware. Currently happens when debug is off.
@@ -122,7 +138,7 @@ class LoginErrorView(View):
         return render(request,self.template_name)
 
 
-class LoginCustomView(LoginView):
+class LoginCustomView(NoAuthenticatedUsersMixin, LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
@@ -149,16 +165,16 @@ class LoginCustomView(LoginView):
         else:
             return super().form_valid(form)
     
-class PasswordResetCustomView(PasswordResetView):
+class PasswordResetCustomView(NoAuthenticatedUsersMixin, PasswordResetView):
     form_class = PasswordResetCustomForm
     template_name = 'registration/password_reset.html'
 
 
-class PasswordResetDoneCustomView(PasswordResetDoneView):
+class PasswordResetDoneCustomView(NoAuthenticatedUsersMixin, PasswordResetDoneView):
     template_name = 'registration/password_done.html'
 
     
-class PasswordResetConfirmCustomView(PasswordResetConfirmView):
+class PasswordResetConfirmCustomView(NoAuthenticatedUsersMixin, PasswordResetConfirmView):
     template_name = 'registration/password_confirm.html'
 
     
@@ -174,17 +190,9 @@ class PasswordChangeDoneCustomView(PasswordChangeDoneView):
     template_name = 'registration/password_changed.html'
 
     
-class LoggedOutView(TemplateView):
+class LoggedOutView(NoAuthenticatedUsersMixin, TemplateView):
     template_name = 'registration/loggedout.html'
 
-    def get(self, request, *args, **kwargs):
-        """
-        Make sure this template is not shown to logged in users.
-        """
-        if request.user.is_authenticated:
-            return redirect('home')
-        return super().get(request, *args, **kwargs)
 
-
-class EmailConfirmReminderView(TemplateView):
+class EmailConfirmReminderView(NoAuthenticatedUsersMixin, TemplateView):
     template_name = 'registration/email_confirm_reminder.html'
