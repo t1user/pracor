@@ -131,9 +131,10 @@ class LoginCustomView(LoginView):
         """
         Prevent redirect loop when logged-in user tries to log in again.
         Required if LOGOUT_REDIRECT_URL is 'login'.
+        /logged_out/ should never be shown to logged in users.
         """
         redirect_to = super().get_success_url()
-        if redirect_to == self.request.path:
+        if redirect_to == self.request.path or redirect_to == '/logged_out/':
             redirect_to = resolve_url('home')
         return redirect_to
 
@@ -165,4 +166,12 @@ class PasswordChangeDoneCustomView(PasswordChangeDoneView):
     
 class LoggedOutView(TemplateView):
     template_name = 'registration/loggedout.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Make sure this template is not shown to logged in users.
+        """
+        if request.user.is_authenticated:
+            return redirect('home')
+        return super().get(request, *args, **kwargs)
 
