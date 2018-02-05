@@ -32,6 +32,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'social_django',
+    'axes',
     'debug_toolbar',
 ]
 
@@ -156,3 +157,11 @@ CONTACT_EMAILS=['tomasz2605@gmail.com', 'kontakt@pracor.pl']
 
 #required by debug toolbars
 INTERNAL_IPS = ['127.0.0.1', ]
+
+#axes configuration
+AXES_FAILURE_LIMIT = 10
+AXES_COOLOFF_TIME = 1 #hour
+AXES_LOCKOUT_TEMPLATE = 'registration/wrong_password_block.html'#template to render when a user is locked out. Template receives cooloff_time and failure_limit as context variables.
+#AXES_LOCOUT_URL = #specifies a URL to redirect to on lockout. If both AXES_LOCKOUT_TEMPLATE and AXES_LOCKOUT_URL are set, the template will be used. 
+AXES_ONLY_USER_FAILURES = True
+
