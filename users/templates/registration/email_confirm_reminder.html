@@ -7,9 +7,10 @@
     <div class="row">
       <div class="twelve columns">
           <h1>Email nie został aktywowany</h1>
-          <h4>bla bla bla</h4>
-          <p>Jeśli nie masz konta na pracor, możesz je <a href="{% url 'register' %}">założyć</a>.</p>
-          <a href="{% url 'home' %}" class="button">Powrót</a>
+          <h4>Użyj linka aktywacyjnego, który został do Ciebie wysłany</h4>
+          <p>Jeśli nie dostałeś emaila z linkiem aktywacyjnym, sprawdź folder spam</p>
+          <p>Możemy też <a href="{% url 'activation_email_send_again' %}">wysłać linka jeszcze raz</a></p>
+          <a href="{% url 'login' %}" class="button">Powrót do strony logowania</a>
       </div>
       
     </div>

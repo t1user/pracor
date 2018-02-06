@@ -23,7 +23,7 @@ from django.views.generic import RedirectView
 urlpatterns = [
     url(r'^', include('social_django.urls', namespace='social')),
     
-    # has to be before auth, as redifines login
+    # has to be before auth, as redifines registration views
     url(r'^', include('users.urls')),
 
     url(r'^', include('django.contrib.auth.urls')),

@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth import get_user_model, password_validation
-from django.forms import ModelForm
 from django.contrib.auth.forms import PasswordResetForm
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
@@ -110,3 +109,11 @@ class PasswordResetCustomForm(PasswordResetForm):
             'is_active': True,
         })
         return (u for u in active_users)
+
+class ActivationEmailSendAgainForm(forms.Form):
+    """
+    Input address where activation email should be resent.
+    """
+    email = forms.EmailField()
+
+    

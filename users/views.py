@@ -10,11 +10,12 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.shortcuts import redirect, render, resolve_url
+from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 
 from .forms import (CreateProfileForm_profile, CreateProfileForm_user, UserCreationForm,
-                    PasswordResetCustomForm)
+                    PasswordResetCustomForm, ActivationEmailSendAgainForm)
 from .models import User
 from .tokens import account_activation_token
 
@@ -73,10 +74,15 @@ class Register(View):
 
 
 class AccountActivationSentView(NoAuthenticatedUsersMixin, TemplateView):
+    """
+    Inform user that the activation email has been sent.
+    """
     template_name = 'registration/account_activation_sent.html'
 
 class AccountActivateView(View):
-
+    """
+    User sent here from activation link. Verify link and redirect as appropriate.
+    """
     def get(self, request, uidb64, token):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -139,6 +145,9 @@ class LoginErrorView(NoAuthenticatedUsersMixin, View):
 
 
 class LoginCustomView(NoAuthenticatedUsersMixin, LoginView):
+    """
+    Handle login process.
+    """
     redirect_authenticated_user = True
 
     def get_success_url(self):
@@ -156,43 +165,89 @@ class LoginCustomView(NoAuthenticatedUsersMixin, LoginView):
     def form_valid(self, form):
         """
         Check if user activated email. If not redirect to a web-page with message.
+        Otherwise proceed with login process in superclass.
         """
         user = form.get_user()
-        print(user.profile.email_confirmed)
-        print(user)
         if not user.profile.email_confirmed:
             return redirect('email_confirm_reminder')
         else:
             return super().form_valid(form)
     
 class PasswordResetCustomView(NoAuthenticatedUsersMixin, PasswordResetView):
+    """
+    Present user with a form to input e-mail to which reset link should be sent.
+    """
     form_class = PasswordResetCustomForm
     template_name = 'registration/password_reset.html'
 
 
 class PasswordResetDoneCustomView(NoAuthenticatedUsersMixin, PasswordResetDoneView):
+    """
+    Display template confirming that password reset email has been sent.
+    """
     template_name = 'registration/password_done.html'
 
     
 class PasswordResetConfirmCustomView(NoAuthenticatedUsersMixin, PasswordResetConfirmView):
+    """
+    User sent here from password reset link.
+    Present a form to input new password and confirmation of new password.
+    """
     template_name = 'registration/password_confirm.html'
 
     
 class PasswordResetCompleteCustomView(PasswordResetCompleteView):
+    """
+    Display template confirming the password has been changed.
+    """
     template_name = 'registration/password_complete.html'
 
     
 class PasswordChangeCustomView(PasswordChangeView):
+    """
+    Display password change form.
+    """
     template_name = 'registration/password_change.html'
 
     
 class PasswordChangeDoneCustomView(PasswordChangeDoneView):
+    """
+    Display template confirming password has been changed.
+    """
     template_name = 'registration/password_changed.html'
 
     
 class LoggedOutView(NoAuthenticatedUsersMixin, TemplateView):
+    """
+    Display template after user has logged out.
+    """
     template_name = 'registration/loggedout.html'
 
 
 class EmailConfirmReminderView(NoAuthenticatedUsersMixin, TemplateView):
+    """
+    Redirected here if a user who hasn't confirmed email tries to log in.
+    """
     template_name = 'registration/email_confirm_reminder.html'
+
+class ActivationEmailSendAgain(NoAuthenticatedUsersMixin, FormView):
+    form_class = ActivationEmailSendAgainForm
+    template_name = 'registration/activation_email_send_again.html'
+    activation_email_template = 'registration/account_activation_email.html'
+    success_url = reverse_lazy('account_activation_sent')
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        try:
+            user = User.objects.get(email=email)
+        except DoesNotExist:
+            return redirect('account_activation_sent')
+        subject = 'Aktywuj konto na pracor.pl - wysłano ponownie'
+        message = render_to_string(self.activation_email_template, {
+            'user': user,
+            'domain': get_current_site(self.request).domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': account_activation_token.make_token(user),
+        })
+        user.email_user(subject, message)
+        return super().form_valid(form)

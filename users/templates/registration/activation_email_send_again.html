@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="twelve rows">
+            <h1>Wyślij ponownie</h1>
+            <h4>Wpisz poniżej swój adres email</h4>
+            <p>Wyślemy linka do aktywacji konta</p>
+            <form action="" method="POST">
+                {{ form.as_p }}
+                {% csrf_token %}
+                <input type="submit" class="button-primary" value="Wyślij">
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
