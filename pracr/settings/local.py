@@ -33,7 +33,7 @@ MIDDLEWARE += [
     ]
 #end admin docs
 
-"""
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -74,13 +74,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'myproject.custom': {
-            'handlers': ['console', 'mail_admins'],
+        'axes': {
+            'handlers': ['console',],
             'level': 'INFO',
         }
     }
 }
-"""
+
 
 
 """

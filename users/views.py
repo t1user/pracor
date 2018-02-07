@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth import (authenticate, get_user_model, login,)
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -145,7 +144,7 @@ class LoginErrorView(NoAuthenticatedUsersMixin, View):
         return render(request,self.template_name)
 
 
-class LoginCustomView(NoAuthenticatedUsersMixin, LoginView):
+class LoginCustomView(LoginView):
     """
     Handle login process.
     """
@@ -243,8 +242,8 @@ class ActivationEmailSendAgain(NoAuthenticatedUsersMixin, FormView):
     def form_valid(self, form):
         email = form.cleaned_data['email']
         try:
-            user = User.objects.get(email=email)
-        except ObjectDoesNotExist:
+            user = get_user_model().objects.get(email=email)
+        except get_user_model().DoesNotExist:
             return redirect('account_activation_sent')
         subject = 'Aktywuj konto na pracor.pl - wysłano ponownie'
         message = render_to_string(self.activation_email_template, {
