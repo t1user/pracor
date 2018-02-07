@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth import (authenticate, get_user_model, login,)
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -231,6 +232,9 @@ class EmailConfirmReminderView(NoAuthenticatedUsersMixin, TemplateView):
     template_name = 'registration/email_confirm_reminder.html'
 
 class ActivationEmailSendAgain(NoAuthenticatedUsersMixin, FormView):
+    """
+    Display form, where users input address where activation email should be resent.
+    """
     form_class = ActivationEmailSendAgainForm
     template_name = 'registration/activation_email_send_again.html'
     activation_email_template = 'registration/account_activation_email.html'
@@ -240,7 +244,7 @@ class ActivationEmailSendAgain(NoAuthenticatedUsersMixin, FormView):
         email = form.cleaned_data['email']
         try:
             user = User.objects.get(email=email)
-        except DoesNotExist:
+        except ObjectDoesNotExist:
             return redirect('account_activation_sent')
         subject = 'Aktywuj konto na pracor.pl - wysłano ponownie'
         message = render_to_string(self.activation_email_template, {
