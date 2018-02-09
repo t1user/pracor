@@ -69,7 +69,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': 'debug.log',
         },
@@ -80,6 +80,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'axes': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+            },
     },
 }
 
@@ -90,3 +95,9 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
 #required by debug_toolbars
 INTERNAL_IPS += ['89.73.79.21', '']
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
