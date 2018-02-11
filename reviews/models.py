@@ -9,7 +9,6 @@ from django.utils.text import slugify
 from unidecode import unidecode
 
 from .managers import SelectedManager, SalaryManager, ArrayAgg #modified version of ArrayAgg
-from .validators import PercentValidator
 
 
 class ApprovableModel(models.Model):

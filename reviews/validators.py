@@ -6,6 +6,8 @@ import requests
 from django import forms
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from .models import Company
+from urllib.parse import urlsplit
 
 
 class ProfanitiesFilter():
@@ -83,11 +85,24 @@ class PercentValidator():
         
 class WWWValidator:
     """
-    Check if website exists.
+    Check if website with given url exists. Don't allow:
+    a). non-exising url (or url which doesn't work for some reason)
+    b). url, which redirects to a url for which a Company already exists
     """
     def __call__(self, www):
         try:
             r = requests.get(www)
+            if r.history:
+                url = urlsplit(r.url)
+                url_domain = 'http://{}'.format(url.netloc)
+                try:
+                    existing = Company.objects.get(website=url_domain)
+                except:
+                    existing = None
+                if existing:
+                    raise ValidationError(
+                        'Istnieje już firma: {}'.format(existing.name),
+                        code='redirected')
         except requests.exceptions.RequestException as e:
             raise ValidationError(
                 'Podany adres www nie odpowiada.',
