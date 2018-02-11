@@ -33,7 +33,7 @@ MIDDLEWARE += [
     ]
 #end admin docs
 
-
+"""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -80,7 +80,7 @@ LOGGING = {
         }
     }
 }
-
+"""
 
 
 """

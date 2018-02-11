@@ -1,8 +1,10 @@
 import csv
 import re
 import os
+import requests
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.conf import settings
 
 
@@ -79,3 +81,14 @@ class PercentValidator():
                 'Wymagana cyfra z zakresu 1-100',
                 code='invalid')
         
+class WWWValidator:
+    """
+    Check if website exists.
+    """
+    def __call__(self, www):
+        try:
+            r = requests.get(www)
+        except requests.exceptions.RequestException as e:
+            raise ValidationError(
+                'Podany adres www nie odpowiada.',
+                code='bounced')

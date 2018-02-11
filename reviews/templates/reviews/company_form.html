@@ -5,42 +5,34 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-
             <h1>Dodawanie firmy do bazy danych</h1>
         </div>
         <div class=row>
             <div class="twelve columns">
-
-            <form class="u-full-width" action='' method='POST'>
-
-                
-                {{ form.as_p }}
-
-
-                {% csrf_token %}
-                <input type='submit' value='Wyślij'>
-
-            </form>
-
-
-            {% if unique_error %}
-            <h2>Istniejące firmy:</h2>
-            <ul>
-                {% if request.session.new_names %}
-                <p>(klinknij link poniżej, żeby wrócić do strony wyboru)</p>
-                {% for company in unique_error %}
-                <li><a href="{% url 'linkedin_associate' %}">{{ company.name }}</a></li>
-                {% endfor %}
-                {% else %}
-                {% for company in unique_error %}
-                <li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
-                {% endfor %}
+                <form class="u-full-width" action='' method='POST'>
+                    {% include 'reviews/_render_form.html' %}
+                    {% csrf_token %}
+                    <input type='submit' value='Wyślij'>
+                </form>
+                <div class="required"><i>*Pola wymagane</i></div>
+                {% if unique_error %}
+                <h2>Istniejące firmy:</h2>
+                <ul>
+                    {% if request.session.new_names %}
+                    <p>(klinknij link poniżej, żeby wrócić do strony wyboru)</p>
+                    {% for company in unique_error %}
+                    <li><a href="{% url 'linkedin_associate' %}">{{ company.name }}</a></li>
+                    {% endfor %}
+                    {% else %}
+                    {% for company in unique_error %}
+                    <li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
+                    {% endfor %}
+                    {% endif %}
+                </ul>
                 {% endif %}
-            </ul>
-            {% endif %}
+            </div>
         </div>
     </div>
-</div>
 
 
 {% endblock content %}

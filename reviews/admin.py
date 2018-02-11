@@ -53,11 +53,12 @@ class InterviewInline(ItemInline):
 @admin.register(Company)
 class CompanyAdmin(ModelAdminModified):
     readonly_fields = ('count_reviews', 'count_salaries', 'count_interviews',
-                       'reviewer', 'date', 'reviewed_date', 'get_ratings', 'slug')
-    actions = ['update_scores']
-    search_fields = ['name']
-    list_display = ['id', 'name', 'headquarters_city', 'website', 'count_reviews',
-                    'count_salaries', 'count_interviews', 'approved', 'reviewer']
+                       'reviewer', 'date', 'reviewed_date', 'get_ratings', 'slug', 'date')
+    search_fields = ['name', ]
+    list_display = ['date', 'id', 'name', 'headquarters_city', 'website',
+                    #'count_reviews', 'count_salaries', 'count_interviews',
+                    'approved', #'reviewer',
+    ]
     list_display_links = ['name', ]
     inlines = (ReviewInline, SalaryInline, InterviewInline, )
 
@@ -79,6 +80,14 @@ class CompanyAdmin(ModelAdminModified):
         }),
     )
 
+    def __init__(self, *args, **kwargs):
+        """
+        Prevent overriding the superclass parameter.
+        The class is inherited so defining class variable overrides the superclass parameter.
+        """
+        super().__init__(*args, **kwargs)
+        self.list_filter += ('date',)
+    
     def count_reviews(self, obj):
         return obj.reviews.count()
     count_reviews.short_description = "Liczba opinii"
@@ -94,11 +103,6 @@ class CompanyAdmin(ModelAdminModified):
     def get_ratings(self, obj):
         return obj.get_scores_strings()
     get_ratings.short_description = "Oceny"
-
-    def update_scores(self, request, queryset):
-        for item in queryset:
-            item.update_scores()
-    update_scores.short_description = "Uaktualnij oceny"
 
 
 @admin.register(Review)

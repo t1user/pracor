@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from .models import Company, Interview, Position, Review, Salary, Benefit
 from .widgets import RadioReversed, RadioSelectModified
-from .validators import ProfanitiesFilter, TextLengthValidator
+from .validators import ProfanitiesFilter, TextLengthValidator, WWWValidator
 
 
 
@@ -46,6 +46,10 @@ class CompanyCreateForm(forms.ModelForm):
             'headquarters_city': CensoredField,
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['website'].validators.append(WWWValidator())
+
     def clean_name(self):
         return self.cleaned_data['name'].title()
         
@@ -60,7 +64,6 @@ class CompanyCreateForm(forms.ModelForm):
             url = url.replace('https', 'http')
         if not url.startswith('http://www.'):
             url = url.replace('http://', 'http://www.')
-        # TODO check here if the website returns 200
         return url
 
 
@@ -256,9 +259,6 @@ class SalaryForm(forms.ModelForm):
             )
             new_benefits_list.append(new_benefit)
         return chain(new_benefits_list, existing_benefits)
-
-
-
  
     def clean(self):
         cleaned_data = super().clean()
@@ -267,10 +267,6 @@ class SalaryForm(forms.ModelForm):
             other = cleaned_data['other']
             cleaned_data['benefits'] = chain(benefits, other)
         return cleaned_data
-
-    
-
-
 
 
 class InterviewForm(forms.ModelForm):
