@@ -40,6 +40,7 @@ class PositionInline(admin.StackedInline):
             salary=''
         return str(review) + str(salary)
 
+    
 class InterviewInline(admin.TabularInline):
     model = Interview
     extra = 0
@@ -59,7 +60,7 @@ class VisitInline(admin.TabularInline):
     classes = ('collapse',)
     raw_id_fields = ('company',)
     extra = 0
-    readonly_fields = ('timestamp', 'company')
+    readonly_fields = ('timestamp', 'company', 'ip')
 
 
 class ProfileInline(admin.StackedInline):

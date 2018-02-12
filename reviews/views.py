@@ -219,7 +219,8 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
         of the visit added by model).
         """
         Visit.objects.create(company=self.object,
-                             user=self.request.user.profile)
+                             user=self.request.user.profile,
+                             ip=self.request.META['REMOTE_ADDR'])
 
 
 class CompanyItemsRedirectView(RedirectView):

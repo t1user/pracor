@@ -75,16 +75,10 @@ class TextLengthValidator():
                 'Za krótki wpis, wymagane {req} słow (brakuje {miss})'.format(
                     miss=miss, req=self.req), code='invalid')
 
-
-class PercentValidator():
-    def __call__(self, value):
-        if value >100:
-            raise ValidationError(
-                'Wymagana cyfra z zakresu 1-100',
-                code='invalid')
         
 class WWWValidator:
     """
+    Used for validating new Company urls input by users.
     Check if website with given url exists. Don't allow:
     a). non-exising url (or url which doesn't work for some reason)
     b). url, which redirects to a url for which a Company already exists

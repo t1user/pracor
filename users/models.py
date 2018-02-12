@@ -105,6 +105,8 @@ class Visit(models.Model):
     company = models.ForeignKey(Company)
     user = models.ForeignKey(Profile)
     timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=True,
+                                      editable=False, blank=True, null=True)
 
     def __str__(self):
         return self.company.name
