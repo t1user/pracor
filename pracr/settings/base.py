@@ -166,6 +166,7 @@ AXES_LOCKOUT_TEMPLATE = 'registration/wrong_password_block.html'#template to ren
 #AXES_LOCOUT_URL = #specifies a URL to redirect to on lockout. If both AXES_LOCKOUT_TEMPLATE and AXES_LOCKOUT_URL are set, the template will be used. 
 AXES_ONLY_USER_FAILURES = True
 
+#django_analytical configuration
 CLICKY_SITE_ID = '101101103'
 GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-112817315-1'
 GOOGLE_ANALYTICS_SITE_SPEED = True

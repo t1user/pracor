@@ -36,7 +36,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
                     </a>
                 </article>
             </div>
-            {% if company.reviews.count %}
+            {% if company.reviews %}
 
             <article class="five columns">
                 {% include "reviews/_rating_table.html" with scores=company.scores %}
@@ -55,7 +55,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
 </div>
 
 {% for name, item in items.items %}
-{% if item.count %}
+{% if item %}
 <div class="container">
     <section>
         {% include name|file with object=item.first scores=item.first.scores %}

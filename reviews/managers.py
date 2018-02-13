@@ -73,16 +73,12 @@ class SalaryManager(SelectedManager):
     
     def sums(self, **kwargs):
         """
-        Return average, min and max of all annual salaries in the company.
+        Return average, min and max of all monthly salaries in the company.
         """
-        salaries_annual = self.selected(**kwargs).aggregate(
-            sum_avg = Avg('salary_gross_annual', output=models.IntegerField()),
-            sum_min = Min('salary_gross_annual', output=models.IntegerField()),
-            sum_max = Max('salary_gross_annual', output=models.IntegerField()),
+        return self.selected(**kwargs).aggregate(
+            sum_avg = Avg('salary_gross_annual', output=models.IntegerField())/12,
+            sum_min = Min('salary_gross_annual', output=models.IntegerField())/12,
+            sum_max = Max('salary_gross_annual', output=models.IntegerField())/12,
             sum_count = Count('salary_input'),
             )
-        #convert annual to monthly
-        salaries_monthly = {key: int(value/12) for key, value in salaries_annual.items()}
-        #count shouldn't have been divided by 12
-        salaries_monthly['sum_count'] = salaries_annual['sum_count']
-        return salaries_monthly
+

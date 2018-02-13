@@ -69,7 +69,7 @@ class VisitInline(admin.TabularInline):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        qs = qs.select_related('company', 'user')
+        qs = qs.select_related()
         return qs
 
 
