@@ -142,7 +142,7 @@ class ProfileAdmin(admin.ModelAdmin):
     For benefit of editors who do not have permission to edit users.
     """
     readonly_fields = ('user', 'date_joined',
-                       'last_login', 'show_visits')
+                       'last_login', 'show_visits', 'show_unique_visits')
     list_display = ('user', 'sex', 'date_joined', 'last_login', 'contributed',)
     radio_fields = {'sex': admin.HORIZONTAL}
     
@@ -161,7 +161,10 @@ class ProfileAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
             'fields': ('show_visits',),
         }),
-
+        ('Odwiedzone firmy', {
+            'classes': ('collapse',),
+            'fields': ('show_unique_visits',),
+        }),
     )
 
     def date_joined(self, obj):
@@ -193,7 +196,19 @@ class ProfileAdmin(admin.ModelAdmin):
         display = 'Liczba wizyt: {}\n'.format(count) + display
         return display
     show_visits.short_description = "wizyty"
-        
+
+
+    def show_unique_visits(self, obj):
+        """
+        List all visited Companies with number of visits for each.
+        """
+        visits = obj.visited_companies.values('name').annotate(models.Count('name'))
+        display = [[item['name'], str(item['name__count'])] for item in visits]
+        display = '\n'.join(' - '.join(i) + 'x' for i in display)
+        display = 'Odwiedzonych firm: {}\n'.format(visits.count()) + display
+        return display
+    show_unique_visits.short_description = "odwiedzone firmy"
+
 @admin.register(Visit)
 class VisitAdmin(admin.ModelAdmin):
     readonly_fields = ('company', 'user', 'timestamp', 'ip', 'path')
