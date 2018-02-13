@@ -56,11 +56,20 @@ class InterviewInline(admin.TabularInline):
 
     
 class VisitInline(admin.TabularInline):
+    """
+    CURRENTLY NOT IN USE.
+    SQL query is very slow.
+    """
     model = Visit
     classes = ('collapse',)
     raw_id_fields = ('company',)
     extra = 0
     readonly_fields = ('timestamp', 'company', 'ip')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.select_related('company', 'user')
+        return qs
 
 
 class ProfileInline(admin.StackedInline):
@@ -166,9 +175,13 @@ class ProfileAdmin(admin.ModelAdmin):
         """
         Provide visit information in no more than 2 queries (inlines suffer from n+1 issue).
         """
-        visits = obj.visited_companies.through.objects.filter(user=obj).values('timestamp', 'company__name', 'ip', )
+        visits = obj.visited_companies.through.objects.filter(
+            user=obj).order_by(
+                '-timestamp').values(
+                    'timestamp',
+                    'company__name',
+                    'ip', )
         count = visits.count()
-        print(visits)
         display = [['{:%m/%d/%y %H:%M}'.format(item['timestamp']),
                     item['company__name'],
                     str(item['ip'] or " ")]
