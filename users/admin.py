@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.db import models
 from django.forms import Textarea, TextInput
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from social_django.models import UserSocialAuth
 
@@ -64,7 +65,7 @@ class VisitInline(admin.TabularInline):
     classes = ('collapse',)
     raw_id_fields = ('company',)
     extra = 0
-    readonly_fields = ('timestamp', 'company', 'ip')
+    readonly_fields = ('timestamp', 'company', 'path', 'ip')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -180,10 +181,12 @@ class ProfileAdmin(admin.ModelAdmin):
                 '-timestamp').values(
                     'timestamp',
                     'company__name',
+                    'path',
                     'ip', )
         count = visits.count()
-        display = [['{:%m/%d/%y %H:%M}'.format(item['timestamp']),
+        display = [['{:%d/%m/%y %H:%M}'.format(timezone.localtime(item['timestamp'])),
                     item['company__name'],
+                    item['path'],
                     str(item['ip'] or " ")]
                    for item in visits]
         display = '\n'.join('\t'.join(i) for i in display)
@@ -193,8 +196,8 @@ class ProfileAdmin(admin.ModelAdmin):
         
 @admin.register(Visit)
 class VisitAdmin(admin.ModelAdmin):
-    readonly_fields = ('company', 'user', 'timestamp', 'ip')
-    list_display =  ( 'timestamp', 'company', 'user', 'ip')
+    readonly_fields = ('company', 'user', 'timestamp', 'ip', 'path')
+    list_display =  ( 'timestamp', 'company', 'user', 'path', 'ip')
     search_fields = ('company__name', 'company__slug', 'company__website', 'user__user__email', )
     list_filter = ('timestamp', 'ip')
     

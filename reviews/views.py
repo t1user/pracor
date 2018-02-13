@@ -218,6 +218,7 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
         Record user who visited the Company (date
         of the visit added by model).
         """
+        path = self.request.get_full_path()
         ip = self.request.META.get('REMOTE_ADDR')
         if not ip:
             ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
@@ -225,6 +226,7 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
             ip = self.request.META.get('HTTP_X_REAL_IP')
         Visit.objects.create(company=self.object,
                              user=self.request.user.profile,
+                             path=path,
                              ip=ip)
 
 
