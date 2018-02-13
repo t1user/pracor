@@ -33,21 +33,20 @@ class ItemInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 30})}
     }
+    show_change_link = True
 
 
 class ReviewInline(ItemInline):
     model = Review
-    show_change_link = True
+
 
 class SalaryInline(ItemInline):
     model = Salary
     readonly_fields = ('benefits',)
-    show_change_link = True
 
 
 class InterviewInline(ItemInline):
     model = Interview
-    show_change_link = True
 
 
 @admin.register(Company)

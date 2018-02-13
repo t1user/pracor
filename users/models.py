@@ -61,9 +61,6 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    class Meta:
-        verbose_name = "Profil"
-        verbose_name_plural = "Profil"
     year = timezone.now().year
     SEX = [('K', 'Kobieta'), ('M', 'Mężczyzna')]
     career_year = range(year, 1959, -1)
@@ -97,6 +94,10 @@ class Profile(models.Model):
     linkedin_url = models.URLField(null=True, blank=True)
     visited_companies = models.ManyToManyField(Company, through='Visit')
 
+    class Meta:
+        verbose_name = "Profil"
+        verbose_name_plural = "Profil"
+    
     def __str__(self):
         return self.user.email
 
@@ -108,5 +109,9 @@ class Visit(models.Model):
     ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=True,
                                       editable=False, blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Wizyta'
+        verbose_name_plural = 'Wizyty'
+    
     def __str__(self):
         return self.company.name

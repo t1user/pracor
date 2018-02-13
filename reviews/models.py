@@ -84,7 +84,7 @@ class Company(ApprovableModel):
 
     @property
     def reviews(self):
-        return Review.objects.selected(company=self.pk).order_by('-date')
+        return Review.objects.selected(company=self.pk).select_related('position').order_by('-date')
 
     @property
     def sum_reviews(self):
@@ -96,7 +96,7 @@ class Company(ApprovableModel):
 
     @property
     def salaries_count(self):
-        return len(Salary.objects.groups(company=self.pk))
+        return Salary.objects.groups(company=self.pk).count()
 
     @property
     def sum_salaries(self):
@@ -138,7 +138,20 @@ class Company(ApprovableModel):
             compensation = Avg('compensation'),
             environment = Avg('environment'),
             )
-
+    
+    @property
+    def item_count(self):
+        """
+        Return number of Reviews, Salaries and Interviews for Company.
+        Potentially used to save number of querries in templates.
+        CURRENTLY NOT IN USE.
+        """
+        return Company.objects.filter(id=self.pk).aggregate(
+            review = Count('review', distinct=True),
+            salary = Count('salary', distinct=True),
+            interview = Count('interview', distinct=True),
+            )
+    
     def get_scores_strings(self):
         """
         Return human readable string of scores (e.g. for admin)

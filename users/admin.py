@@ -26,6 +26,7 @@ class PositionInline(admin.StackedInline):
     raw_id_fields = ('company',)
     show_change_link = True
     readonly_fields = ('items',)
+    list_select_related = True
 
     def items(self, obj):
         review = Review.objects.filter(position=obj)
@@ -52,7 +53,6 @@ class InterviewInline(admin.TabularInline):
         models.CharField: {'widget': TextInput(attrs={'size': 20})},
         models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 20})}
     }
-
 
     
 class VisitInline(admin.TabularInline):
@@ -124,10 +124,7 @@ class UserAdmin(DjangoUserAdmin):
         if not obj:
             return []
         return super().get_inline_instances(request, obj)
-    
-
-
-    
+        
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -135,9 +132,8 @@ class ProfileAdmin(admin.ModelAdmin):
     For benefit of editors who do not have permission to edit users.
     """
     readonly_fields = ('user', 'date_joined',
-                       'last_login', 'visited_companies')
+                       'last_login', 'show_visits')
     list_display = ('user', 'sex', 'date_joined', 'last_login', 'contributed',)
-    inlines = (VisitInline,)
     radio_fields = {'sex': admin.HORIZONTAL}
     
     fieldsets = (
@@ -151,9 +147,9 @@ class ProfileAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
             'fields': ('linkedin_id', 'linkedin_url'),
         }),
-        (None, {
+        ('Wizyty', {
             'classes': ('collapse',),
-            'fields': ('visited_companies',),
+            'fields': ('show_visits',),
         }),
 
     )
@@ -165,3 +161,27 @@ class ProfileAdmin(admin.ModelAdmin):
     def last_login(self, obj):
         return obj.user.last_login
     last_login.short_description = "ostatnie logowanie"
+
+    def show_visits(self, obj):
+        """
+        Provide visit information in no more than 2 queries (inlines suffer from n+1 issue).
+        """
+        visits = obj.visited_companies.through.objects.filter(user=obj).values('timestamp', 'company__name', 'ip', )
+        count = visits.count()
+        print(visits)
+        display = [['{:%m/%d/%y %H:%M}'.format(item['timestamp']),
+                    item['company__name'],
+                    str(item['ip'] or " ")]
+                   for item in visits]
+        display = '\n'.join('\t'.join(i) for i in display)
+        display = 'Liczba wizyt: {}\n'.format(count) + display
+        return display
+    show_visits.short_description = "wizyty"
+        
+@admin.register(Visit)
+class VisitAdmin(admin.ModelAdmin):
+    readonly_fields = ('company', 'user', 'timestamp', 'ip')
+    list_display =  ( 'timestamp', 'company', 'user', 'ip')
+    search_fields = ('company__name', 'company__slug', 'company__website', 'user__user__email', )
+    list_filter = ('timestamp', 'ip')
+    
