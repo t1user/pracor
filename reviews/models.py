@@ -33,9 +33,9 @@ class Company(ApprovableModel):
                   ('D', '1001-5000'), ('E', '5001-10000'), ('F', '>10000')]
 
     # only three values are required - to make company creation easy for users
-    name = models.CharField('nazwa', max_length=200, unique=True)
+    name = models.CharField('nazwa', max_length=200, unique=True, db_index=True)
     headquarters_city = models.CharField('siedziba centrali', max_length=60)
-    website = models.URLField('strona www', unique=True)
+    website = models.URLField('strona www', unique=True, db_index=True)
 
     # other fields are optional, to be filled-in by admins (rather than users)
     date = models.DateField('data dodania do bazy',
@@ -183,7 +183,7 @@ class Position(models.Model):
     MONTHS_E.insert(0, ('', '--'))
 
 
-    date = models.DateTimeField(auto_now_add=True, editable=False)
+    date = models.DateTimeField(auto_now_add=True, editable=False, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # company_name used to store name before entry is associated with
     # Company database record
@@ -209,6 +209,10 @@ class Position(models.Model):
     class Meta:
         verbose_name = "Stanowisko"
         verbose_name_plural = "Stanowiska"
+        indexes = [
+            models.Index(fields=['position', 'company']),
+            models.Index(fields=['user', 'company'])
+            ]
 
     def __str__(self):
         if self.company:
@@ -228,7 +232,8 @@ class Review(ApprovableModel):
 
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
 
-    date = models.DateTimeField('data', auto_now_add=True, editable=False)
+    date = models.DateTimeField('data', auto_now_add=True, editable=False,
+                                db_index=True)
     company = models.ForeignKey(Company, verbose_name='firma',
                                 on_delete=models.CASCADE, editable=False)
     position = models.OneToOneField(Position, verbose_name='stanowisko',
@@ -342,6 +347,9 @@ class Salary(ApprovableModel):
     class Meta:
         verbose_name = "Zarobki"
         verbose_name_plural = "Zarobki"
+        indexes =[
+            models.Index(fields=['company', 'position'])
+            ]
 
     def __str__(self):
         return 'id_{}_{}'.format(self.id, self.company)
@@ -486,10 +494,10 @@ class Interview(ApprovableModel):
     RATINGS = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True, editable=False)
+    date = models.DateTimeField(auto_now_add=True, editable=False, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, related_name='user')
-    position = models.CharField('stanowisko', max_length=100)
+    position = models.CharField('stanowisko', max_length=100, db_index=True)
     department = models.CharField('departament', max_length=100, blank=True)
     how_got = models.CharField('droga do interview',
                                max_length=1, choices=HOW_GOT, default=None)
