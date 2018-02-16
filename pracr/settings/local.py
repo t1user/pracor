@@ -1,16 +1,14 @@
 from .base import *
 from pracr.sendgrid_creds import *
+from django.utils.log import DEFAULT_LOGGING
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -33,11 +31,11 @@ MIDDLEWARE += [
     ]
 #end admin docs
 
-"""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'django.server': DEFAULT_LOGGING['formatters']['django.server'],
         'verbose': {
             'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
@@ -51,79 +49,54 @@ LOGGING = {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
     },
     'handlers': {
-        'console': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
+        'django.server': DEFAULT_LOGGING['handlers']['django.server'],
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
-        }
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'propagate': True,
+            'formatter': 'simple',
         },
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'axes': {
-            'handlers': ['console',],
-            'level': 'INFO',
-        }
-    }
-}
-"""
-
-
-"""
-LOGGING = {
-    'version': 1,
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        }
-    },
-    'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        }
-    }
-}
-"""
-
-"""
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
+        'django.server': DEFAULT_LOGGING['loggers']['django.server'],
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
+            'level': 'NOTSET',
+            'propagate': False,
         },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console', ],
+            'propagate': False,
+        },
+        'social_django': {
+            'level': 'ERROR',
+            'handlers': ['console', ],
+            },
+        'axes': {
+            'level': 'ERROR',
+            'handlers': ['console', ],
+            },
+        'reviews': {
+            'level': 'INFO',
+            'handlers': ['console', ],
+            },
+        'users': {
+            'level': 'INFO',
+            'handlers': ['console', ],
+            },
     },
 }
-"""
+
 

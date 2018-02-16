@@ -1,5 +1,6 @@
 from .base import *
 from pracr.sendgrid_key import SENDGRID_API_KEY
+import sys, os
 
 DEBUG = False
 
@@ -26,70 +27,6 @@ DATABASES = {
 }
 STATIC_URL = '/static_root/'
 
-"""
-LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'log')
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'applogfile': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_ROOT, 'pracr.log'),
-            'maxBytes': 1024*1024*15, # 15MB
-            'backupCount': 10,
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['mail_admins', 'applogfile'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'social_django': {
-            'handlers': ['applogfile',],
-            'level': 'DEBUG',
-        },
-    },
-}
-"""
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'axes': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-            },
-    },
-}
-
-
-
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
@@ -104,3 +41,90 @@ CACHES = {
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+
+LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'log')
+HANDLERS_LIST = ['mail_admins', 'rotating_file', 'weekday_rotating_file']
+LOGLEVEL = os.environ.get('PRACOR_LOGLEVEL', 'ERROR').upper()
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+            'formatter': 'verbose',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+            'formatter': 'verbose',
+        },
+        'rotating_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_ROOT, 'pracr.log'),
+            'maxBytes': 1024*1024*15, # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'weekday_rotating_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(LOG_ROOT, 'pracr.log'),
+            'when': 'D',
+            'backupCount': 30,
+            'formatter': 'verbose',
+            },
+    },
+    'loggers': {
+        'django': {
+            'handlers': HANDLERS_LIST,
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'axes': {
+            'handlers': HANDLERS_LIST,
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'social_django': {
+            'handlers': HANDLERS_LIST,
+            'level': 'DEBUG',
+        },
+        'reviews': {
+            'handlers': HANDLERS_LIST,
+            'level': 'DEBUG',
+            },
+        'users': {
+            'handlers': HANDLERS_LIST,
+            'level': 'DEBUG',
+            },
+}
