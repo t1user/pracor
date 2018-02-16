@@ -34,8 +34,10 @@ urlpatterns = [
                                                name='favicon'),
 
     url(r'admin/doc/', include('django.contrib.admindocs.urls')),
+
+    url(r'^admin', include('admin_honeypot.urls', namespace='admin_honeypot')),
     
-    url(r'^admin/', admin.site.urls),
+    url(r'^pracormaster/', admin.site.urls),
 ]
 
 if settings.DEBUG:

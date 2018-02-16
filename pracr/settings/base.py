@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     'axes',
     'debug_toolbar',
     'analytical',
+    'admin_honeypot',
 ]
 
 PROJECT_APPS = [

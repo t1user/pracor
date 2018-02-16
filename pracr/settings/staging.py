@@ -110,6 +110,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django.template': {
+            'level': 'NOTSET',
+            'propagate': False,
+            },
         'axes': {
             'handlers': HANDLERS_LIST,
             'level': 'ERROR',
