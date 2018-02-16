@@ -7,7 +7,7 @@
         
     </div>
     <div class="five columns">
-        {% include "reviews/_top_rating.html" %}
+        {% include "reviews/_top_rating.html" with scores=object.scores %}
     </div>
 </div>
 
@@ -23,7 +23,7 @@
         {% endif %}
     </div>
     <div class="five columns">
-        {% include "reviews/_rating_table.html" %}
+        {% include "reviews/_rating_table.html" with scores=object.scores %}
     </div>
 </div>
 

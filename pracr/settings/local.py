@@ -62,7 +62,7 @@ LOGGING = {
             'formatter': 'simple',
         },
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
@@ -72,7 +72,7 @@ LOGGING = {
         'django.server': DEFAULT_LOGGING['loggers']['django.server'],
         'django': {
             'handlers': ['console'],
-            'level': 'NOTSET',
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django.db.backends': {

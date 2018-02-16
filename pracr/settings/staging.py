@@ -90,7 +90,7 @@ LOGGING = {
         'rotating_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_ROOT, 'pracr.log'),
+            'filename': os.path.join(LOG_ROOT, 'error.log'),
             'maxBytes': 1024*1024*15, # 15MB
             'backupCount': 10,
             'formatter': 'verbose',
@@ -98,7 +98,7 @@ LOGGING = {
         'weekday_rotating_file': {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(LOG_ROOT, 'pracr.log'),
+            'filename': os.path.join(LOG_ROOT, 'info.log'),
             'when': 'D',
             'backupCount': 30,
             'formatter': 'verbose',

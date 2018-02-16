@@ -58,7 +58,7 @@ pracr | {{ company.name }} | Opinie, zarobki, interview
 {% if item %}
 <div class="container">
     <section>
-        {% include name|file with object=item.first scores=item.first.scores %}
+        {% include name|file with object=item.first %}
         {% if item.count > 1 %}
                 <div class="more-button">
                     <a href="{% url 'company_items' company.pk name|translate company.slug %}" class="button button-primary">Wszystkie {{ name|translate }} ({{ item.count }}) >></a>
