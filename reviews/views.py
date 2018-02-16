@@ -1,5 +1,6 @@
 import hashlib
 import datetime
+import logging
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -26,6 +27,8 @@ from .forms import (CompanyCreateForm, CompanySearchForm, CompanySelectForm,
                     InterviewForm, PositionForm, ReviewForm, SalaryForm, ContactForm)
 from .models import Company, Interview, Position, Review, Salary
 
+
+logger = logging.getLogger(__name__)
 
 def success_message(request):
     """
@@ -205,6 +208,7 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
         add items that will  help looping in templates.
         """
         self.record_visit()
+        logger.debug('inside company detail view')
         context = super().get_context_data(**kwargs)
         context['items'] = {
             'review': self.object.reviews,

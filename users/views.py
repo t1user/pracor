@@ -1,3 +1,4 @@
+import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import (authenticate, get_user_model, login,)
@@ -18,6 +19,9 @@ from .forms import (CreateProfileForm_profile, CreateProfileForm_user, UserCreat
                     PasswordResetCustomForm, ActivationEmailSendAgainForm)
 from .models import User
 from .tokens import account_activation_token
+
+
+logger = logging.getLogger(__name__)
 
 
 class NoAuthenticatedUsersMixin:

@@ -88,7 +88,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'rotating_file': {
-            'level': 'ERROR',
+            'level': LOGLEVEL,
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOG_ROOT, 'error.log'),
             'maxBytes': 1024*1024*15, # 15MB
@@ -118,14 +118,17 @@ LOGGING = {
         'social_django': {
             'handlers': HANDLERS_LIST,
             'level': 'DEBUG',
+            'propagate': True,
         },
         'reviews': {
             'handlers': HANDLERS_LIST,
             'level': 'DEBUG',
+            'propagate': True,
             },
         'users': {
             'handlers': HANDLERS_LIST,
             'level': 'DEBUG',
+            'propagate': True,
             },
     },
 }

@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
@@ -6,6 +7,9 @@ from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
 from reviews.models import Company
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserManager(BaseUserManager):

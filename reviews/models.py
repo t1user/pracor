@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.conf import settings
 from django.db import models
@@ -10,6 +11,8 @@ from unidecode import unidecode
 
 from .managers import SelectedManager, SalaryManager, ArrayAgg #modified version of ArrayAgg
 
+
+logger = logging.getLogger(__name__)
 
 class ApprovableModel(models.Model):
     """
