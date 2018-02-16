@@ -84,7 +84,7 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
             'formatter': 'verbose',
         },
         'rotating_file': {
@@ -127,4 +127,5 @@ LOGGING = {
             'handlers': HANDLERS_LIST,
             'level': 'DEBUG',
             },
+    },
 }

@@ -376,7 +376,6 @@ class Interview(ApprovableModel):
         ('B', 'Kontakty zawodowe'),
         ('C', 'Head-hunter'),
         ('D', 'Znajomi/rodzina'),
-        ('E', 'Seks z decydentem'),
         ('F', 'Targi/prezentacje'),
         ('G', 'Strona internetowa firmy'),
         ('H', 'Inne'),
