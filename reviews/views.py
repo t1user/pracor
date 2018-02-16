@@ -208,7 +208,6 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
         add items that will  help looping in templates.
         """
         self.record_visit()
-        logger.debug('inside company detail view')
         context = super().get_context_data(**kwargs)
         context['items'] = {
             'review': self.object.reviews,

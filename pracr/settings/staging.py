@@ -44,7 +44,7 @@ CSRF_COOKIE_SECURE = True
 
 
 LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'log')
-HANDLERS_LIST = ['mail_admins', 'rotating_file', 'weekday_rotating_file']
+HANDLERS_LIST = ['mail_admins', 'rotating_file', 'day_rotating_file']
 LOGLEVEL = os.environ.get('PRACOR_LOGLEVEL', 'ERROR').upper()
 LOGGING = {
     'version': 1,
@@ -55,7 +55,7 @@ LOGGING = {
             'style': '{',
         },
         'simple': {
-            'format': '{asctime} {levelname} {message}',
+            'format': '{asctime} {module} {levelname} {message}',
             'style': '{',
         },
     },
@@ -79,29 +79,29 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': 'debug.log',
-            'formatter': 'verbose',
+            'formatter': 'simple',
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
-            'formatter': 'verbose',
+            'formatter': 'simple',
         },
         'rotating_file': {
-            'level': LOGLEVEL,
+            'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOG_ROOT, 'error.log'),
             'maxBytes': 1024*1024*15, # 15MB
             'backupCount': 10,
-            'formatter': 'verbose',
+            'formatter': 'simple',
         },
-        'weekday_rotating_file': {
+        'day_rotating_file': {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(LOG_ROOT, 'info.log'),
             'when': 'D',
             'backupCount': 30,
-            'formatter': 'verbose',
+            'formatter': 'simple',
             },
     },
     'loggers': {
@@ -112,7 +112,7 @@ LOGGING = {
         },
         'axes': {
             'handlers': HANDLERS_LIST,
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
         'social_django': {

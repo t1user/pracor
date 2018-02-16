@@ -31,7 +31,6 @@ MIDDLEWARE += [
     ]
 #end admin docs
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -90,11 +89,11 @@ LOGGING = {
             'handlers': ['console', ],
             },
         'reviews': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'handlers': ['console', ],
             },
         'users': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'handlers': ['console', ],
             },
     },
