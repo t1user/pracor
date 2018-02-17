@@ -206,7 +206,7 @@ table {
     }
 
     .action-buttons.items {
-        justify-content: space-between;
+        justify-content: flex-start;
     }
     
     .action-button.responsive {
