@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^favicon.ico$', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico')),
                                                name='favicon'),
 
-    url(r'admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'pracordoc/doc/', include('django.contrib.admindocs.urls')),
 
     url(r'^admin', include('admin_honeypot.urls', namespace='admin_honeypot')),
     

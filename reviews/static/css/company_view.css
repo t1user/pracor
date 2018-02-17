@@ -1,10 +1,13 @@
-/* This file is a TOTAL MESS*/
-/* It needs a MAJOR cleanup */
-
+.stars {
+    color: #e6b800;
+    font-size: 3.5rem;
+    padding-bottom: 1rem;
+}
 
 @media screen and (min-width: 600px) {
     .stars {
         font-size: 4.8rem;
+        padding-bottom: 0;
     }
 
     table .stars {
@@ -16,13 +19,13 @@
     }
 }
 
+
 .overall {
     display: inline-flex;
 }
 
 .left-block {
     float: left;
-    /*margin-right: 2rem;*/
 }
 
 .score {
@@ -30,10 +33,6 @@
     color:  #e6b800;
 }
 
-
-.stars {
-    color: #e6b800;
-}
 
 td {
     padding: 0;
@@ -69,31 +68,6 @@ table {
     background-color: #e7fdef;
 }
 
-@media screen and (max-width: 900px) {
-    .stars {
-        font-size: 3.5rem;
-        padding-bottom: 0.9rem;
-        
-    }
-
-    .fa {
-        font-size: 1.2rem;
-    }
-    /*
-    .counter-button {
-        padding: .8rem;
-    }
-    */
-}    
-
-
-@media screen and (max-width: 700px) {
-    .stars {
-        font-size: 4.5rem;
-        padding-bottom: 1rem;
-    }
-}
-
 .counter-button .counter-title {
     color: black;
     font-weight: 500;
@@ -124,7 +98,6 @@ table {
     }
 }
 
-
 .no-reviews {
     padding-top: 3rem;
     margin: 1rem;
@@ -140,9 +113,9 @@ table {
 }
 
 .action-buttons a {
-    width: 30%;
-    min-width: 13rem;
-    margin: 1rem;
+    width: 31%;
+    min-width: 12rem;
+    margin: 0.5rem;
 }
 
 .more-button {
@@ -226,6 +199,14 @@ table {
 
     .action-buttons {
         justify-content: flex-start;
+    }
+
+    .action-buttons a.button {
+        padding: 0 2rem;
+    }
+
+    .action-buttons.items {
+        justify-content: space-around;
     }
     
     .action-button.responsive {

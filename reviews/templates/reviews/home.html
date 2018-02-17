@@ -4,11 +4,24 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+
+<style type="text/css">
+ .picture-box {
+     background-image: url({% static 'img/city_landscape.png' %});
+ }
+ @media screen and (min-width: 950px): {
+     .picture-box {
+         background-image: url({% static 'img/city_landscape.svg' %});
+     }
+ }
+</style>
 {% endblock css %}
+
 
 {% block nav %}
 <div class="container full-width">
-    <div class="picture-box" style="background-image: url({% static 'img/city_landscape.svg' %})">
+    <div class="picture-box">
         <div class="row">
             <div class="twelve columns">
                 <nav>
@@ -26,7 +39,6 @@
 
 
         {% block content %}
-
         <div class="row">
             <div class="twelve columns content">
                 <h1>Społecznościowa baza danych o&nbsppracodawcach i&nbspzarobkach</h1>
@@ -35,9 +47,7 @@
         <div class="row">
             <div class="twelve columns">
                 <div class="search">
-
                     {% include "_search.html" %}
-                    
                 </div>
             </div>
         </div>

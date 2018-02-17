@@ -51,7 +51,7 @@ pracr | {{ company.name }} | {{ name }}
 <section>
     <div class="container">
         <div class="row">
-            <article class="twelve columns action-buttons">
+            <article class="twelve columns action-buttons items">
                 {% for button in buttons %}
                 <a href= {% url 'company_items' company.pk button company.slug %} class="button">{{ button }}</a>
                 {% endfor %}

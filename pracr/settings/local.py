@@ -76,8 +76,9 @@ LOGGING = {
             'propagate': False,
         },
         'django.template': {
-            'level': 'NOTSET',
-            'propagate': False,
+            'hanlders': ['console', ],
+            'level': 'INFO', #DEBUG lists missing variables in admin, which is noisy
+            'propagate': True,
             },
         'django.db.backends': {
             'level': 'ERROR',

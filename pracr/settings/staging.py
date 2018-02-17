@@ -111,7 +111,8 @@ LOGGING = {
             'propagate': True,
         },
         'django.template': {
-            'level': 'NOTSET',
+            'handlers': HANDLERS_LIST,
+            'level': 'INFO', #DEBUG lists missing variables in admin, which is noisy
             'propagate': False,
             },
         'axes': {

@@ -7,12 +7,11 @@ html {
 
 body {
     /* Margin bottom by footer height */
-    margin-bottom: 6em;
+    margin-bottom: 4em;
     font-size: 1.7em;
     font-family: Lato, Arial, Sans-serif;
     /*font-family: 'Fira Mono';*/
     letter-spacing: 0.03em;
-
 }
 
 a {
@@ -22,7 +21,6 @@ a {
 h1 {
     font-weight: 400;
 }
-
 
 .container {
     background-color: #ffffff;
@@ -53,7 +51,6 @@ h1 {
 .message-stripe li {
     list-style-type: none;
     font-style: italic;
-    /*color: #0CAA41;*/
     font-size: 2rem;
     letter-spacing: 0.2rem;
 }
@@ -70,7 +67,6 @@ h1 {
 .warning {
     color: red;
 }
-
 /* end styling for message tags */
 
 footer {
@@ -78,20 +74,23 @@ footer {
     bottom: 0;
     width: 100%;
     /* Set the fixed height of the footer here */
-    min-height: 6rem;
+    min-height: 4rem;
     background-color: #f5f5f5;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
     box-sizing: border-box;
-    padding: 2rem;
+    padding: 1rem 2rem;
 }
 
-/* start styling responsive top navbar */
+/**** START STYLING RESPONSIVE TOP NAVBAR ****/
+/* common part regardless of screen size */
+
 nav {
+    justify-content: center;
+    width: 100%;
     background-color: #0CAA41;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
     height: 6rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -100,31 +99,8 @@ nav img {
     vertical-align: middle;
 }
 
-.search-bar form {
-    display: inline-flex;
-    padding-top: 3rem;
-}
-
-.search-bar form input {
-    height: 4rem;
-    width: 30rem;
-}
-
-.search-bar form button {
-    height: 4rem;
-    text-align: left;
-    padding: .1rem;
-    display: inline-flex;
-    border: none;
-    color: white;
-    vertical-align: middle;
-    background-color: #0CAA41;
-    border-color: #0CAA41;
-
-}
-
-.topnav {
-    float: right;
+.search-mobile {
+    display: none;
 }
 
 nav a, nav span {
@@ -134,14 +110,107 @@ nav a, nav span {
     color: white;
     text-align: center;
 }
+/* end of common part irrespecitve of screen size */
 
 
-.topnav  a:hover {
-    color: #e7fdef;
+/* for screens smaller than 800px, add two icons that start javascript and logo in the middle */
+@media screen and (max-width: 800px) {
+    .menu-items {
+        display: none;
+    }
+
+    nav .search-bar {
+        display: none;
+    }
+
+    nav span.icon, nav span.glass
+    {
+        display: block;
+        position: absolute;
+        color: white;
+    }
+
+    nav span.icon {
+        right: 0;
+    }
+
+    nav span.glass  {
+        left: 0;
+    }
+
+    .search-mobile.responsive {
+        display: block;
+    }
+   
+    .search-mobile form {
+        display: flex;
+        align-items: center;
+        margin: 1rem 2rem 0 2rem;
+        padding-top: 1rem;
+    }
+
+    .search-mobile form input {
+        width: 80%;
+        box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    }
+
+    .search-mobile form button {
+        box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+        padding: 0 1rem;
+        margin-bottom: 1.5rem;
+    }
+
 }
+/* end small screens compliant */
 
-nav .icon, nav .glass {
-    display: none;
+/* When the screen is more than 750px wide, display links. Hide the icons that open and close the menu-items and .mobile-searchbar (.icon) */
+
+@media screen and (min-width: 801px) {
+    nav {
+        justify-content: space-between;    
+    }
+
+    .menu-items a:hover {
+        color: #e7fdef;
+        /*background-color: #098231*/;
+    }
+
+    .menu-items {
+        float: right;
+    }
+
+    .search-bar form {
+        display: inline-flex;
+        margin: 0;
+        align-items: center;
+        vertical-align: middle;
+    }
+
+    .search-bar form input {
+        height: 4rem;
+        width: 30rem;
+        margin: 0;
+    }
+
+    .search-bar form button {
+        height: 4rem;
+        text-align: left;
+        padding: .1rem;
+        display: inline-flex;
+        border: none;
+        color: white;
+        background-color: #0CAA41;
+        border-color: #0CAA41;
+        margin:0;
+    }
+
+    .search-bar form button:hover {
+        background-color: #098231;
+    }
+
+    nav .icon, nav .glass {
+        display: none;
+    }
 }
 
 .ui-autocomplete {
@@ -152,87 +221,14 @@ nav .icon, nav .glass {
 
 .material-icons {
     vertical-align: middle;
-    padding-right: 0.5rem;
-}
-
-
-/*
-@media screen and (max-width: 830px) {
-    .search-bar form input {
-        width: 15rem;
-    }
-
-    nav a {
-        padding: 1.4rem 0.8rem;
-    }
-
-    nav a:last-child {
-        padding-right: 1.5rem;
-    }
-} 
-*/
-/* When the screen is less than 600 pixels wide, hide all links. Show the link that opens and closes the topnav (.icon) */
-@media screen and (max-width: 750px) {
-    .topnav {
-        display: none;
-    }
-    nav span.icon {
-        display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-    }
-
-    nav span.icon:hover,
-    nav span.glass:hover {
-        color: white;
-    }
-    
-    nav span.glass  {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-
-    nav .search-bar {
-        display: none;
-    }
-   
-    nav {
-        justify-content: center;
-        width: 100%;
-        }
-}
-
-.search-mobile {
-    display: none;
-}
-
-.search-mobile form {
-    margin: 1rem 2rem 0 2rem;
-    padding-top: 1rem;
-}
-
-.search-mobile form input {
-    width: 80%;
-    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-}
-
-.search-mobile form button {
-    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-    padding: 0 1rem;
 
 }
 
-.search-mobile.responsive {
-    display: block;
-}
     
 
-/* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
-@media screen and (max-width: 750px) {
-    .topnav.responsive {
+/* The "responsive" class is added to the menu-items with JavaScript when the user clicks on the icon. This class makes the menu-items look good on small screens (display the links vertically instead of horizontally) */
+@media screen and (max-width: 801px) {
+    .menu-items.responsive {
         display: block;
         position: absolute;
         top: 6rem;
@@ -245,7 +241,7 @@ nav .icon, nav .glass {
 
     }
     
-    .topnav.responsive a {
+    .menu-items.responsive a {
         float: none;
         display: block;
         text-align: left;
@@ -259,14 +255,17 @@ nav .icon, nav .glass {
 
 
 /* common formatting for all forms */
-
 .errors, .errorlist {
     color: red;
     list-style: none;
     font-style: italic;
 }
 
-
 .required {
     color: red;
+}
+/* end common formatting for forms */
+
+#paginatorSelect {
+    margin-bottom: 0;
 }

@@ -1,10 +1,10 @@
-/* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
+/* Toggle between adding and removing the "responsive" class to .menu-items when the user clicks on the icon */
 function showMenu() {
     var x = document.getElementById("myTopnav");
-    if (x.className === "topnav") {
+    if (x.className === "menu-items") {
         x.className += " responsive";
     } else {
-        x.className = "topnav";
+        x.className = "menu-items";
     }
 }
 
@@ -24,8 +24,8 @@ var m = document.querySelector('main')
 m.addEventListener("click", function() {
   var x = document.getElementById("myTopnav");
   var y = document.getElementById("mobile-searchbar");
-  if (x.className === "topnav responsive") {
-    x.className = "topnav";
+  if (x.className === "menu-items responsive") {
+    x.className = "menu-items";
 };
   if (y.className === "search-mobile responsive") {
     y.className = "search-mobile";
