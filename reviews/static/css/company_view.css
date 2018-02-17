@@ -206,7 +206,7 @@ table {
     }
 
     .action-buttons.items {
-        justify-content: space-around;
+        justify-content: space-between;
     }
     
     .action-button.responsive {
@@ -220,7 +220,6 @@ table {
         color: black;
     }
 
-
     .interview-icons {
         margin-right: 1rem;
     }
@@ -229,9 +228,9 @@ table {
         max-width: 11rem;
     }
 
-.i-rating-title {
-    vertical-align: top;
-}
+    .i-rating-title {
+        vertical-align: top;
+    }
     
 }
 
