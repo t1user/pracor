@@ -1,10 +1,8 @@
 html {
     position: relative;
     min-height: 100%;
-    max-width: 100%;
     font-size: 10px;
     background-color: #d9d9d9;
-    overflow: hidden;
 }
 
 body {
@@ -14,7 +12,6 @@ body {
     font-family: Lato, Arial, Sans-serif;
     /*font-family: 'Fira Mono';*/
     letter-spacing: 0.03em;
-    overflow: hidden;
 }
 
 a {
