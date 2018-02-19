@@ -119,7 +119,7 @@ nav a, nav span {
 
 .collapsible-menu {
     position: absolute;
-    top: -50rem;
+    top: -70rem;
     right: 0rem;
     transition: top 0.3s;
     color: rgb(64, 64, 64);
