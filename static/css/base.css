@@ -1,4 +1,5 @@
 html {
+    position: absolute;
     min-height: 100%;
     max-width: 100%;
     font-size: 10px;
