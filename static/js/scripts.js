@@ -1,10 +1,11 @@
 /* Toggle between adding and removing the "responsive" class to .menu-items when the user clicks on the icon */
-function showMenu() {
-    var x = document.getElementById("myTopnav");
-    if (x.className === "menu-items") {
+
+function showCollapsibleMenu() {
+    var x = document.getElementById("collapsibleMenu");
+    if (x.className === "collapsible-menu") {
         x.className += " responsive";
     } else {
-        x.className = "menu-items";
+        x.className = "collapsible-menu";
     }
 }
 
@@ -19,16 +20,22 @@ function showSearch() {
 }
 
 
+
+
 /* switch off menu and searchbar on click outside */
 var m = document.querySelector('main')
 m.addEventListener("click", function() {
   var x = document.getElementById("myTopnav");
   var y = document.getElementById("mobile-searchbar");
+  var z = document.getElementById("collapsibleMenu");
   if (x.className === "menu-items responsive") {
     x.className = "menu-items";
 };
   if (y.className === "search-mobile responsive") {
     y.className = "search-mobile";
+};
+  if (z.className === "collapsible-menu responsive") {
+    z.className = "collapsible-menu";
 };
 }
 )

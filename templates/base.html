@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load analytical %}
+{% load reviews_extras %}
 
 <!DOCTYPE html>
 <html lang="pl">
@@ -64,14 +65,39 @@
             <!-- menu items -->
             <div class="menu-items" id="myTopnav">
                 {% if not user.is_authenticated %}
-                <a href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
+                <a class="login-button" href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
                 {% else %}
-                <a>{{ request.user }}</a>
-                <a href="{% url 'logout' %}">Wyloguj</a>
+                <a>{{ request.user.email|username }}</a>
+                <button onclick="showDesktopMenu()"><i class="material-icons">account_circle</i></button>
+                {% endif %}
+            </div>
+            <!-- Collapsible menu for desktop and mobile -->
+            <div class="collapsible-menu" id="collapsibleMenu">
+                {% if user.is_authenticated %}
+                <div class="account-icon">
+                    <div>
+                        <i class="material-icons">account_box</i>
+                    </div>
+                    <div class="user">
+                        {{ user.email }}
+                    </div>
+                </div>
+                <div class="collapsible-menu-items">
+                    <div>
+                        <a href="{% url 'update_profile' %}">Profil</a>
+                    </div>
+                    <div>
+                        <a href="{% url 'logout' %}">Wyloguj</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="account-icon">
+                    <a href="{% url 'login' %}">Zaloguj</a>
+                </div>
                 {% endif %}
             </div>
             <!-- buttons for mobile only -->
-            <span class="icon" onclick="showMenu()"><i class="material-icons">menu</i></span>
+            <span class="icon" onclick="showCollapsibleMenu()"><i class="material-icons">menu</i></span>
             <span class="glass" onclick="showSearch()"><i class="material-icons">search</i></span>
             {% endblock menu %}
         </nav>

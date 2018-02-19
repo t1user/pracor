@@ -222,5 +222,12 @@ def social(obj):
         'google-oauth2': 'google-plus-official',
         'linkedin-oauth2': 'linkedin-square',
     }
-
     return dictionary[obj]
+
+@register.filter('username')
+def username(obj):
+    """
+    Return username from email address (part before @).
+    """
+    print("I'm in")
+    return obj.split('@')[0]

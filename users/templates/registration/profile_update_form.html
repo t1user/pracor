@@ -39,14 +39,18 @@
     <section class="linked-accounts">
         <div class="row">
             <div class="twelve columns">
-                <h5>Logowanie przez:</h5>
+                <h5>Logujesz sie przez:</h5>
             </div>
         </div>
         <div class="row">
             {% for item in user.social_auth.all %}
             <div class="four columns">
                 <div class="social-icon">
-                    <i class="fa fa-{{ item.provider|social_auth }} fa-4x"></i>
+                    {% if item.provider == 'google-oauth2' %}
+                    <img src="{% static 'img/registration/g-logo.png' %}">
+                    {% else %}
+                    <i class="fa fa-{{ item.provider|social_auth }} fa-5x"></i>
+                    {% endif %}
                     <button>odłącz</button>
                 </div>
             </div>
