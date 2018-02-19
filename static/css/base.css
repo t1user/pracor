@@ -3,6 +3,7 @@ html {
     min-height: 100%;
     font-size: 10px;
     background-color: #d9d9d9;
+    overflow: hidden;
 }
 
 body {
@@ -28,6 +29,7 @@ h1 {
     padding: 1.5rem;
     margin-top: 1rem;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    overflow: hidden;
 }
 
 /* override skeleton to be full width on large phones */
