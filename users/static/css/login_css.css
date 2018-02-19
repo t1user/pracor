@@ -1,11 +1,12 @@
 .social {
     border-bottom: solid 1px gray;
-    padding-bottom: 3rem;
-    padding-top: 2rem;
+    padding-top: 1rem;
+    margin-top: 2rem;
 }
 
 .social img {
     padding: 1rem;
+    max-width: 60%;
 }
 
 .login {
@@ -37,15 +38,19 @@
     }
 
     .social {
-        height: 20rem;
-        margin: 10rem 0;
-        max-width: 100%;
+        margin: 6rem 0;
+        padding: 0 4rem;
         border-bottom: none;
-        padding: 0 0rem 0 5rem;
     }
 
     .social img {
         max-width: 100%;
+        width: 100%;
+
+    }
+
+    .container {
+        padding-bottom: 10rem;
     }
 }
 

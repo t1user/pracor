@@ -27,13 +27,13 @@
         <div class="four columns">
             <div class="social">
                 <a href="{% url 'social:begin' 'linkedin-oauth2' %}?next={{ next }}">
-                    <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
+                    <img src="{% static 'img/registration/linkedin/Retina/Sign-In-Large---Default.png' %}">
                 </a>
                 <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ next }}">
-                    <img src="{% static 'img/registration/google_signin_buttons/web/1x/btn_google_signin_dark_normal_web.png' %}">
+                    <img src="{% static 'img/registration/google_signin_buttons/web/2x/btn_google_signin_dark_normal_web@2x.png' %}">
                 </a>
                 <a href="{% url 'social:begin' 'facebook' %}?next={{ next }}">
-                    <img src="{% static 'img/registration/facebook.png' %}">
+                    <img src="{% static 'img/registration/sign-in-facebook.png' %}">
                 </a>
             </div>
         </div>
@@ -49,8 +49,8 @@
                     <input type="hidden" name="next" value="{{ next }}" />
                 </form>
                 <p>
-                  <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
-                  <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
+                    <a href="{% url 'register' %}" class="button">Zarejestruj się</a>
+                    <a href="{% url 'password_reset' %}" class="button">Zresetuj hasło</a>
 
                 </p>
 

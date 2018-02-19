@@ -140,11 +140,11 @@ class UpdateProfileView(LoginRequiredMixin, FormView):
     """
     View called by user from menu. Allow user to modify information stored in their profile.
     """
-    form = ProfileUpdateForm
+    form = CreateProfileForm_profile
     template_name = 'profile_update_form.html'
 
     def form_valid(self, form):
-        pass
+        return super().form_valid(form)
     
     
 class LoginErrorView(NoAuthenticatedUsersMixin, View):
