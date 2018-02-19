@@ -8,8 +8,6 @@
 {% endblock css %}
 
 {% block content %}
-
-
 <div class="container">
     <div class="row">
         <div class="twelve columns">
@@ -28,13 +26,15 @@
     <div class="row">
         <div class="four columns">
             <div class="social">
-                <a href="{% url "social:begin" "linkedin-oauth2" %}?next={{ next }}">
+                <a href="{% url 'social:begin' 'linkedin-oauth2' %}?next={{ next }}">
                     <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
                 </a>
-                <a href="{% url "social:begin" "google-oauth2" %}?next={{ next }}">
+                <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ next }}">
                     <img src="{% static 'img/registration/google_signin_buttons/web/1x/btn_google_signin_dark_normal_web.png' %}">
                 </a>
-                <div class="g-signin2" data-onsuccess="onSignIn"></div>
+                <a href="{% url 'social:begin' 'facebook' %}?next={{ next }}">
+                    <img src="{% static 'img/registration/facebook.png' %}">
+                </a>
             </div>
         </div>
         <div class="eight columns">
@@ -58,4 +58,5 @@
         </div>
     </div>
 </div>
+    
 {% endblock content %}

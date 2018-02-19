@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 
 class NoAuthenticatedUsersMixin:
     """
-    After login, usrs are redirected to the page from which they accessed login page.
-    If they login from certain pages they shouldn't be redirected back to them 
-    after login, because those pages are not suitable for logged in users.
+    After login, users are redirected to the page from which they accessed login page.
+    Certain pages are not suitable for logged in users so this mixin prevents users 
+    from being redirected to those pages after login. 
     """
     def get(self, request, *args, **kwargs):
         """

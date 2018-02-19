@@ -122,7 +122,7 @@ class UserAdmin(DjangoUserAdmin):
     get_contributed.short_description = "Zrobił wpis"
 
     def get_social(self, obj):
-        return UserSocialAuth.objects.get(user=obj).provider
+        return ', '.join([a.provider for a in UserSocialAuth.objects.filter(user=obj)])
     get_social.short_description = "login zewnętrzny"
 
     def get_inline_instances(self, request, obj=None):
