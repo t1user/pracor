@@ -1,5 +1,4 @@
 html {
-    position: absolute;
     min-height: 100%;
     max-width: 100%;
     font-size: 10px;
@@ -120,9 +119,9 @@ nav a, nav span {
 
 .collapsible-menu {
     position: absolute;
-    top: 6rem;
-    right: -25rem;
-    transition: right 0.3s;
+    top: -50rem;
+    right: 0rem;
+    transition: top 0.3s;
     color: rgb(64, 64, 64);
     height: 100vh;
     background-color: #EAEAE8;
@@ -161,8 +160,8 @@ nav a, nav span {
 }
 
 .collapsible-menu.responsive {
-    right: 0;
-    transition: right 0.4s;
+    top: 6rem;
+    transition: top 0.4s;
 }
 
 /*end of collapsible menu */
@@ -282,6 +281,13 @@ nav a, nav span {
     }
 
     /* collapsible menu - incremental on small screens */
+    .collapsible-menu {
+        position: absolute;
+        top: 6rem;
+        right: -25rem;
+        transition: right 0.3s;
+    }
+
     .collapsible-menu a:hover {
         color: #0CAA41;
     }
@@ -292,7 +298,13 @@ nav a, nav span {
 
     .collapsible-menu .account-icon .material-icons {
         font-size: 7rem;
-}
+    }
+
+    .collapsible-menu.responsive {
+    right: 0;
+    transition: right 0.4s;
+    }
+
 
     /* end of collapsible menu */
 
