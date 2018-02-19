@@ -68,7 +68,7 @@
                 <a class="login-button" href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
                 {% else %}
                 <a>{{ request.user.email|username }}</a>
-                <button onclick="showDesktopMenu()"><i class="material-icons">account_circle</i></button>
+                <button onclick="showCollapsibleMenu()"><i class="material-icons">account_circle</i></button>
                 {% endif %}
             </div>
             <!-- Collapsible menu for desktop and mobile -->
