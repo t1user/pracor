@@ -1,18 +1,11 @@
 {% extends 'base.html' %}
 {% load reviews_extras %}
+{% load static %}
 
 
 {% block css %}
-<style>
-    form li {
-        display: inline-block;
-        list-style: none;
-        margin: 0 2rem 0 0;    
-    }
-    .send {
-        padding-top: 2rem;
-        }
-</style>
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}">
 {% endblock css %}
 
 
@@ -21,21 +14,59 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-          <h1>Profil użytkownika</h1>
-          <h4>{{ form.email }}
-          <p>Poniższe dane są wykorzstywane tylko do zbiorczych statystyk.</p>
-            <form action="" method="POST">
-                {% csrf_token %}
-                <formset>
-                  {% include 'reviews/_render_form.html' with form=profile_form %}
-                </formset>
-                <div class="send">
-                    <input type="submit" value="zapisz" class="button-primary">
-                </div>
-            </form>
-            <div class="required"><i>*Pola wymagane</i></div>
+            <h1>Profil użytkownika</h1>
+            <h4>{{ user.email }}</h4>
+            {% if user.password %}
+            <section class="password-change">
+                <a class="button button-primary" href="{% url 'password_change' %}">Zmień hasło</a>
+            </section>
+            {% endif %}
+            <section>
+                <p>Poniższe dane są wykorzstywane tylko do zbiorczych statystyk.</p>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <formset>
+                        {% include 'reviews/_render_form.html' %}
+                    </formset>
+                    <div class="send">
+                        <input type="submit" value="zapisz" class="button-primary">
+                    </div>
+                </form>
+            </section>
         </div>
     </div>
+    {% if user.social_auth %}
+    <section class="linked-accounts">
+        <div class="row">
+            <div class="twelve columns">
+                <h5>Logowanie przez:</h5>
+            </div>
+        </div>
+        <div class="row">
+            {% for item in user.social_auth.all %}
+            <div class="four columns">
+                <div class="social-icon">
+                    <i class="fa fa-{{ item.provider|social_auth }} fa-4x"></i>
+                    <button>odłącz</button>
+                </div>
+            </div>
+            {% endfor %}
+            {% if not user.password %}
+            <p>Odłącznie wymaga ustanowienia hasła</p>
+            {% endif %}
+            <section>
+        </div>
+    </section>
+    {% endif %}
+    <section>
+        <div class="row">
+            <div class="twelve columns">
+                {% if request.META.HTTP_REFERER %}
+                <a class="button" href=" {{ request.META.HTTP_REFERER }}">Powrót</a>
+                {% endif %}
+                <a class="button" href="{% url 'home' %}">Strona główna</a>
+            </div>
+        </div>
+    </section>
 </div>
-
 {% endblock content %}

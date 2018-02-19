@@ -148,7 +148,8 @@ class ProfileAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (None, {
-            'fields': (('user', 'contributed', 'email_confirmed'), 'sex', 'career_start_year',)
+            'fields': (('user', 'contributed', 'email_confirmed'), 'sex', 'career_start_year',
+                       'education')
         }),
         (None, {
             'fields': ('date_joined', 'last_login',)

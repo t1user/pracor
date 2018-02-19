@@ -1,0 +1,40 @@
+.password-change {
+    margin: 3rem 0;
+}
+
+form li {
+    display: inline-block;
+    list-style: none;
+    margin: 0 2rem 0 0;    
+}
+
+.send {
+    padding-top: 2rem;
+}
+
+
+.linked-accounts {
+    margin: 1rem 0 4rem 0;
+    border-top: solid 1px;
+    border-bottom: solid 1px;
+}
+.social-icon i {
+    padding: 1rem;
+}
+
+.social-icon button {
+    vertical-align: middle;
+    margin: 0 1rem 4rem 1rem;
+}
+
+.fa-facebook-official {
+    color: #3b5998;
+}
+
+.fa-google-plus-official {
+    color: #db3236;
+}
+
+.fa-linkedin-square {
+    color: #0077B5;
+}

@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import redirect, render, resolve_url
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, UpdateView
 
 from .forms import (CreateProfileForm_profile, CreateProfileForm_user, ProfileUpdateForm,
                     UserCreationForm, PasswordResetCustomForm, ActivationEmailSendAgainForm)
@@ -136,16 +136,27 @@ class CreateProfileView(LoginRequiredMixin, View):
                           {'profile_form': profile_form})
 
 
-class UpdateProfileView(LoginRequiredMixin, FormView):
+class UpdateProfileView(LoginRequiredMixin, UpdateView):
     """
     View called by user from menu. Allow user to modify information stored in their profile.
     """
-    form = CreateProfileForm_profile
-    template_name = 'profile_update_form.html'
+    form_class = CreateProfileForm_profile
+    template_name = 'registration/profile_update_form.html'
+    success_url = '/update_profile'
+
+    def get_context_data(self, **kwargs):
+        self.initial = self.request.user.profile.__dict__
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
+
+    def get_object(self):
+        return self.request.user.profile
 
     def form_valid(self, form):
+        messages.add_message(self.request, messages.SUCCESS, 'Zapisano zmiany.')
         return super().form_valid(form)
-    
+
     
 class LoginErrorView(NoAuthenticatedUsersMixin, View):
     """

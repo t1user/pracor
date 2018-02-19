@@ -1,18 +1,9 @@
 {% extends 'base.html' %}
 {% load reviews_extras %}
-
+{% load static %}
 
 {% block css %}
-<style>
-    form li {
-        display: inline-block;
-        list-style: none;
-        margin: 0 2rem 0 0;    
-    }
-    .send {
-        padding-top: 2rem;
-        }
-</style>
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock css %}
 
 

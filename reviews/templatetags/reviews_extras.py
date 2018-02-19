@@ -213,3 +213,14 @@ def benefits(obj_list):
         id__in=obj_list).aggregate(list=StringAgg(
             'benefits__name', distinct=True, delimiter = ', '))['list'])
 
+
+
+@register.filter('social_auth')
+def social(obj):
+    dictionary = {
+        'facebook': 'facebook-official',
+        'google-oauth2': 'google-plus-official',
+        'linkedin-oauth2': 'linkedin-square',
+    }
+
+    return dictionary[obj]
