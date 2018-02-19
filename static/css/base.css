@@ -127,6 +127,7 @@ nav a, nav span {
     z-index: 2;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
     visibility: hidden;
+    width:0;
 }
 
 .collapsible-menu div {
@@ -162,6 +163,7 @@ nav a, nav span {
     visibility: visible;
     right: 0;
     transition: right 0.4s;
+    width: auto;
 }
 
 /*end of collapsible menu */
