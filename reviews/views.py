@@ -721,7 +721,9 @@ class LinkedinCreateProfile(LoginRequiredMixin, View):
 
 class ContactView(FormView):
     """
-    Currently not linked to the main site.
+    Display form that allows user to send a pre-formatted email to admins. If user is 
+    logged-in, don't allow to edit 'from' field. To provide robo-spamming limit number 
+    of sent messages to three per day.
     """
     form_class = ContactForm
     success_url = '/'

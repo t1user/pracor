@@ -2,6 +2,7 @@
 
 {% load static %}
 
+
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/login_css.css' %}">
 {% endblock css %}
@@ -30,6 +31,10 @@
                 <a href="{% url "social:begin" "linkedin-oauth2" %}?next={{ next }}">
                     <img src="{% static 'img/registration/linkedin/Sign-in-Large---Default.png' %}">
                 </a>
+                <a href="{% url "social:begin" "google-oauth2" %}?next={{ next }}">
+                    <img src="{% static 'img/registration/google_signin_buttons/web/1x/btn_google_signin_dark_normal_web.png' %}">
+                </a>
+                <div class="g-signin2" data-onsuccess="onSignIn"></div>
             </div>
         </div>
         <div class="eight columns">
@@ -53,5 +58,4 @@
         </div>
     </div>
 </div>
-
 {% endblock content %}

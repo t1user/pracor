@@ -15,9 +15,9 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, FormView
 
-from .forms import (CreateProfileForm_profile, CreateProfileForm_user, UserCreationForm,
-                    PasswordResetCustomForm, ActivationEmailSendAgainForm)
-from .models import User
+from .forms import (CreateProfileForm_profile, CreateProfileForm_user, ProfileUpdateForm,
+                    UserCreationForm, PasswordResetCustomForm, ActivationEmailSendAgainForm)
+from .models import User, Profile
 from .tokens import account_activation_token
 
 
@@ -135,6 +135,17 @@ class CreateProfileView(LoginRequiredMixin, View):
         return render(request, self.template_name,
                           {'profile_form': profile_form})
 
+
+class UpdateProfileView(LoginRequiredMixin, FormView):
+    """
+    View called by user from menu. Allow user to modify information stored in their profile.
+    """
+    form = ProfileUpdateForm
+    template_name = 'profile_update_form.html'
+
+    def form_valid(self, form):
+        pass
+    
     
 class LoginErrorView(NoAuthenticatedUsersMixin, View):
     """

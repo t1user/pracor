@@ -3,11 +3,6 @@ from .linkedin_creds import (SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY,
 
 
 SOCIAL_AUTH_LINKEDIN_OAUTH2_SCOPE = ['r_basicprofile', 'r_emailaddress']
-#SOCIAL_AUTH_LINKEDIN_OAUTH2_FIELD_SELECTORS = ['email-address', 'headline', 'industry']
-#FIELD_SELECTORS = ['email-address',]
-#SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/home/'
-#SOCIAL_AUTH_LOGIN_URL = '/'
-#SOCIAL_AUTH_USER_MODEL = ''
 
 SOCIAL_AUTH_LINKEDIN_OAUTH2_FIELD_SELECTORS = [
     'first-name',

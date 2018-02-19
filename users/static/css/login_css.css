@@ -4,6 +4,10 @@
     padding-top: 2rem;
 }
 
+.social img {
+    padding: 1rem;
+}
+
 .login {
     padding-top: 1rem;
     margin-top: 2rem;
@@ -34,7 +38,7 @@
 
     .social {
         height: 20rem;
-        margin: 14rem 0;
+        margin: 10rem 0;
         max-width: 100%;
         border-bottom: none;
         padding: 0 0rem 0 5rem;

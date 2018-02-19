@@ -1,5 +1,6 @@
 import os
 from pracr.linkedin_config import *
+from pracr.google_creds import *
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -63,6 +64,7 @@ ROOT_URLCONF = 'pracr.urls'
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.linkedin.LinkedinOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
