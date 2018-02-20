@@ -51,7 +51,28 @@ SOCIAL_AUTH_PIPELINE = (
     'pracr.social_pipeline_override.save_data',
 )
 
+SOCIAL_AUTH_DISCONNECT_PIPELINE = (
+    # Verifies that the social association can be disconnected from the current
+    # user (ensure that the user login mechanism is not compromised by this
+    # disconnection).
+    # Overriden to handle exceptions.
+    'pracr.social_pipeline_override.allowed_to_disconnect',
+
+    # Collects the social associations to disconnect.
+    'social_core.pipeline.disconnect.get_entries',
+
+    # Revoke any access_token when possible.
+    'social_core.pipeline.disconnect.revoke_tokens',
+
+    # Removes the social associations.
+    'social_core.pipeline.disconnect.disconnect',
+)
+
+
 
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
-SOCIAL_AUTH_LOGIN_ERROR_URL = '/login'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/auth_error/'
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+
+
+SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = '/profile/'

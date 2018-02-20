@@ -32,8 +32,8 @@ form li {
     padding: 1rem ;
 }
 
-.social-icon button {
-
+.social-icon form button {
+    margin-top: 3rem;
 }
 
 .fa-facebook-official {
@@ -46,4 +46,9 @@ form li {
 
 .fa-linkedin-square {
     color: #0077B5;
+}
+
+.disconnection-warning {
+    font-size: 1.2rem;
+    font-style: italic;
 }

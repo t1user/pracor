@@ -117,12 +117,3 @@ class ActivationEmailSendAgainForm(forms.Form):
     email = forms.EmailField()
 
     
-class ProfileUpdateForm(forms.ModelForm):
-    """
-    Display user profile form for modifications.
-    """
-    class Meta:
-        model = Profile
-        fields = '__all__'
-        
-    

@@ -16,7 +16,7 @@
         <div class="twelve columns">
             <h1>Profil użytkownika</h1>
             <h4>{{ user.email }}</h4>
-            {% if user.password %}
+            {% if password %}
             <section class="password-change">
                 <a class="button button-primary" href="{% url 'password_change' %}">Zmień hasło</a>
             </section>
@@ -35,7 +35,7 @@
             </section>
         </div>
     </div>
-    {% if user.social_auth %}
+    {% if user.social_auth.all %}
     <section class="linked-accounts">
         <div class="row">
             <div class="twelve columns">
@@ -51,14 +51,21 @@
                     {% else %}
                     <i class="fa fa-{{ item.provider|social_auth }} fa-5x"></i>
                     {% endif %}
-                    <button>odłącz</button>
+                    <form method="POST" action="{% url 'social:disconnect' item.provider %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button">odłącz</button>
+                    </form>
                 </div>
             </div>
             {% endfor %}
-            {% if not user.password %}
-            <p>Odłącznie wymaga ustanowienia hasła</p>
-            {% endif %}
-            <section>
+        </div>
+        <div class="row">
+            <div class="twelve columns">
+
+                {% if not password and user.social_auth.all.count < 2 %}
+                <div class="disconnection-warning">Przed odłączeniem będzie wymagane ustanowienie hasła aby możliwe było ponowne zalogowanie do serwisu.</div>
+                {% endif %}
+            </div>
         </div>
     </section>
     {% endif %}

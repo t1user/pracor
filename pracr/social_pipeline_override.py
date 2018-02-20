@@ -1,5 +1,21 @@
 from reviews.models import Position
 from django.urls import reverse
+from django.shortcuts import redirect
+from social_core.pipeline.partial import partial
+
+
+def allowed_to_disconnect(strategy, user, name, user_storage,
+                          association_id=None, *args, **kwargs):
+    """
+    Override to handle situations when user is not allowed to disconnect,
+    ie. make them set password and start the process again to make sure
+    they correctly did it.
+    """
+    if not user_storage.allowed_to_disconnect(user, name, association_id):
+        strategy.request.session['disconnect_path'] = strategy.request.META['PATH_INFO']
+        return redirect('set_password')
+
+
 
 def drop_username(*args, **kwargs):
     """Fix for a problem with username, which social_auth tries to save to user model,

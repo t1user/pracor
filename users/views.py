@@ -2,6 +2,7 @@ import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import (authenticate, get_user_model, login,)
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.views import (LoginView, PasswordResetView, PasswordResetDoneView,
@@ -10,12 +11,12 @@ from django.contrib.auth.views import (LoginView, PasswordResetView, PasswordRes
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
-from django.shortcuts import redirect, render, resolve_url
+from django.shortcuts import redirect, render, resolve_url, reverse
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, FormView, UpdateView
 
-from .forms import (CreateProfileForm_profile, CreateProfileForm_user, ProfileUpdateForm,
+from .forms import (CreateProfileForm_profile, CreateProfileForm_user,
                     UserCreationForm, PasswordResetCustomForm, ActivationEmailSendAgainForm)
 from .models import User, Profile
 from .tokens import account_activation_token
@@ -148,6 +149,10 @@ class UpdateProfileView(LoginRequiredMixin, UpdateView):
         self.initial = self.request.user.profile.__dict__
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
+        #check if there's a password set for the user and make sure it's
+        #a 'real' passowrd rather than string set by social_auth
+        if self.request.user.password and self.request.user.password.startswith('bcrypt'):
+            context['password'] = True
         return context
 
     def get_object(self):
@@ -279,4 +284,37 @@ class ActivationEmailSendAgain(NoAuthenticatedUsersMixin, FormView):
             'token': account_activation_token.make_token(user),
         })
         user.email_user(subject, message)
+        return super().form_valid(form)
+
+class SocialAuthErrorView(View):
+    """
+    Handle errors during logging and pipeline disconection by social_auth.
+    """
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('profile')
+        else:
+            return redirect('login')
+
+class SocialAuthSetPassword(LoginRequiredMixin, FormView):
+    template_name = 'registration/set_password.html'
+    form_class = SetPasswordForm
+    success_url = '/profile/'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['user'] = self.request.user
+        return context
+
+    def get_form(self):
+        """
+        Pass user to form, because password is set in the form.
+        """
+        return self.form_class(self.request.user, **self.get_form_kwargs())
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+        messages.add_message(self.request, messages.SUCCESS, 'Zapisano zmiany.')
         return super().form_valid(form)
