@@ -1,8 +1,7 @@
 .social {
-    border-bottom: solid 1px gray;
     padding-top: 1rem;
     margin-top: 2rem;
-    max-width: 20rem;
+    max-width: 25rem;
 }
 
 .social img {
@@ -13,12 +12,15 @@
 .login {
     padding-top: 1rem;
     margin-top: 2rem;
+    border-top: solid 1px gray;
+
 }
 
 
 
 @media screen and (min-width: 550px) {
     .login {
+        border-top: none;
         border-left: solid 1px gray;
 
     }
@@ -41,7 +43,6 @@
     .social {
         margin: 6rem 0;
         padding: 0 4rem;
-        border-bottom: none;
     }
 
     .social img {
