@@ -302,6 +302,17 @@ class SocialAuthSetPassword(LoginRequiredMixin, FormView):
     form_class = SetPasswordForm
     success_url = '/profile/'
 
+    def get(self, request, *args, **kwargs):
+        """
+        Check if user is allowed to use this view, ie. has no usable password.
+        Users with usable passwords have to use '/password_change/' to change
+        password.
+        """
+        if request.user.has_usable_password():
+            return redirect('profile')
+        else:
+            return super().get(request, *args, **kwargs)
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['user'] = self.request.user
