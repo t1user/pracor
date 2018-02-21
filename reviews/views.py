@@ -16,7 +16,7 @@ from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView, RedirectView, FormView)
 from django.views.generic.detail import SingleObjectMixin
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 from django import forms
 
@@ -49,20 +49,62 @@ def too_many_submissions_message(request, item):
     """
     messages.add_message(request, messages.WARNING,
                          '{}: obowiązuje limit 5 wpisów w ciągu 90 dni!'.format(item))
+
     
 class AccessBlocker(UserPassesTestMixin):
     """
-    Works with UserPassesTestMixin to block access to certain views for users
-    who haven't contributed to the site yet. Redirection site (login_url)
+    Block access to certain views for users who haven't made minimum required
+    contribution to the site yet. Redirection site (login_url)
     should explain what kind of contribution user has to make to get
     full access.
+    Limit is the number of company profile user is allowed to view before 
+    making contribution.
     """
     login_url = reverse_lazy('please_contribute')
-
+    limit = 3 #this is the limit of 'free' profiles
+    
     def test_func(self):
-        return self.request.user.profile.contributed
+        print("I'm in access blocker")
+        return self.request.user.profile.contributed or self.below_limit()
+
+    def below_limit(self):
+        """
+        Test if the number of distinct company profiles visited by the user is below given limit.
+        """
+        viewed_profiles = Visit.objects.filter(
+            user=self.request.user.profile).aggregate(count=Count('company', distinct=True))
+        value = (viewed_profiles.get('count') <= self.limit)
+        return value
 
 
+class ConditionalLoginRequiredMixin(LoginRequiredMixin):
+    """
+    Grant users a number of 'free' views without logging in.
+    The number of 'free' views set by 'limit'.
+    """
+    limit = 3
+    
+    def allowed_free_access(self):
+        session = self.request.session
+        if not session.get('visits'):
+            session['visits'] = []
+            return True
+        if len(session['visits']) >= self.limit:
+            return False
+        else:
+            return True
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            self.request.session.set_expiry(7905600) #3months
+            if not self.allowed_free_access():
+                messages.add_message(request, messages.WARNING, 'Dalsze używanie serwisu wymaga rejestracji.')
+                return self.handle_no_permission()
+        #note! this is calling superclass of the superclass (otherwise LoginRequiredMixin
+        #overrides any changes made in this method)
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+    
 class SuperuserAccessBlocker(UserPassesTestMixin):
     """
     Limits access to the view to superusers only.
@@ -191,7 +233,7 @@ class NoSlugRedirectMixin:
             return super().get(request, *args, **kwargs)
 
 
-class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
+class CompanyDetailView(ConditionalLoginRequiredMixin, NoSlugRedirectMixin, DetailView):
     """
     Display Company details with last item of each Review, Salary, Interview.
     The class ss inherited by CompanyItemsView, which displays lists of all items
@@ -226,18 +268,26 @@ class CompanyDetailView(LoginRequiredMixin, NoSlugRedirectMixin, DetailView):
     def record_visit(self):
         """
         Record user who visited the Company (date
-        of the visit added by model).
+        of the visit added by model) for logged in users.
+
+        For AnonymusUser store visited company id in session
+        to allow for limiting the number of company profiles 
+        visited before creating account.
         """
-        path = self.request.get_full_path()
-        ip = self.request.META.get('REMOTE_ADDR')
-        if not ip:
-            ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
-        if not ip:
-            ip = self.request.META.get('HTTP_X_REAL_IP')
-        Visit.objects.create(company=self.object,
-                             user=self.request.user.profile,
-                             path=path,
-                             ip=ip)
+        if self.request.user.is_authenticated:
+            path = self.request.get_full_path()
+            ip = self.request.META.get('REMOTE_ADDR')
+            if not ip:
+                ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
+            if not ip:
+                ip = self.request.META.get('HTTP_X_REAL_IP')
+            Visit.objects.create(company=self.object,
+                                 user=self.request.user.profile,
+                                 path=path,
+                                 ip=ip)
+        else:
+            if self.object.id not in self.request.session['visits']:
+                self.request.session['visits'].append(self.object.id)
 
 
 class CompanyItemsRedirectView(RedirectView):
@@ -245,7 +295,7 @@ class CompanyItemsRedirectView(RedirectView):
     pass
 
 
-class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
+class CompanyItemsAbstract(ConditionalLoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
                            SingleObjectMixin,  ListView):
     """
     Abstract base class for displaying lists of Review, Salary, Interview.

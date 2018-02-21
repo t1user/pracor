@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class NoAuthenticatedUsersMixin:
     """
-    After login, users are redirected to the page from which they accessed login page.
+    After login, users are redirected to the page from which they accessed the login page.
     Certain pages are not suitable for logged in users so this mixin prevents users 
     from being redirected to those pages after login. 
     """
@@ -300,7 +300,7 @@ class SocialAuthErrorView(View):
 class SocialAuthSetPassword(LoginRequiredMixin, FormView):
     template_name = 'registration/set_password.html'
     form_class = SetPasswordForm
-    success_url = '/profile/'
+    success_url = reverse_lazy('profile')
 
     def get(self, request, *args, **kwargs):
         """
