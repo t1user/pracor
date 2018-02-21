@@ -232,6 +232,11 @@ nav a, nav span {
         font-size: 4.3rem;
     }
 
+    .or {
+        color: #e7fdef;
+        padding: 0;
+    }
+    
     .menu-items a:hover, .menu-items button .material-icons:hover, .menu-items button:hover {
         color: #e7fdef;
     }
