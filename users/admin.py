@@ -26,7 +26,7 @@ class PositionInline(admin.StackedInline):
     extra = 0
     raw_id_fields = ('company',)
     show_change_link = True
-    readonly_fields = ('items',)
+    readonly_fields = ('items', 'date')
     list_select_related = True
 
     def items(self, obj):

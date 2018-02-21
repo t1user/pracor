@@ -42,6 +42,13 @@ def failure_message(request, item, days):
     """
     messages.add_message(request, messages.WARNING,
                          'Już mamy Twoje dane! {} dla tej firmy możesz ponownie dodać za {} dni.'.format(item, days))
+
+def too_many_submissions_message(request, item):
+    """
+    Display flash message informing user that they cannot submit data.
+    """
+    messages.add_message(request, messages.WARNING,
+                         '{}: obowiązuje limit 5 wpisów w ciągu 90 dni!'.format(item))
     
 class AccessBlocker(UserPassesTestMixin):
     """
@@ -271,7 +278,6 @@ class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker, NoSlugRedirectMixi
         dictionary = {Review: self.object.reviews,
                       Salary: self.object.salaries,
                       Interview: self.object.interviews, }
-
         return dictionary[self.model]
 
    
@@ -491,12 +497,34 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
         """
         return self.position_form_class(**self.get_form_kwargs())
 
+    @property
+    def user_can_post(self):
+        """
+        Return False if user already sumitted the number of items (Review or Salary)
+        at the limit. Whitel changing limit - make sure to change warning message.
+        """
+        limit = 5
+        item = self.form_class.Meta.model
+        print(item)
+        cutoff_date = timezone.now() - datetime.timedelta(days=90)
+        print(cutoff_date)
+        items_posted = item.objects.filter(position__user=self.request.user,
+                                           date__gt=cutoff_date)
+        print(items_posted)
+        if items_posted.count() > limit:
+            too_many_submissions_message(self.request,
+                             self.form_class.Meta.model._meta.verbose_name_plural)
+            return False
+        return True
+
     def get(self, request, *args, **kwargs):
         """
         Check if user is allowed to post this content, ie there should
         be only one Salary or Review for every Position.
         """
         self.company = get_object_or_404(Company, pk=self.kwargs['id'])
+        if not self.user_can_post:
+            return redirect(self.company)
         self.position = self.get_position_instance()
         #if a content item (salary or review) already exists for this position
         #and its newer than 90 days don't allow to proceed

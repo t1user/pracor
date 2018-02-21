@@ -229,5 +229,4 @@ def username(obj):
     """
     Return username from email address (part before @).
     """
-    print("I'm in")
     return obj.split('@')[0]
