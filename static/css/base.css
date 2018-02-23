@@ -14,6 +14,19 @@ body {
     letter-spacing: 0.03em;
 }
 
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    min-height: 4rem;
+    background-color: #f5f5f5;
+    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    box-sizing: border-box;
+    padding: 1rem 2rem;
+}
+
+
 a {
     text-decoration: none;
     }
@@ -68,17 +81,7 @@ h1 {
 }
 /* end styling for message tags */
 
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    /* Set the fixed height of the footer here */
-    min-height: 4rem;
-    background-color: #f5f5f5;
-    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-    box-sizing: border-box;
-    padding: 1rem 2rem;
-}
+
 
 /**** START STYLING RESPONSIVE TOP NAVBAR ****/
 /* common part regardless of screen size */
@@ -121,9 +124,9 @@ nav a, nav span {
     right: 0rem;
     transition: top 0.3s;
     color: rgb(64, 64, 64);
-    height: 100vh;
+    height: 40%;
     background-color: #EAEAE8;
-    padding: 0rem 1rem;
+    padding: 0rem 1rem 2rem 1rem;
     z-index: 2;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
 }
@@ -334,6 +337,10 @@ nav a, nav span {
     color: red;
     list-style: none;
     font-style: italic;
+}
+
+ul.errorlist {
+    margin-bottom: 0;
 }
 
 .required {

@@ -4,6 +4,7 @@ import logging
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.core.exceptions import *
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin,
                                         UserPassesTestMixin)
@@ -23,8 +24,9 @@ from django import forms
 
 from users.models import Visit
 
-from .forms import (CompanyCreateForm, CompanySearchForm, CompanySelectForm,
-                    InterviewForm, PositionForm, ReviewForm, SalaryForm, ContactForm)
+from .forms import (CompanyCreateForm, CompanySearchForm, CreateItemSearchForm,
+                    CompanySelectForm, InterviewForm, PositionForm, ReviewForm,
+                    SalaryForm, ContactForm)
 from .models import Company, Interview, Position, Review, Salary
 
 
@@ -64,8 +66,9 @@ class AccessBlocker(UserPassesTestMixin):
     limit = 3 #this is the limit of 'free' profiles
     
     def test_func(self):
-        print("I'm in access blocker")
-        return self.request.user.profile.contributed or self.below_limit()
+        if self.request.user.is_authenticated:
+            return self.request.user.profile.contributed or self.below_limit()
+        return True #Access of AnonymusUser controlled by ConditionalLoginRequiredMixin
 
     def below_limit(self):
         """
@@ -89,6 +92,7 @@ class ConditionalLoginRequiredMixin(LoginRequiredMixin):
         if not session.get('visits'):
             session['visits'] = []
             return True
+        logger.debug('Anonymous user used up {} free company profile(s) so far'.format(len(session['visits'])))
         if len(session['visits']) >= self.limit:
             return False
         else:
@@ -168,47 +172,116 @@ class AjaxViewMixin:
 
 
 class CompanySearchBase(View):
+    """
+    Provide company search functionality. To be inherited together with AjaxViewMixin
+    to provide autocomplete feature.
+
+    Flow:
+    - get (optional): render searchform (some views don't use it)
+    - post: validate form and perform database search, return results in a redirect to self
+    - get: render template with list of results
+    """
+
     form_class = CompanySearchForm
     initial = {}
-    template_name = 'reviews/home.html'
-    redirect_template_name = 'reviews/company_search_results.html'
+    #this template is for results only (no searchbar)
+    #searchbar only in child classes
+    template_name = 'reviews/company_search_results.html'
     # after search, redirect back to itself to present results
     redirect_view = 'company_search'
+    error = None
 
     def get(self, request, *args, **kwargs):
-        """Used to display both:  search form or search results."""
-        search_results = ''
-        searchterm_joined = kwargs.get('searchterm')
-        searchterm = searchterm_joined.replace('_', ' ')
-        if searchterm:
-            search_results = self.get_results(searchterm)
-            self.template_name = self.redirect_template_name
+        """
+        Used to display both:  search form or search results.
+        self.error to be used by child classes if error is detected.
+        """
+        kwargs = self.get_kwargs(**kwargs)
+        if self.error:
+            return redirect('home')
+        return render(request, self.template_name, kwargs)
+
+    def get_kwargs(self, **kwargs):
         form = self.form_class(initial=self.initial)
-        return render(request, self.template_name,
-                      {'form': form,
-                       'search_results': search_results,
-                       'searchterm': searchterm,
-                       'searchterm_joined': searchterm_joined})
+        kwargs['form'] = form
+        searchterm_joined = kwargs.get('searchterm')
+        if searchterm_joined:
+            searchterm = searchterm_joined.replace('_', ' ')
+            search_results = self.get_results(searchterm)
+            #once search is performed, use 'results' template
+            #self.template_name = self.redirect_template_name
+            kwargs.update({'searchterm': searchterm,
+                           'search_results': search_results,
+                           'searchterm_joined': searchterm_joined})
+        return kwargs
 
     def get_results(self, searchterm, *args, **kwargs):
-        """Fire database query and returns matching Company objects."""
+        """
+        Fire database query and return matching Company objects.
+        Works only with postgres and requires django.contrib.postgres app.
+        """
         return Company.objects.filter(Q(name__unaccent__icontains=searchterm) |
                                       Q(website__unaccent__icontains=searchterm))
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            searchterm = form.cleaned_data['company_name'].replace(' ', '_')
-            return HttpResponseRedirect(reverse(self.redirect_view,
-                                                kwargs={'searchterm': searchterm}))
+            kwargs = self.get_post_kwargs(form)
+            return redirect(reverse(self.redirect_view, kwargs=kwargs))
         return render(request, self.template_name, {'form': form})
 
+    def get_post_kwargs(self, form):
+        """
+        Class to be extended in child classes.
+        Has to return everything all kwargs required to construct redirect url in post.
+        """
+        searchterm = form.cleaned_data['company_name'].replace(' ', '_')
+        return {'searchterm': searchterm}
 
+    
 class CompanySearchView(AjaxViewMixin, CompanySearchBase):
     """
     Handles searchbar including ajax calls for jQuery UI autocomplete.
     """
     pass
+
+class CreateItemSearchView(CompanySearchView):
+    """
+    Search for a Company during process of adding Review or Salary (from please_contribute 
+    page rather than from Company page).
+    """
+    form_class = CreateItemSearchForm
+    #this is set by get_redirect_template
+    template_name = 'reviews/search_results.html'    
+    redirect_view = 'create_item_search'
+
+    def get_kwargs(self, **kwargs):
+        self.item = kwargs.get('item')
+        self.initial = {'item': self.item}
+        if self.item not in ['review', 'salary']:
+            self.error = True
+        kwargs = super().get_kwargs(**kwargs)
+        kwargs['item'] = self.item
+        trans = {'review': ['recenzji', 'recenzję'],
+                 'salary': ['zarobków', 'zarobki']}
+        kwargs['item_pl'] = trans.get(self.item)
+        return kwargs
+
+    def get_post_kwargs(self, form):
+        kwargs = super().get_post_kwargs(form)
+        kwargs['item'] = form.cleaned_data['item']
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        """
+        Form invalid not handled properly in superclass:
+        item not being passed in superclass so override required.
+        """
+        form = self.form_class(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': form,
+                                                        'item': kwargs.get('item')})
+        return super().post(request, *args, **kwargs)
 
 
 class NoSlugRedirectMixin:
@@ -288,6 +361,8 @@ class CompanyDetailView(ConditionalLoginRequiredMixin, NoSlugRedirectMixin, Deta
         else:
             if self.object.id not in self.request.session['visits']:
                 self.request.session['visits'].append(self.object.id)
+                logger.debug('Anonymous user using free company number {}'.format(len(self.request.session['visits'])))
+
 
 
 class CompanyItemsRedirectView(RedirectView):
@@ -397,12 +472,57 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         for field, errors in errorlist.items():
             for error in errors:
                 if error.code == 'unique':
-                    company = Company.objects.get(**{field: form_dict[field]})
+                    try:
+                        company = Company.objects.get(**{field: form_dict[field]})
+                        if company not in companies:
+                            companies.append(company)
+                    except ObjectDoesNotExist:
+                        pass
+                #redirected means: given url redirects to urs, which is non-unique
+                #error raised by WWWValidator()
+                if error.code == 'redirected':
+                    company = error.params['existing']
                     if company not in companies:
                         companies.append(company)
         context['unique_error'] = companies
         return self.render_to_response(context)
 
+class SearchCompanyCreate(CompanyCreate):
+    """
+    After creating company redirect to Review or Salary creation view.
+    """
+    template_name='reviews/company_search_create_form.html'
+
+    def get(self, request, *args, **kwargs):
+        item = kwargs['item']
+        if item not in ['review', 'salary']:
+            try:
+                return redirect(request.META.get('HTTP_REFERER'))
+            except:
+                return redirect('home')
+        self.request.session['item'] = item
+        self.initial.update({'item': item})
+        return super().get(request, *args, **kwargs)
+        
+    """
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(kwargs)
+        context['item'] = kwargs['item']
+        return context
+    """
+    
+    def get_success_url(self):
+        url = super().get_success_url()
+        id = url.split('/')[1]
+        item = self.request.session.get('item')
+        try:
+            return reverse(item, kwargs={'id': id})
+        except:
+            messages.add_message(self.request, messages.WARNING,
+                                 'Wystąpił błąd. Wyszukaj firmę i spróbuj jeszcze raz.')
+            return reverse('home')
+    
 
 class CompanyUpdate(LoginRequiredMixin, SuperuserAccessBlocker, UpdateView):
     model = Company
@@ -551,16 +671,13 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
     def user_can_post(self):
         """
         Return False if user already sumitted the number of items (Review or Salary)
-        at the limit. Whitel changing limit - make sure to change warning message.
+        at the limit. When changing limit make sure to change warning message.
         """
         limit = 5
         item = self.form_class.Meta.model
-        print(item)
         cutoff_date = timezone.now() - datetime.timedelta(days=90)
-        print(cutoff_date)
         items_posted = item.objects.filter(position__user=self.request.user,
                                            date__gt=cutoff_date)
-        print(items_posted)
         if items_posted.count() > limit:
             too_many_submissions_message(self.request,
                              self.form_class.Meta.model._meta.verbose_name_plural)

@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^linkedin_associate',
         LinkedinCreateProfile.as_view(), name='linkedin_associate'),
 
+    url(r'^search_add/(?P<item>\w+)/(?P<searchterm>.*)?$',
+        CreateItemSearchView.as_view(), name='create_item_search'),
+
     url(r'^search/(?P<searchterm>.*)?$',
         CompanySearchView.as_view(), name='company_search'),
 
@@ -30,6 +33,9 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/(?P<slug>[-\w\d]+)?$',
         CompanyDetailView.as_view(), name='company_page'),
 
+    url(r'search_company/create/(?P<item>\w+)/(?P<company>.*)/$',
+        SearchCompanyCreate.as_view(), name='search_company_create'),
+    
     url(r'^company/create/(?P<company>.*)/$',
         CompanyCreate.as_view(), name='company_create'),
 

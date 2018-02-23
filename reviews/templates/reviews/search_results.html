@@ -1,20 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Dodawanie {{ item_pl.0 }}</h1>
+            <h4>Wyszukaj firmę, dla której chcesz dodać {{ item_pl.1 }}</h4>
+            
+            <form action="{% url 'create_item_search' item '' %}" method="POST" style="display: flex; vertical-align: center; ">
+                {% csrf_token %}
+                {{ form.item }}
+                <input type="search" placeholder="Wyszukaj firmę..." name="company_name" aria-label="wyszukaj firmę" class="auto-search" autocomplete="off" required/><button type="submit" class="button-primary"><i class="material-icons">search</i></button>
+            </form>
 
-<form action="" method="POST">
-    <table>
-        {{ form }}
-    </table>
-    {% csrf_token %}
-    <input type="submit" value="Wyślij">
-</form>
+            {% if searchterm and search_results %}
+            <h4>Następnie kliknij odpowiedni link</h4>
+            <h5>Wyniki wyszukiwania dla: '{{ searchterm }}'</h5>
+            {% for company in search_results %}
+            <p>
+                <a href= {% url item company.id company.slug %}>{{ company }}</a>
+            </p>
+            {% endfor %}
+            <br>
+            <p>Jeśli na liście nie ma firmy, której szukałeś możesz ją dodać do bazy danych:</p>
+            <a href= {% url 'search_company_create' item searchterm_joined %} class="button">Dodaj firmę</a>
 
-{{ search_results }}
-{% if search_results %}
-{% for item in search_results.search_results %}
-<p>{{ item }}</p>
-{% endfor %}
-{% endif %}
+            {% endif %}
 
+            {% if searchterm and not search_results %}
+            <h1>Nie znaleziono firmy '{{ searchterm }}'</h1>
+            <h5>Możesz ją dodać do bazy danych.</h5>
+            <a href= "{% url 'search_company_create' item searchterm_joined %}" class="button">Dodaj firmę</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock content %}

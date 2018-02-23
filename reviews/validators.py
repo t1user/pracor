@@ -2,12 +2,13 @@ import csv
 import re
 import os
 import requests
+from urllib.parse import urlsplit
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from .models import Company
-from urllib.parse import urlsplit
+
 
 
 class ProfanitiesFilter():
@@ -75,7 +76,6 @@ class TextLengthValidator():
                 'Za krótki wpis, wymagane {req} słow (brakuje {miss})'.format(
                     miss=miss, req=self.req), code='invalid')
 
-        
 class WWWValidator:
     """
     Used for validating new Company urls input by users.
@@ -95,9 +95,9 @@ class WWWValidator:
                     existing = None
                 if existing:
                     raise ValidationError(
-                        'Istnieje już firma: {}'.format(existing.name),
-                        code='redirected')
+                        'Ten www zarejestrowano dla: {}. Adresy www nie mogą się powtarzać'.format(existing.name),
+                        code='redirected',  params={'existing': existing, 'url': url_domain})
         except requests.exceptions.RequestException as e:
             raise ValidationError(
-                'Podany adres www nie odpowiada.',
+                'Podany adres www nie odpowiada. Popraw adres www',
                 code='bounced')

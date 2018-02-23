@@ -203,7 +203,8 @@ class LoginCustomView(LoginView):
             return redirect('email_confirm_reminder')
         else:
             return super().form_valid(form)
-    
+
+        
 class PasswordResetCustomView(NoAuthenticatedUsersMixin, PasswordResetView):
     """
     Present user with a form to input e-mail to which reset link should be sent.

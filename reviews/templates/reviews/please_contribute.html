@@ -2,16 +2,37 @@
 
 {% load static %}
 
+{% block css %}
+<style>
+    .action-buttons {
+        display: flex; 
+        flex-flow: row wrap; 
+        justify-content: space-evenly; 
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock css %}
+
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="twelve columns">
             <div class="errors">Nie masz dostępu do tej strony</div>
             <br>
-            <h1>Podziel się swoją wiedzą! </h1>
+            <h1>Zrób wpis </h1>
             <p><img style="height:2.5rem;vertical-align:middle"src="{% static 'img/logo_new_pracor_green.png' %}"> to portal społecznościowy. Użytkownicy korzystają z danych zebranych przez społeczność o ile sami staną się częścią tej społeczności dzieląc się wiedzą o swoim miejscu pracy.</p>
             <p style="color:#0CAA41;font-size:3rem;font-weight:bold;">Aby uzyskać pełen dostęp do serwisu, zostaw opinię o swoim pracodawcy (obecnym albo byłym) lub informację o zarobkach.</p>
-            <p><i>Wyszukaj pracodawcę i&nbspkliknij '<strong>Dodaj opinię</strong>' lub '<strong>Dodaj zarobki</strong>'</i></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns  action-buttons">
+            <a href="{% url 'create_item_search' 'review' %}" class="button button-primary">Dodaj opinię</a> <a href="{% url 'create_item_search' 'salary' %}" class="button button-primary">Dodaj zarobki</a>
+        </div>
+    </div>
+    <div class="row">
+        <div clas="twelve columns">
+            <p><i>...lub wyszukaj pracodawcę i&nbspkliknij 'Dodaj opinię' lub 'Dodaj zarobki'</i></p>
             <a class="button" href="{{ request.META.HTTP_REFERER }}">Powrót</a>
         </div>
     </div>

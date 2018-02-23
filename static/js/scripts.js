@@ -20,8 +20,6 @@ function showSearch() {
 }
 
 
-
-
 /* switch off menu and searchbar on click outside */
 var m = document.querySelector('main')
 m.addEventListener("click", function() {
@@ -63,7 +61,7 @@ $(function() {
 });
 
 
-
+/* autocomplete for Position forms */
 $(".auto-position").autocomplete({
   delay: 75,
   source: function(request, response) {

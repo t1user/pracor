@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class ApprovableModel(models.Model):
     """
-    Abstract model providing features for entry approval in the admin module.
+    Abstract model providing features for instance approval in the admin module.
     """
     # approved set to False prevents the record from being displayed
     approved = models.NullBooleanField(

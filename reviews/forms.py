@@ -1,6 +1,7 @@
 from itertools import chain
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.db.models import Q
 
@@ -14,6 +15,9 @@ class CompanySearchForm(forms.Form):
     company_name = forms.CharField(label="Wyszukaj firmę", max_length=100)
 
 
+class CreateItemSearchForm(CompanySearchForm):
+    item = forms.CharField(max_length=10, widget=forms.HiddenInput(attrs={'readonly':True}))
+    
 class CompanySelectForm(forms.Form):
     company_name = forms.ChoiceField(widget=forms.RadioSelect(), label='')
     position = forms.CharField(max_length=30, widget=forms.HiddenInput())
@@ -37,6 +41,11 @@ class CensoredField(forms.CharField):
 
 class CompanyCreateForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['website'].validators.append(WWWValidator())
+
+        
     class Meta:
         model = Company
         fields = ['name', 'headquarters_city', 'website']
@@ -46,10 +55,6 @@ class CompanyCreateForm(forms.ModelForm):
             'headquarters_city': CensoredField,
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['website'].validators.append(WWWValidator())
-
     def clean_name(self):
         return self.cleaned_data['name'].title()
         
@@ -57,16 +62,19 @@ class CompanyCreateForm(forms.ModelForm):
         return self.cleaned_data['headquarters_city'].title()
 
     def clean_website(self):
-        """Clean field: 'website', ensure that urls with http, https, 
-        with and without www are treated as the same."""
+        """
+        Ensure that urls with http, https, 
+        with and without www are treated as the same.
+        """
         url = self.cleaned_data['website']
+
         if url.startswith('https'):
             url = url.replace('https', 'http')
         if not url.startswith('http://www.'):
             url = url.replace('http://', 'http://www.')
         return url
 
-
+    
 class PositionForm(forms.ModelForm):
 
     class Meta:
