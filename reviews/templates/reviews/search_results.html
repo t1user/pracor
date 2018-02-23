@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% load reviews_extras %}
+
+{% block searchbar %}
+{% endblock searchbar %}
 
 {% block content %}
 <div class="container">
@@ -10,7 +14,7 @@
             <form action="{% url 'create_item_search' item '' %}" method="POST" style="display: flex; vertical-align: center; ">
                 {% csrf_token %}
                 {{ form.item }}
-                <input type="search" placeholder="Wyszukaj firmę..." name="company_name" aria-label="wyszukaj firmę" class="auto-search" autocomplete="off" required/><button type="submit" class="button-primary"><i class="material-icons">search</i></button>
+                <input type="search" placeholder="Wyszukaj firmę..." name="company_name" aria-label="wyszukaj firmę" class="auto-search-{{ item }}" autocomplete="off" required/><button type="submit" class="button-primary"><i class="material-icons">search</i></button>
             </form>
 
             {% if searchterm and search_results %}
@@ -36,3 +40,22 @@
     </div>
 </div>
 {% endblock content %}
+
+
+{% block custom_script %}
+<script>
+ /* autocomplete for search form */
+ $(function() {
+     $(".auto-search-{{ item }}").autocomplete({
+         delay: 75,
+         source: "/search_add/{{ item }}",
+         minLength: 3,
+         select: function(event, ui) {
+             location.href="/dodaj/{{ item|trans_item }}/" + ui.item.id + "/" + ui.item.slug;
+         }
+     });
+ });
+</script>
+{% endblock custom_script %}
+
+

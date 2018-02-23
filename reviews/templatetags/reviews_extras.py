@@ -168,7 +168,7 @@ def item_name(item):
     dictionary = {'review': 'opinię',
                   'salary': 'zarobki',
                   'interview': 'rozmowę'}
-    return dictionary[item]
+    return dictionary.get(item)
 
 
 @register.filter('item_list_title')
@@ -178,8 +178,15 @@ def item_list_tittle(item):
         'salary': 'Zarobki w firmie:',
         'interview': 'Rozmowy kwalifikacyjne w firmie:',
     }
-    return dictionary[item]
+    return dictionary.get(item)
 
+@register.filter('trans_item')
+def trans_item(item):
+    dictionary = {
+        'review': 'opinie',
+        'salary': 'zarobki',
+        }
+    return dictionary.get(item)
 
 @register.filter('width')
 def make_percent(obj, item):
