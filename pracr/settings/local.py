@@ -37,7 +37,7 @@ LOGGING = {
     'formatters': {
         'django.server': DEFAULT_LOGGING['formatters']['django.server'],
         'verbose': {
-            'format': '{levelname} {asctime} {name} line no: {lineno} {process:d} {thread:d} {message}',
+            'format':  '{levelname} {asctime} {name} line no: {lineno} {process:d} {thread:d} {message}',
             'style': '{',
         },
         'simple': {

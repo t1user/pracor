@@ -108,6 +108,13 @@ nav img {
     position: relative;
 }
 
+.search-mobile form {
+    display: flex;
+    flex-flow: row no-wrap;
+    justify-content: center;
+    align-items: center;
+}
+
 nav a, nav span {
     padding: 1.4rem 1.6rem;
     text-decoration: none;
@@ -123,7 +130,7 @@ nav a, nav span {
     position: absolute;
     top: -35rem;
     right: 0;
-    transition: top 0.8s; 
+    transition: top 0.7s; 
     min-width: 20rem;
     color: rgb(64, 64, 64);
     background-color: #EAEAE8;
@@ -163,7 +170,7 @@ nav a, nav span {
 
 .collapsible-menu.responsive {
     top: 6rem;
-    transition: top 0.5s;
+    transition: top 0.4s;
 }
 
 /*end of collapsible menu */
