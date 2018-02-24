@@ -231,6 +231,17 @@ def social(obj):
     }
     return dictionary[obj]
 
+@register.filter('social_auth_fontello')
+def social(obj):
+    dictionary = {
+        'facebook': 'icon-official',
+        'google-oauth2': 'google-plus-official',
+        'linkedin-oauth2': 'icon-ln-sq',
+    }
+    return dictionary[obj]
+
+
+
 @register.filter('username')
 def username(obj):
     """

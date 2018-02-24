@@ -6,6 +6,7 @@
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 <link rel="stylesheet" href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/fontello/css/fontello.css' %}">
 {% endblock css %}
 
 
@@ -47,9 +48,9 @@
             <div class="four columns">
                 <div class="social-icon">
                     {% if item.provider == 'google-oauth2' %}
-                    <img src="{% static 'img/registration/g-logo.png' %}">
+                    <img src="{% static 'img/registration/g-l.png' %}">
                     {% else %}
-                    <i class="fa fa-{{ item.provider|social_auth }} fa-5x"></i>
+                    <i class="{{ item.provider|social_auth_fontello }}"></i>
                     {% endif %}
                     <form method="POST" action="{% url 'social:disconnect' item.provider %}">
                         {% csrf_token %}

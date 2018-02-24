@@ -25,26 +25,31 @@ form li {
 }
 
 .social-icon img {
-    padding: 1.25rem 1rem 1.25rem 1rem;
+    padding: 2.5rem 1rem 2.5rem 1rem;
 }
 
 .social-icon i {
-    padding: 1rem ;
+    font-size: 8.4rem;
 }
 
 .social-icon form button {
     margin-top: 3rem;
 }
 
-.fa-facebook-official {
+.icon-official {
     color: #3b5998;
+    padding: 0;
+}
+
+h5 {
+    margin-bottom: 0.2rem;
 }
 
 .fa-google-plus-official {
     color: #db3236;
 }
 
-.fa-linkedin-square {
+.icon-ln-sq {
     color: #0077B5;
 }
 
