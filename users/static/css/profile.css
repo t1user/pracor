@@ -12,7 +12,7 @@ form li {
     padding-top: 2rem;
 }
 
-.social-icon {
+.s-icon {
     display: flex;
     align-items: center;
 
@@ -24,15 +24,15 @@ form li {
     border-bottom: solid 1px;
 }
 
-.social-icon img {
+.s-icon img {
     padding: 2.5rem 1rem 2.5rem 1rem;
 }
 
-.social-icon i {
+.s-icon i {
     font-size: 8.4rem;
 }
 
-.social-icon form button {
+.s-icon form button {
     margin-top: 3rem;
 }
 

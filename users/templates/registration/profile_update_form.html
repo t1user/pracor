@@ -46,7 +46,7 @@
         <div class="row">
             {% for item in user.social_auth.all %}
             <div class="four columns">
-                <div class="social-icon">
+                <div class="s-icon">
                     {% if item.provider == 'google-oauth2' %}
                     <img src="{% static 'img/registration/g-l.png' %}">
                     {% else %}
