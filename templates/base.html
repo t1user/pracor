@@ -107,8 +107,13 @@
             {% else %}
             <div class="collapsible-menu-items">
                 <div class="account-icon">
+                    <div>
+                        <i class="material-icons">build</i>
+                    </div>
+                    <div class="user">
+
+                    </div>
                 </div>
-                    
                 <div>
                     <a href="{% url 'register' %}?next={{ request.path | urlencode }}">Zarejestruj</a>
                 </div>
