@@ -87,6 +87,7 @@ h1 {
 /* common part regardless of screen size */
 
 nav {
+    position: relative;
     justify-content: center;
     width: 100%;
     background-color: #0CAA41;
@@ -94,6 +95,7 @@ nav {
     height: 6rem;
     display: flex;
     align-items: center;
+    z-index: 5;
 }
 
 nav img {
@@ -102,9 +104,8 @@ nav img {
 }
 
 .search-mobile {
-    display: block;
-    position: absolute;
-    top: -20rem;
+    display: none;
+    position: relative;
 }
 
 nav a, nav span {
@@ -120,15 +121,15 @@ nav a, nav span {
 
 .collapsible-menu {
     position: absolute;
-    top: -70rem;
-    right: 0rem;
-    transition: top 0.3s;
+    top: -35rem;
+    right: 0;
+    transition: top 0.8s; 
+    min-width: 20rem;
     color: rgb(64, 64, 64);
-    height: 40%;
     background-color: #EAEAE8;
-    padding: 0rem 1rem 2rem 1rem;
-    z-index: 2;
+    padding: 0rem 1rem 4rem 1rem;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    z-index: 2;
 }
 
 .collapsible-menu div {
@@ -162,7 +163,7 @@ nav a, nav span {
 
 .collapsible-menu.responsive {
     top: 6rem;
-    transition: top 0.4s;
+    transition: top 0.5s;
 }
 
 /*end of collapsible menu */
@@ -196,11 +197,7 @@ nav a, nav span {
     }
 
     .search-mobile.responsive {
-        display: block;
-        position: relative;
-        top: 0rem;
-        transition: top 0.4s;
-    }
+        display: block;    }
    
     .search-mobile form {
         display: flex;
@@ -286,14 +283,7 @@ nav a, nav span {
         margin: 0 2rem;
     }
 
-    /* collapsible menu - incremental on small screens */
-    .collapsible-menu {
-        position: absolute;
-        top: 6rem;
-        right: -25rem;
-        transition: right 0.3s;
-    }
-
+    /* collapsible menu - incremental to small screens */
     .collapsible-menu a:hover {
         color: #0CAA41;
     }
@@ -305,13 +295,6 @@ nav a, nav span {
     .collapsible-menu .account-icon .material-icons {
         font-size: 7rem;
     }
-
-    .collapsible-menu.responsive {
-    right: 0;
-    transition: right 0.4s;
-    }
-
-
     /* end of collapsible menu */
 
 }

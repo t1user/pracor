@@ -4,6 +4,9 @@
 {% block searchbar %}
 {% endblock searchbar %}
 
+{% block mobile-searchbar %}
+{% endblock mobile-searchbar %}
+
 {% block content %}
 <div class="container">
     <div class="row">
@@ -43,7 +46,7 @@
 
 
 {% block custom_script %}
-<script>
+<script type="text/javascript">
  /* autocomplete for search form */
  $(function() {
      $(".auto-search-{{ item }}").autocomplete({

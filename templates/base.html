@@ -75,38 +75,49 @@
                 <button onclick="showCollapsibleMenu()"><i class="material-icons">account_circle</i></button>
                 {% endif %}
             </div>
-            <!-- Collapsible menu for desktop and mobile -->
-            <div class="collapsible-menu" id="collapsibleMenu">
-                {% if user.is_authenticated %}
-                <div class="account-icon">
-                    <div>
-                        <i class="material-icons">account_box</i>
-                    </div>
-                    <div class="user">
-                        {{ user.email }}
-                    </div>
-                </div>
-                <div class="collapsible-menu-items">
-                    <div>
-                        <a href="{% url 'profile' %}">Profil</a>
-                    </div>
-                    <div>
-                        <a href="{% url 'logout' %}">Wyloguj</a>
-                    </div>
-                </div>
-                {% else %}
-                <div class="account-icon">
-                    <a href="{% url 'register' %}?next={{ request.path | urlencode }}">Zarejestruj</a>
-                    <a href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
-                </div>
-                {% endif %}
-            </div>
             <!-- buttons for mobile only -->
             <span class="icon" onclick="showCollapsibleMenu()"><i class="material-icons">menu</i></span>
+            {% block mobile-searchbar %}
             <span class="glass" onclick="showSearch()"><i class="material-icons">search</i></span>
+            {% endblock mobile-searchbar %}
+            
             {% endblock menu %}
         </nav>
         {% endblock nav %}
+        
+        <!-- Collapsible menu for desktop and mobile -->
+        <div class="collapsible-menu" id="collapsibleMenu">
+            {% if user.is_authenticated %}
+            <div class="account-icon">
+                <div>
+                    <i class="material-icons">account_box</i>
+                </div>
+                <div class="user">
+                    {{ user.email }}
+                </div>
+            </div>
+            <div class="collapsible-menu-items">
+                <div>
+                    <a href="{% url 'profile' %}">Profil</a>
+                </div>
+                <div>
+                    <a href="{% url 'logout' %}">Wyloguj</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="collapsible-menu-items">
+                <div class="account-icon">
+                </div>
+                    
+                <div>
+                    <a href="{% url 'register' %}?next={{ request.path | urlencode }}">Zarejestruj</a>
+                </div>
+                <div>
+                    <a href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         
         <!-- searchbar for mobile only -->
         <div id="mobile-searchbar" class="search-mobile">

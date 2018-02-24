@@ -245,7 +245,7 @@ class CompanySearchView(AjaxViewMixin, CompanySearchBase):
     """
     pass
 
-class CreateItemSearchView(CompanySearchView):
+class CreateItemSearchView(LoginRequiredMixin, CompanySearchView):
     """
     Search for a Company during process of adding Review or Salary (from please_contribute 
     page rather than from Company page).
