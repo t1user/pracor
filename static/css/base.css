@@ -130,7 +130,7 @@ nav a, nav span {
     position: absolute;
     top: -35rem;
     right: 0;
-    transition: top 0.7s; 
+    transition: top 0.5s; 
     min-width: 20rem;
     color: rgb(64, 64, 64);
     background-color: #EAEAE8;
@@ -170,7 +170,7 @@ nav a, nav span {
 
 .collapsible-menu.responsive {
     top: 6rem;
-    transition: top 0.4s;
+    transition: top 0.3s;
 }
 
 /*end of collapsible menu */
@@ -312,10 +312,12 @@ nav a, nav span {
     overflow-x: hidden;
 }
 
+nav.material-icons {
+    color: white;
+}
+
 .material-icons {
     vertical-align: middle;
-    color: white;
-
 }
 /* end styling responsive top navbar */    
 

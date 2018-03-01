@@ -122,6 +122,18 @@ table {
     margin-top: 1rem;
 }
 
+.action-button a {
+    text-align: left;
+}
+
+.action-button.responsive a.button {
+    padding: 0 1.5rem;
+}
+
+.action-button .material-icons {
+    padding-right: .3rem;
+}
+
 .mobile {
     display: none;
 }
