@@ -15,6 +15,7 @@ form li {
 .s-icon {
     display: flex;
     align-items: center;
+    padding: 0 1.5rem;
 
 }
 
