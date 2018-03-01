@@ -312,7 +312,8 @@ nav a, nav span {
     overflow-x: hidden;
 }
 
-nav.material-icons {
+nav.material-icons,
+nav button .material-icons {
     color: white;
 }
 
