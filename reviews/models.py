@@ -26,6 +26,8 @@ class ApprovableModel(models.Model):
                                  null=True, blank=True, editable=False)
     reviewed_date = models.DateField('Data przeglądu', null=True, blank=True)
 
+    objects = SelectedManager()
+    
     class Meta:
         abstract = True
 
@@ -257,8 +259,6 @@ class Review(ApprovableModel):
     environment = models.PositiveIntegerField('atmosfera w pracy',
                                               choices=RATINGS, default=None)
 
-    objects = SelectedManager()
-
     class Meta:
         verbose_name = "Opinia"
         verbose_name_plural = "Opinie"
@@ -413,8 +413,7 @@ class Interview(ApprovableModel):
     impressions = models.TextField('wrażenia')
     rating = models.PositiveIntegerField('ocena', choices=RATINGS, default=None)
 
-    objects = SelectedManager()
-
+    
     class Meta:
         verbose_name = "Rozmowa"
         verbose_name_plural = "Rozmowy"

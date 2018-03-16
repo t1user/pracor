@@ -30,6 +30,8 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'django.contrib.humanize',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
 ]
 
 THIRD_PARTY_APPS = [
@@ -47,6 +49,7 @@ PROJECT_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
