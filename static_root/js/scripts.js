@@ -1,10 +1,11 @@
-/* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
-function showMenu() {
-    var x = document.getElementById("myTopnav");
-    if (x.className === "topnav") {
+/* Toggle between adding and removing the "responsive" class to .menu-items when the user clicks on the icon */
+
+function showCollapsibleMenu() {
+    var x = document.getElementById("collapsibleMenu");
+    if (x.className === "collapsible-menu") {
         x.className += " responsive";
     } else {
-        x.className = "topnav";
+        x.className = "collapsible-menu";
     }
 }
 
@@ -24,11 +25,15 @@ var m = document.querySelector('main')
 m.addEventListener("click", function() {
   var x = document.getElementById("myTopnav");
   var y = document.getElementById("mobile-searchbar");
-  if (x.className === "topnav responsive") {
-    x.className = "topnav";
+  var z = document.getElementById("collapsibleMenu");
+  if (x.className === "menu-items responsive") {
+    x.className = "menu-items";
 };
   if (y.className === "search-mobile responsive") {
     y.className = "search-mobile";
+};
+  if (z.className === "collapsible-menu responsive") {
+    z.className = "collapsible-menu";
 };
 }
 )
@@ -56,7 +61,7 @@ $(function() {
 });
 
 
-
+/* autocomplete for Position forms */
 $(".auto-position").autocomplete({
   delay: 75,
   source: function(request, response) {

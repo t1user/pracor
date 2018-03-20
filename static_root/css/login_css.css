@@ -1,20 +1,24 @@
 .social {
-    border-bottom: solid 1px gray;
-    padding-bottom: 3rem;
-    padding-top: 2rem;
+    padding-top: 1rem;
+    margin-top: 2rem;
+    max-width: 25rem;
+}
+
+.social img {
+    padding: 1rem;
+    max-width: 75%;
 }
 
 .login {
     padding-top: 1rem;
     margin-top: 2rem;
+    border-top: solid 1px gray;
 }
 
-
-
-@media screen and (min-width: 650px) {
+@media screen and (min-width: 550px) {
     .login {
+        border-top: none;
         border-left: solid 1px gray;
-
     }
 
     form input {
@@ -33,15 +37,26 @@
     }
 
     .social {
-        height: 20rem;
-        margin: 14rem 0;
-        max-width: 100%;
-        border-bottom: none;
-        padding: 0 0rem 0 5rem;
+        margin: 6rem 0;
+        padding: 0;
+        min-width: 15rem;
+        max-width: 40rem;
     }
 
     .social img {
         max-width: 100%;
+        width: 100%;
+    }
+
+    .container {
+        padding-bottom: 10rem;
     }
 }
 
+@media screen and (min-width: 750px) {
+    .social {
+        padding: 0 4rem;
+        min-width: auto;
+        max-width: auto;
+    }
+}

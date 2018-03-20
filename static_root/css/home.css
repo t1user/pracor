@@ -12,6 +12,14 @@ html {
     margin-top: 0;
 }
 
+.picture-box {
+    background-repeat: no-repeat;
+    background-origin: border-box;
+    background-clip: border-box;
+    background-size: cover;
+}
+
+
 .content {
     padding: 0rem;
     margin-top: 1.5rem;
@@ -30,9 +38,6 @@ nav {
     background-color: rgba(255, 255, 255, 0);
     box-shadow: None;
     }
-
-nav a {
-}
 
 .search form {
     display: flex;
@@ -66,13 +71,18 @@ nav a {
     color: black;
 }
 
-.picture-box {
-    background-repeat: no-repeat;
-    background-origin: border-box;
-    background-clip: border-box;
-    background-size: cover;
+.glass {
+    visibility: hidden;
 }
 
+.slogan {
+    text-align: center;
+}
+    
+.message-stripe {
+    background-color: white;
+    background-color: #e6f2ff;
+}
 
 
 @media screen and (min-width: 650px) {
@@ -101,15 +111,3 @@ nav a {
     }
 }
 
-.glass {
-    visibility: hidden;
-}
-
-.slogan {
-    text-align: center;
-}
-    
-.message-stripe {
-    background-color: white;
-    background-color: #e6f2ff;
-}
