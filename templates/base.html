@@ -7,7 +7,7 @@
     <head>
         {% analytical_head_top %}
 
-        <meta name="description" content="pracor to portal gdzie użytkownicy anonimowo dzielą się opiniami o pracodawcach i danymi o zarobkach. Anonimowość jest gwarantowana."/>
+        <meta name="description" content="pracor to portal gdzie użytkownicy anonimowo dzielą się opiniami o pracodawcach, danymi o zarobkach i wrażeniami z rozmów kwalifikacyjnych. Anonimowość jest gwarantowana. Pracodawcy nie cenzurują wypowiedzi."/>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         
@@ -68,7 +68,7 @@
                 <div class="login-button">
                     <a href="{% url 'register' %}?next={{ request.path | urlencode }}">Zarejestruj</a>
                     <span class="or">lub</span>
-                    <a href="{% url 'login' %}?next={{ request.path | urlencode }}">Zaloguj</a>
+                    <a href="{% url 'login' %}?next={{ request.path | urlencode }}&self=True">Zaloguj</a>
                 </div>
                 {% else %}
                 <a>{{ request.user.email|username }}</a>

@@ -9,6 +9,9 @@ urlpatterns = [
     url(r'^please_contribute/$',
         PleaseContributeView.as_view(), name='please_contribute'),
 
+    url(r'^email_confirmed/$',
+        EmailConfirmedView.as_view(), name='email_confirmed'),
+
     url(r'^linkedin_associate',
         LinkedinCreateProfile.as_view(), name='linkedin_associate'),
 

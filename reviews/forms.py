@@ -151,7 +151,7 @@ class ReviewForm(forms.ModelForm):
         }
 
         labels = {
-            'title': 'tytuł recenzji',
+            'title': 'tytuł opinii',
             'advancement': 'możliwości rozwoju',
             'worklife': 'równowaga praca/życie',
             'compensation': 'zarobki',
@@ -175,14 +175,14 @@ class ReviewForm(forms.ModelForm):
 
         help_texts = {
             'title': 'Jedno zdanie podsumowujące opinię',
-            'pros': 'Minimum 20 słów (2-3 zdania). Konieczne by opinia była wyważona.',
-            'cons': 'Minimum 20 słów (2-3 zdania). Konieczne by opinia była wyważona.',
+            'pros': 'Minimum 15 słów (1-2 zdania). Konieczne by opinia była wyważona.',
+            'cons': 'Minimum 15 słów (1-2 zdania). Konieczne by opinia była wyważona.',
             'comment': 'Inne uwagi o tym co mogłoby sprawić, że praca w tej firmie byłaby lepsza.',
             }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        min_length = 20 #number of words required in the field
+        min_length = 15 #number of words required in the field
         self.fields['pros'].validators.append(TextLengthValidator(min_length))
         self.fields['cons'].validators.append(TextLengthValidator(min_length))
 

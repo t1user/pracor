@@ -65,7 +65,8 @@ class TextLengthValidator():
     breaking the minimum length requirement.
     """
     def __init__(self, requirement=20):
-        self.req = requirement
+        #real constraint is requirement-2 to allow inputs that miss target by 1 or 2 words
+        self.req = requirement - 2 
         
     def __call__(self, text):
         words = text.split(' ')

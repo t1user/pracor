@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block css %}
+<style>
+    .action-buttons {
+        display: flex; 
+        flex-flow: row wrap; 
+        justify-content: space-evenly; 
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>Zostaw informacje</h1>
+            <h4>Sukces! Możesz już korzystać z portalu pracor</h4>
+            <h5>Kolejny logiczny krok to zostawienie informacji o Twoim pracodawcy (obecnym lub byłym)</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns  action-buttons">
+            <a href="{% url 'create_item_search' 'review' %}" class="button button-primary">Dodaj opinię</a> <a href="{% url 'create_item_search' 'salary' %}" class="button button-primary">Dodaj zarobki</a>
+        </div>
+    </div>
+    <div class="row">
+        <div clas="twelve columns">
+            <p style="text-align:center; color:#0CAA41;">Jakość serwisu zależy od danych, które w nim zostawisz. Pomożesz?</p>
+            <a class="button" href="{% url 'home' %}">Strona główna</a>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

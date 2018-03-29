@@ -14,8 +14,10 @@
             <h1>Logowanie</h1>
             <h4>Podaj swój email i hasło dla portalu pracor lub zaloguj się przez serwis zewnętrzny</h4>
             <div class="errors">
+                {% if not self %}
                 {% if next != '/' and next != '/login/' %}
-                Ta strona wymaga zalogowania.
+                Żądana strona wymaga zalogowania.
+                {% endif %}
                 {% endif %}
                 {% if form.errors %}
                 <p>Podany email lub hasło są nieprawidłowe. Spróbuj jeszcze raz...</p>

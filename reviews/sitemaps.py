@@ -8,7 +8,7 @@ class CompanySitemap(Sitemap):
     priority = 0.9
 
     def items(self):
-        return Company.objects.selected()
+        return Company.objects.selected().order_by('id')
 
 """    
 class ReviewSitemap(Sitemap):
@@ -40,7 +40,7 @@ class StaticViewsSitemap(Sitemap):
     changefreq = 'weekly'
 
     def items(self):
-        return ['home', 'login']
+        return ['home',]
 
     def location(self, item):
         return reverse(item)

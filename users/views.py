@@ -86,8 +86,10 @@ class AccountActivationSentView(NoAuthenticatedUsersMixin, TemplateView):
 
 class AccountActivateView(View):
     """
-    User sent here from activation link. Verify link and redirect as appropriate.
+    User sent here from activation link. Verify link and redirect to redirect_view.
     """
+    redirect_view = 'email_confirmed'
+    
     def get(self, request, uidb64, token):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -100,7 +102,7 @@ class AccountActivateView(View):
             user.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.add_message(request, messages.SUCCESS, 'E-mail potwierdzony!')
-            return redirect('create_profile')
+            return redirect(self.redirect_view)
         else:
             return render(request, 'registration/account_activation_invalid.html')            
             
@@ -117,7 +119,7 @@ class RegisterSuccess(TemplateView):
 class CreateProfileView(LoginRequiredMixin, View):
     """
     View with two forms to fill in missing data in User model and Profile.
-    Currently not in use because name is not neccessary.
+    CURRENTLY NOT IN USE because name is not neccessary.
     """
     user_form_class = CreateProfileForm_user
     profile_form_class = CreateProfileForm_profile
@@ -192,7 +194,6 @@ class LoginCustomView(LoginView):
             redirect_to = resolve_url('home')
         return redirect_to
 
-
     def form_valid(self, form):
         """
         Check if user activated email. If not redirect to a web-page with message.
@@ -204,6 +205,15 @@ class LoginCustomView(LoginView):
         else:
             return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        """
+        If login view has been called by user hitting 'login' button
+        (rather than being redirected by mixin) request has 'self=True' parameter.
+        Here this parameter is being passed to the template.
+        """
+        context = super().get_context_data(**kwargs)
+        context['self'] = self.request.GET.get('self', '')
+        return context
         
 class PasswordResetCustomView(NoAuthenticatedUsersMixin, PasswordResetView):
     """

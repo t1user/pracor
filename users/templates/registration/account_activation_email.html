@@ -1,7 +1,16 @@
 {% autoescape off %}
 
-W celu potwierdzenia hasła na pracor.pl kliknij (lub skopiuj do przeglądarki) link poniżej:
+Witaj!
 
-http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+Pozdrowienia od pracor.pl
+
+Aby potwierdzić email w portalu kliknij link poniżej (lub skopiuj go do przeglądarki):
+
+
+https://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+
+Do zobaczenia na portalu pracor.pl
+
 
 {% endautoescape %}

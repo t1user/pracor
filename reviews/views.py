@@ -113,6 +113,7 @@ class SuperuserAccessBlocker(UserPassesTestMixin):
     """
     Limits access to the view to superusers only.
     """
+
     raise_exception = True
 
     def test_func(self):
@@ -129,6 +130,15 @@ class PleaseContributeView(LoginRequiredMixin, TemplateView):
     template_name = 'reviews/please_contribute.html'
 
 
+class EmailConfirmedView(LoginRequiredMixin, TemplateView):
+    """
+    User redirected here after confirming email. 
+    Display template inticing user to make contribution.
+    """
+
+    template_name = 'reviews/email_confirmed.html'
+
+    
 class HomeView(View):
     form_class = CompanySearchForm
     template_name = 'reviews/home.html'
@@ -377,8 +387,8 @@ class CompanyItemsAbstract(ConditionalLoginRequiredMixin, AccessBlocker, NoSlugR
     Combines functionality of ListView - list of given items and
     DetailView - Company. 
     This is almost exact copy from Django documentation section on using view mixins.
+    https://docs.djangoproject.com/en/1.11/topics/class-based-views/mixins/#using-singleobjectmixin-with-listview
     """
-    
     template_name = 'reviews/company_items_view.html'
     paginate_by = 5
 
@@ -503,15 +513,7 @@ class SearchCompanyCreate(CompanyCreate):
         self.request.session['item'] = item
         self.initial.update({'item': item})
         return super().get(request, *args, **kwargs)
-        
-    """
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        print(kwargs)
-        context['item'] = kwargs['item']
-        return context
-    """
-    
+            
     def get_success_url(self):
         url = super().get_success_url()
         id = url.split('/')[1]
