@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /login/linkedin-oauth2*
+Disallow: /login/google-oauth2*
+Disallow: /login/facebook*
