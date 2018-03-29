@@ -7,13 +7,25 @@ html {
 
 body {
     /* Margin bottom by footer height */
-    margin-bottom: 6em;
+    margin-bottom: 4em;
     font-size: 1.7em;
     font-family: Lato, Arial, Sans-serif;
     /*font-family: 'Fira Mono';*/
     letter-spacing: 0.03em;
-
 }
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    min-height: 4rem;
+    background-color: #f5f5f5;
+    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    box-sizing: border-box;
+    padding: 1rem 2rem;
+}
+
 
 a {
     text-decoration: none;
@@ -23,12 +35,10 @@ h1 {
     font-weight: 400;
 }
 
-
 .container {
     background-color: #ffffff;
     padding: 1.5rem;
     margin-top: 1rem;
-    box-shadow: 1rem 1rem 1rem #f2f2f2;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
 }
 
@@ -43,7 +53,7 @@ h1 {
     background-color: inherit;
     box-shadow: none;
     padding-bottom: 0;
-    padding-top: 0;
+    padding-top: 1rem;
     text-align: center;
 }
 
@@ -53,7 +63,6 @@ h1 {
 .message-stripe li {
     list-style-type: none;
     font-style: italic;
-    /*color: #0CAA41;*/
     font-size: 2rem;
     letter-spacing: 0.2rem;
 }
@@ -70,29 +79,23 @@ h1 {
 .warning {
     color: red;
 }
-
 /* end styling for message tags */
 
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    /* Set the fixed height of the footer here */
-    min-height: 6rem;
-    background-color: #f5f5f5;
-    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-    box-sizing: border-box;
-    padding: 2rem;
-}
 
-/* start styling responsive top navbar */
+
+/**** START STYLING RESPONSIVE TOP NAVBAR ****/
+/* common part regardless of screen size */
+
 nav {
+    position: relative;
+    justify-content: center;
+    width: 100%;
     background-color: #0CAA41;
     box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
     height: 6rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    z-index: 5;
 }
 
 nav img {
@@ -100,31 +103,16 @@ nav img {
     vertical-align: middle;
 }
 
-.search-bar form {
-    display: inline-flex;
-    padding-top: 3rem;
+.search-mobile {
+    display: none;
+    position: relative;
 }
 
-.search-bar form input {
-    height: 4rem;
-    width: 30rem;
-}
-
-.search-bar form button {
-    height: 4rem;
-    text-align: left;
-    padding: .1rem;
-    display: inline-flex;
-    border: none;
-    color: white;
-    vertical-align: middle;
-    background-color: #0CAA41;
-    border-color: #0CAA41;
-
-}
-
-.topnav {
-    float: right;
+.search-mobile form {
+    display: flex;
+    flex-flow: row no-wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 nav a, nav span {
@@ -136,12 +124,186 @@ nav a, nav span {
 }
 
 
-.topnav  a:hover {
-    color: #e7fdef;
+/* collapsible menu acitvated by button click - button click activates js, which adds 'responisve class to .desktop-menu */    
+
+.collapsible-menu {
+    position: absolute;
+    top: -35rem;
+    right: 0;
+    transition: top 0.5s; 
+    min-width: 20rem;
+    color: rgb(64, 64, 64);
+    background-color: #EAEAE8;
+    padding: 0rem 1rem 4rem 1rem;
+    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    z-index: 2;
 }
 
-nav .icon, nav .glass {
-    display: none;
+.collapsible-menu div {
+    padding: 0.8rem 0.5rem;
+}
+
+.collapsible-menu a {
+    color: rgb(64, 64, 64);
+}
+
+.collapsible-menu-items {
+    border-bottom: solid 0.75px  #0CAA41;
+}
+
+.collapsible-menu .account-icon {
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    border-bottom: solid 0.75px  #0CAA41;
+}
+
+.collapsible-menu .account-icon .material-icons {
+    color: rgb(64, 64, 64);
+    font-size: 4rem;
+}
+
+.collapsible-menu .account-icon .user {
+    color: rgb(64, 64, 64);
+}
+
+.collapsible-menu.responsive {
+    top: 6rem;
+    transition: top 0.3s;
+}
+
+/*end of collapsible menu */
+
+/* end of common part irrespecitve of screen size */
+
+
+/* for screens smaller than 800px, add two icons that start javascript and logo in the middle */
+@media screen and (max-width: 800px) {
+    .menu-items {
+        display: none;
+    }
+
+    nav .search-bar {
+        display: none;
+    }
+
+    nav span.icon, nav span.glass
+    {
+        display: block;
+        position: absolute;
+        color: white;
+    }
+
+    nav span.icon {
+        right: 0;
+    }
+
+    nav span.glass  {
+        left: 0;
+    }
+
+    .search-mobile.responsive {
+        display: block;    }
+   
+    .search-mobile form {
+        display: flex;
+        align-items: center;
+        margin: 1rem 2rem 0 2rem;
+        padding-top: 1rem;
+    }
+
+    .search-mobile form input {
+        width: 80%;
+        box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+    }
+
+    .search-mobile form button {
+        box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
+        padding: 0 1rem;
+        margin-bottom: 1.5rem;
+    }
+} 
+/* end small screens compliant */
+
+
+/* When the screen is more than 750px wide, display links. Hide the icons that open and close the menu-items and .mobile-searchbar (.icon) */
+
+@media screen and (min-width: 801px) {
+    nav {
+        justify-content: space-between;    
+    }
+
+    nav .material-icons {
+        padding-right: 1.6rem;
+        font-size: 4.3rem;
+    }
+
+    .or {
+        color: #e7fdef;
+        padding: 0;
+    }
+    
+    .menu-items a:hover, .menu-items button .material-icons:hover, .menu-items button:hover {
+        color: #e7fdef;
+    }
+
+    .menu-items {
+        float: right;
+    }
+
+    .search-bar form {
+        display: inline-flex;
+        margin: 0;
+        align-items: center;
+        vertical-align: middle;
+    }
+
+    .search-bar form input {
+        height: 4rem;
+        width: 30rem;
+        margin: 0;
+    }
+
+    .search-bar form button {
+        border: none;
+        color: white;
+        background-color: #0CAA41;
+    }
+
+    nav button {
+        padding: 0;
+        margin: 0;
+        border: none;
+    }
+
+    .search-bar form button:hover {
+        background-color: #0CAA41;
+    }
+
+    nav .icon, nav .glass {
+        display: none;
+    }
+
+    .button.login-button {
+        vertical-align: middle;
+        margin: 0 2rem;
+    }
+
+    /* collapsible menu - incremental to small screens */
+    .collapsible-menu a:hover {
+        color: #0CAA41;
+    }
+    
+    .collapsible-menu  div {
+        padding: 1rem 1rem;
+    }
+
+    .collapsible-menu .account-icon .material-icons {
+        font-size: 7rem;
+    }
+    /* end of collapsible menu */
+
 }
 
 .ui-autocomplete {
@@ -150,123 +312,35 @@ nav .icon, nav .glass {
     overflow-x: hidden;
 }
 
+nav.material-icons,
+nav button .material-icons {
+    color: white;
+}
+
 .material-icons {
     vertical-align: middle;
-    padding-right: 0.5rem;
 }
+/* end styling responsive top navbar */    
 
-
-/*
-@media screen and (max-width: 830px) {
-    .search-bar form input {
-        width: 15rem;
-    }
-
-    nav a {
-        padding: 1.4rem 0.8rem;
-    }
-
-    nav a:last-child {
-        padding-right: 1.5rem;
-    }
-} 
-*/
-/* When the screen is less than 600 pixels wide, hide all links. Show the link that opens and closes the topnav (.icon) */
-@media screen and (max-width: 750px) {
-    .topnav {
-        display: none;
-    }
-    nav span.icon {
-        display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-    }
-
-    nav span.icon:hover,
-    nav span.glass:hover {
-        color: white;
-    }
-    
-    nav span.glass  {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-
-    nav .search-bar {
-        display: none;
-    }
-   
-    nav {
-        justify-content: center;
-        width: 100%;
-        }
-}
-
-.search-mobile {
-    display: none;
-}
-
-.search-mobile form {
-    margin: 1rem 2rem 0 2rem;
-    padding-top: 1rem;
-}
-
-.search-mobile form input {
-    width: 80%;
-    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-}
-
-.search-mobile form button {
-    box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-    padding: 0 1rem;
-
-}
-
-.search-mobile.responsive {
-    display: block;
-}
-    
-
-/* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
-@media screen and (max-width: 750px) {
-    .topnav.responsive {
-        display: block;
-        position: absolute;
-        top: 6rem;
-        right: 0rem;
-        background-color: #d9d9d9;
-        background-color: #e6e6e6;
-        padding: 0rem 1rem;
-        z-index: 2;
-        box-shadow: 0 1px 1px 1px rgba(127,127,127,0.3);
-
-    }
-    
-    .topnav.responsive a {
-        float: none;
-        display: block;
-        text-align: left;
-        padding: 2rem;
-        color: black;
-     }
-
-} 
-/* end styling responsive top navbar */
 
 
 
 /* common formatting for all forms */
-
 .errors, .errorlist {
     color: red;
     list-style: none;
     font-style: italic;
 }
 
+ul.errorlist {
+    margin-bottom: 0;
+}
 
 .required {
     color: red;
+}
+/* end common formatting for forms */
+
+#paginatorSelect {
+    margin-bottom: 0;
 }
