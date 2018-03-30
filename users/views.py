@@ -145,7 +145,7 @@ class UpdateProfileView(LoginRequiredMixin, UpdateView):
     """
     form_class = CreateProfileForm_profile
     template_name = 'registration/profile_update_form.html'
-    success_url = '/update_profile'
+    success_url = '/profile'
 
     def get_context_data(self, **kwargs):
         self.initial = self.request.user.profile.__dict__
