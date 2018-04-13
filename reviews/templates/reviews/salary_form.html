@@ -16,22 +16,9 @@
     </div>
     <div class="row">
         <section class="eight columns">
-            <article>
-                <form action='' method='POST'>
 
-                    {% include "reviews/_render_form.html" with form=form %}
-
-                    {% if position_form %}
-                    <h4>Dotyczy stanowiska:</h4>
-
-                    {% include "reviews/_render_form.html" with form=position_form %}
-
-                    {% endif %}
-                    {% csrf_token %}
-                    <input type='submit' value='Wyślij' class="button-primary">
-                </form>
-                <div class="required"><i>*Pola wymagane</i></div>
-            </article>
+          {% include "reviews/_item_form_section.html" %}
+          
         </section>
         <aside class="four columns">
             <h4>Zasady wypełniania</h4>

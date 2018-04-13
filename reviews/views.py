@@ -32,15 +32,21 @@ from .models import Company, Interview, Position, Review, Salary
 
 logger = logging.getLogger(__name__)
 
+#next two variables determine
+#max number of submissions users are allowed within given time-period
+#robo spam prevention
+SUBMISSIONS_LIMIT = 5
+SUBMISSIONS_LIMIT_DAYS = 90
+
 def success_message(request):
     """
-    Used to display flash message after succesful submission of a form.
+    Display flash message after succesful submission of a form.
     """
     messages.add_message(request, messages.SUCCESS, 'Zapisano dane. Dzięki!')
 
 def failure_message(request, item, days):
     """
-    Used to display flash message informing that user cannot submit data.
+    Display flash message informing user they cannot submit data.
     """
     messages.add_message(request, messages.WARNING,
                          'Już mamy Twoje dane! {} dla tej firmy możesz ponownie dodać za {} dni.'.format(item, days))
@@ -50,12 +56,15 @@ def too_many_submissions_message(request, item):
     Display flash message informing user that they cannot submit data.
     """
     messages.add_message(request, messages.WARNING,
-                         '{}: obowiązuje limit 5 wpisów w ciągu 90 dni!'.format(item))
+                         '{}: obowiązuje limit {} wpisów w ciągu {} dni!'.format(
+                             item,
+                             SUBMISSIONS_LIMIT,
+                             SUBMISSIONS_LIMIT_DAYS))
 
     
 class AccessBlocker(UserPassesTestMixin):
     """
-    Block access to certain views for users who haven't made minimum required
+    Mixin. Block access to certain views for users who haven't made minimum required
     contribution to the site yet. Redirection site (login_url)
     should explain what kind of contribution user has to make to get
     full access.
@@ -63,7 +72,7 @@ class AccessBlocker(UserPassesTestMixin):
     making contribution.
     """
     login_url = reverse_lazy('please_contribute')
-    limit = 3 #this is the limit of 'free' profiles
+    limit = 0 #this is the limit of 'free' profiles
     
     def test_func(self):
         if self.request.user.is_authenticated:
@@ -76,7 +85,7 @@ class AccessBlocker(UserPassesTestMixin):
         """
         viewed_profiles = Visit.objects.filter(
             user=self.request.user.profile).aggregate(count=Count('company', distinct=True))
-        value = (viewed_profiles.get('count') <= self.limit)
+        value = (viewed_profiles.get('count') < self.limit)
         return value
 
 
@@ -84,6 +93,8 @@ class ConditionalLoginRequiredMixin(LoginRequiredMixin):
     """
     Grant users a number of 'free' views without logging in.
     The number of 'free' views set by 'limit'.
+    To be used interchangeably with LoginRequiredMixin depending whether 'free'
+    logins are allowed.
     """
     limit = 3
     
@@ -93,7 +104,7 @@ class ConditionalLoginRequiredMixin(LoginRequiredMixin):
             session['visits'] = []
             return True
         logger.debug('Anonymous user used up {} free company profile(s) so far'.format(len(session['visits'])))
-        if len(session['visits']) >= self.limit:
+        if len(session['visits']) > self.limit:
             return False
         else:
             return True
@@ -272,7 +283,7 @@ class CreateItemSearchView(LoginRequiredMixin, CompanySearchView):
             self.error = True
         kwargs = super().get_kwargs(**kwargs)
         kwargs['item'] = self.item
-        trans = {'review': ['recenzji', 'recenzję'],
+        trans = {'review': ['opinii', 'opinię'],
                  'salary': ['zarobków', 'zarobki']}
         kwargs['item_pl'] = trans.get(self.item)
         return kwargs
@@ -316,7 +327,8 @@ class NoSlugRedirectMixin:
             return super().get(request, *args, **kwargs)
 
 
-class CompanyDetailView(ConditionalLoginRequiredMixin, NoSlugRedirectMixin, DetailView):
+class CompanyDetailView(LoginRequiredMixin, AccessBlocker,
+                        NoSlugRedirectMixin, DetailView):
     """
     Display Company details with last item of each Review, Salary, Interview.
     The class ss inherited by CompanyItemsView, which displays lists of all items
@@ -380,7 +392,7 @@ class CompanyItemsRedirectView(RedirectView):
     pass
 
 
-class CompanyItemsAbstract(ConditionalLoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
+class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
                            SingleObjectMixin,  ListView):
     """
     Abstract base class for displaying lists of Review, Salary, Interview.
@@ -673,14 +685,13 @@ class ContentCreateAbstract(LoginRequiredMixin, AjaxViewMixin, CreateView):
     def user_can_post(self):
         """
         Return False if user already sumitted the number of items (Review or Salary)
-        at the limit. When changing limit make sure to change warning message.
+        at the limit.
         """
-        limit = 5
         item = self.form_class.Meta.model
-        cutoff_date = timezone.now() - datetime.timedelta(days=90)
+        cutoff_date = timezone.now() - datetime.timedelta(days=SUBMISSIONS_LIMIT_DAYS)
         items_posted = item.objects.filter(position__user=self.request.user,
                                            date__gt=cutoff_date)
-        if items_posted.count() > limit:
+        if items_posted.count() > SUBMISSIONS_LIMIT:
             too_many_submissions_message(self.request,
                              self.form_class.Meta.model._meta.verbose_name_plural)
             return False

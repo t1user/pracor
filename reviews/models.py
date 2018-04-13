@@ -55,6 +55,7 @@ class Company(ApprovableModel):
     sectors = models.TextField('sektory', blank=True, null=True)
     isin = models.CharField('ISIN', max_length=30, blank=True, null=True)
 
+    # slug created automatically by save()
     slug = models.SlugField(null=True, max_length=200, editable=False)
 
     class Meta:
@@ -77,6 +78,7 @@ class Company(ApprovableModel):
                    '-sp-j-sp-j',
                    '-sp-z-oo-ska',
                    '-sp-z-oo-sp-j',
+                   '-spolka-z-oo',
                    ]
         for e in endings:
             if self.slug.endswith(e):
