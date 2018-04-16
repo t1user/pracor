@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import RadioSelect, Textarea, TextInput, CheckboxSelectMultiple
 from django.utils import timezone
 
-from .models import Company, Interview, Position, Review, Salary, Benefit
+from .models import Company, Interview, Position, Review, Salary, Benefit, AccessAttempt
 
 
 admin.site.site_header = 'pracor - administracja'
@@ -200,3 +200,7 @@ class BenefitAdmin(admin.ModelAdmin):
         obj.author = request.user
         super().save_model(request, obj, form, change)
 
+@admin.register(AccessAttempt)
+class AttemptAdmin(admin.ModelAdmin):
+    list_display = ['timestamp', 'path', 'referer', 'ip']
+    readonly_fields = [field.name for field in AccessAttempt._meta.get_fields()]

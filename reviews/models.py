@@ -530,3 +530,18 @@ class Interview(ApprovableModel):
         """"Used by method calculating number of rating stars for display."""
         return {'rating': self.rating,}
     
+
+class AccessAttempt(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    referer = models.CharField(max_length=100, editable=False)
+    ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=True,
+                                      editable=False, blank=True, null=True)
+    user_agent = models.CharField(max_length=100, editable=False)
+    path = models.CharField(max_length=100, editable=False)
+
+    class Meta:
+        verbose_name = 'Próba dostępu'
+        verbose_name_plural = 'Próby dostępu'
+    
+    def __str__(self):
+        return self.referer

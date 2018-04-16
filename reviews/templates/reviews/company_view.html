@@ -70,4 +70,8 @@ pracor | {{ company.name }} | Opinie, zarobki, rozmowy kwalifikacyjne
 {% endif %}
 {% endfor %}
 
+{% if not company.reviews.count and not company.salaries.count and not company.interviews.count %}
+{% include "reviews/pledge_for_data.html" %}
+{% endif %}
+
 {% endblock content %}

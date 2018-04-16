@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import *
-from django.contrib.auth.mixins import (LoginRequiredMixin,
+from django.contrib.auth.mixins import (AccessMixin,
                                         PermissionRequiredMixin,
                                         UserPassesTestMixin)
 from django.contrib import messages
@@ -27,7 +27,7 @@ from users.models import Visit
 from .forms import (CompanyCreateForm, CompanySearchForm, CreateItemSearchForm,
                     CompanySelectForm, InterviewForm, PositionForm, ReviewForm,
                     SalaryForm, ContactForm)
-from .models import Company, Interview, Position, Review, Salary
+from .models import Company, Interview, Position, Review, Salary, AccessAttempt
 
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,33 @@ class AccessBlocker(UserPassesTestMixin):
         value = (viewed_profiles.get('count') < self.limit)
         return value
 
+class LoginRequiredMixin(AccessMixin):
+    """
+    Override of CBV mixin which verifies that the current user is authenticated.
+    Record user related data.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            self.record_data()
+            return self.handle_no_permission()
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
+    def record_data(self):
+        referer = self.request.META.get('HTTP_REFERER')
+        user_agent = self.request.META.get('HTTP_USER_AGENT')
+        path = self.request.get_full_path()
+        ip = self.request.META.get('REMOTE_ADDR')
+        if not ip:
+            ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if not ip:
+            ip = self.request.META.get('HTTP_X_REAL_IP')
+        AccessAttempt.objects.create(referer=referer,
+                               ip=ip,
+                               user_agent=user_agent,
+                               path=path,
+                               )
+
+        
 class ConditionalLoginRequiredMixin(LoginRequiredMixin):
     """
     Grant users a number of 'free' views without logging in.
@@ -327,7 +353,7 @@ class NoSlugRedirectMixin:
             return super().get(request, *args, **kwargs)
 
 
-class CompanyDetailView(LoginRequiredMixin, AccessBlocker,
+class CompanyDetailView(ConditionalLoginRequiredMixin,
                         NoSlugRedirectMixin, DetailView):
     """
     Display Company details with last item of each Review, Salary, Interview.
@@ -392,7 +418,7 @@ class CompanyItemsRedirectView(RedirectView):
     pass
 
 
-class CompanyItemsAbstract(LoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
+class CompanyItemsAbstract(ConditionalLoginRequiredMixin, AccessBlocker, NoSlugRedirectMixin,
                            SingleObjectMixin,  ListView):
     """
     Abstract base class for displaying lists of Review, Salary, Interview.
@@ -991,7 +1017,6 @@ class ContactView(FormView):
         no_messages = self.request.session.get('sent_emails', 0)
         no_messages += 1
         self.request.session['sent_emails'] = no_messages
-        
 
     def check_if_can_send(self):
         if self.request.session.get('sent_emails', 0) > 2:
