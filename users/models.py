@@ -112,7 +112,7 @@ class Visit(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, editable=False)
     ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=True,
                                       editable=False, blank=True, null=True)
-    path = models.CharField(max_length=100, editable=False)
+    path = models.CharField(max_length=200, editable=False)
 
     class Meta:
         verbose_name = 'Wizyta'
