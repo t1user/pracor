@@ -360,7 +360,7 @@ class Salary(ApprovableModel):
         return 'id_{}_{}'.format(self.id, self.company)
 
     def save(self, *args, **kwargs):
-        self.convert()
+        #self.convert()
         if self.bonus_input == None or self.bonus_input == 0:
             self.bonus_period = None
         #make sure that zeros are not counted as inputs with values

@@ -1,0 +1,3 @@
+                <a href="{% url 'social:begin' 'facebook' %}?next={{ next }}">
+                    <img src="{% static 'img/registration/sign-in.png' %}">
+                </a>
