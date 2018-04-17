@@ -533,15 +533,15 @@ class Interview(ApprovableModel):
 
 class AccessAttempt(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, editable=False)
-    referer = models.CharField(max_length=200, editable=False)
+    referer = models.CharField(max_length=200, editable=False, null=True)
     ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=True,
                                       editable=False, blank=True, null=True)
-    user_agent = models.CharField(max_length=200, editable=False)
-    path = models.CharField(max_length=200, editable=False)
+    user_agent = models.CharField(max_length=200, editable=False, null=True)
+    path = models.CharField(max_length=200, editable=False, null=True)
 
     class Meta:
         verbose_name = 'Próba dostępu'
         verbose_name_plural = 'Próby dostępu'
     
     def __str__(self):
-        return self.referer
+        return self.path
