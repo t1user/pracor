@@ -7,8 +7,8 @@ from django.db.models import Q
 
 from .models import Company, Interview, Position, Review, Salary, Benefit
 from .widgets import RadioReversed, RadioSelectModified
-from .validators import ProfanitiesFilter, TextLengthValidator, WWWValidator
-
+from .validators import (ProfanitiesFilter, TextLengthValidator,
+                         WWWValidator, ContactValidator)
 
 
 class CompanySearchForm(forms.Form):
@@ -16,8 +16,10 @@ class CompanySearchForm(forms.Form):
 
 
 class CreateItemSearchForm(CompanySearchForm):
-    item = forms.CharField(max_length=10, widget=forms.HiddenInput(attrs={'readonly':True}))
-    
+    item = forms.CharField(
+        max_length=10, widget=forms.HiddenInput(attrs={'readonly': True}))
+
+
 class CompanySelectForm(forms.Form):
     company_name = forms.ChoiceField(widget=forms.RadioSelect(), label='')
     position = forms.CharField(max_length=30, widget=forms.HiddenInput())
@@ -27,7 +29,7 @@ class CompanySelectForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['company_name'].choices = (list(self.companies) +
                                                [('None', 'Na liście nie ma firmy, w której pracuję')])
-        
+
 
 class CensoredField(forms.CharField):
     """
@@ -45,7 +47,6 @@ class CompanyCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['website'].validators.append(WWWValidator())
 
-        
     class Meta:
         model = Company
         fields = ['name', 'headquarters_city', 'website']
@@ -57,7 +58,7 @@ class CompanyCreateForm(forms.ModelForm):
 
     def clean_name(self):
         return self.cleaned_data['name'].title()
-        
+
     def clean_headquarters_city(self):
         return self.cleaned_data['headquarters_city'].title()
 
@@ -74,14 +75,14 @@ class CompanyCreateForm(forms.ModelForm):
             url = url.replace('http://', 'http://www.')
         return url
 
-    
+
 class PositionForm(forms.ModelForm):
 
     class Meta:
         model = Position
         fields = ['position', 'department', 'location',
                   'start_date_year', 'start_date_month', 'end_date_year', 'end_date_month',
-                  'employment_status',]
+                  'employment_status', ]
 
         field_classes = {
             'position': CensoredField,
@@ -89,7 +90,7 @@ class PositionForm(forms.ModelForm):
             'location': CensoredField,
         }
 
-        #start date and end date labels added through css
+        # start date and end date labels added through css
         labels = {
             'position': 'stanowisko',
             'department': 'departament',
@@ -113,7 +114,7 @@ class PositionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        #request and company are required by Salary form and obsolete here
+        # request and company are required by Salary form and obsolete here
         if 'request' in kwargs:
             kwargs.pop('request')
         if 'company' in kwargs:
@@ -133,7 +134,7 @@ class PositionForm(forms.ModelForm):
     def clean_location(self):
         return self.cleaned_data['location'].title()
 
-        
+
 class ReviewForm(forms.ModelForm):
 
     class Meta:
@@ -178,29 +179,29 @@ class ReviewForm(forms.ModelForm):
             'pros': 'Minimum 15 słów (1-2 zdania). Konieczne by opinia była wyważona.',
             'cons': 'Minimum 15 słów (1-2 zdania). Konieczne by opinia była wyważona.',
             'comment': 'Inne uwagi o tym co mogłoby sprawić, że praca w tej firmie byłaby lepsza.',
-            }
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        min_length = 15 #number of words required in the field
+        min_length = 15  # number of words required in the field
         self.fields['pros'].validators.append(TextLengthValidator(min_length))
         self.fields['cons'].validators.append(TextLengthValidator(min_length))
 
 
 class SalaryForm(forms.ModelForm):
     other = CensoredField(label='Inne benefity',
-                            help_text='Opcjonalnie, wymień po przecinku inne benefity, które Ci przysługują poza tymi na liście')
-    
+                          help_text='Opcjonalnie, wymień po przecinku inne benefity, które Ci przysługują poza tymi na liście')
+
     class Meta:
         model = Salary
         fields = [
-            #'currency', currently not implemented
+            # 'currency', currently not implemented
             'salary_input',
             'period',
-            #'gross_net', currently not implemented, all inputs gross
+            # 'gross_net', currently not implemented, all inputs gross
             'bonus_input',
             'bonus_period',
-            #'bonus_gross_net', currently not implemented, all inputs gross
+            # 'bonus_gross_net', currently not implemented, all inputs gross
             'contract_type',
             'comments',
             'benefits',
@@ -221,13 +222,12 @@ class SalaryForm(forms.ModelForm):
         labels = {
             'salary_input': 'Pensja brutto',
             'bonus_input': 'Premia brutto',
-            }
+        }
 
         help_texts = {
             'comments': 'Wszelkie uwagi, które dodatkowo określają charakter otrzymywanego wynagrodznia. Uwagi te nie zostaną opublikowane',
             'benefits': 'Zaznacz benefity, które Ci przysługują',
-            }
-
+        }
 
     def __init__(self, request, company, *args, **kwargs):
         """
@@ -239,18 +239,17 @@ class SalaryForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.request = request
         self.company = company
-        #choose only core items or relevant to the company
+        # choose only core items or relevant to the company
         extra_benefits = self.company.benefits
         self.fields['benefits'].queryset = Benefit.objects.filter(
             Q(core=True) | Q(pk__in=extra_benefits)
-            )
-                                                               
+        )
+
         self.fields['period'].required = False
         #self.fields['gross_net'].required = False
         self.fields['bonus_period'].required = False
         #self.fields['bonus_gross_net'].required = False
         self.fields['other'].required = False
-
 
     def clean_other(self):
         other_benefit_list = self.cleaned_data['other'].split(',')
@@ -263,11 +262,11 @@ class SalaryForm(forms.ModelForm):
             if benefit == '':
                 continue
             new_benefit = Benefit.objects.create(name=benefit,
-                                   author=self.request.user,
-            )
+                                                 author=self.request.user,
+                                                 )
             new_benefits_list.append(new_benefit)
         return chain(new_benefits_list, existing_benefits)
- 
+
     def clean(self):
         cleaned_data = super().clean()
         if 'other' in cleaned_data.keys():
@@ -285,6 +284,7 @@ class InterviewForm(forms.ModelForm):
                                        widget=forms.RadioSelect(
                                            choices=((True, 'Tak'), (False, 'Nie'))),
                                        )
+
     class Meta:
         model = Interview
         fields = [
@@ -318,8 +318,7 @@ class InterviewForm(forms.ModelForm):
             'questions': 'Jak przebiegał proces rekrutacyjny i jakie pytania zadano na różnych jego etapach.',
             'impressions': 'Pozytywne i negatywne strony procesu rekrutacyjnego.',
             'rating': 'Jak oceniasz całość doświadczenia rekrutacyjnego w firmie.',
-            }
-
+        }
 
     def clean_position(self):
         return self.cleaned_data['position'].title()
@@ -330,8 +329,12 @@ class InterviewForm(forms.ModelForm):
 
 
 class ContactForm(forms.Form):
+
     your_email = forms.EmailField(label='Twój email',)
     subject = forms.CharField(label='Temat', strip=True)
-    message = forms.CharField(label='Wiadomość', strip=True, widget=forms.Textarea())
+    message = forms.CharField(
+        label='Wiadomość', strip=True, widget=forms.Textarea())
 
-    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['message'].validators.append(ContactValidator())
