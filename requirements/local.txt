@@ -8,7 +8,7 @@ django-admin-honeypot==1.0.0
 django-analytical==2.4.0
 django-appconf==1.0.2
 django-axes==4.0.2
-django-debug-toolbar==1.9.1
+django-debug-toolbar==1.11.1
 django-ipware==2.0.1
 docutils==0.14
 et-xmlfile==1.0.1
