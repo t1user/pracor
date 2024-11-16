@@ -2,20 +2,22 @@
 Remove from database all entries that have invalid www (www not working).
 """
 
-#Configuration to allow for access to project models
+# Configuration to allow for access to project models
 import os
 import sys
+
 import requests
 
-proj_path = "/home/tomek/pracr/"
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pracr.settings')
+proj_path = "/home/tomek/pracor/"
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pracor.settings")
 sys.path.append(proj_path)
-import pracr.wsgi
-
+import pracor.wsgi
 from reviews.models import Company
 
 COUNTER = 0
 TIMEOUTS = []
+
+
 def test_www(company):
     number = company.pk
     name = company.name
@@ -40,18 +42,18 @@ def test_www(company):
         return True
     return True
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     companies = Company.objects.all()
     for company in companies:
-        #print('*', end='')
-        print('Testing {} {}'.format(company.name, company.website))
+        # print('*', end='')
+        print("Testing {} {}".format(company.name, company.website))
         if not test_www(company):
-            print('Deleting {} {}'.format(company.name, company.website))
+            print("Deleting {} {}".format(company.name, company.website))
             company.delete()
             COUNTER += 1
 
-
-    print('Companies deleted: ', COUNTER)
-    print('Timeouts:')
+    print("Companies deleted: ", COUNTER)
+    print("Timeouts:")
     for i in TIMEOUTS:
         print(i.name, i.website)

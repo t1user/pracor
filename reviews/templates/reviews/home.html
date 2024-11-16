@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 
-{% load staticfiles %}
+{% load static %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 
 
 <style type="text/css">
- .picture-box {
-     background-image: url({% static 'img/city_landscape.png' %});
- }
- @media screen and (min-width: 950px): {
-     .picture-box {
-         background-image: url({% static 'img/city_landscape.svg' %});
-     }
- }
+    .picture-box {
+        background-image: url({% static 'img/city_landscape.png' %});
+    }
+
+    @media screen and (min-width: 950px): {
+        .picture-box {
+            background-image: url({% static 'img/city_landscape.svg' %});
+        }
+    }
 </style>
 {% endblock css %}
 
@@ -24,18 +25,18 @@
     <div class="picture-box">
         <div class="row">
             <div class="twelve columns">
-              <nav>
+                <nav>
                     {% block logo %}
                     {{ block.super }}
                     {% endblock logo %}
-                    
+
                     {% block menu %}
                     {{ block.super }}
                     {% endblock menu %}
                 </nav>
             </div>
         </div>
-{% endblock nav %}
+        {% endblock nav %}
 
 
         {% block content %}
@@ -54,18 +55,20 @@
     </div>
 </div>
 <div class="container">
-    <div class ="row marketing">
+    <div class="row marketing">
         <div class="four columns">
             <h2>Opinie</h2>
-            <p>Opinie o pracodawcach od samych pracowników. Być może mówią to samo co korporacyjna strona internetowa. Ale czy nie warto sprawdzić?</p>
+            <p>Opinie o pracodawcach od samych pracowników. Być może mówią to samo co korporacyjna strona internetowa.
+                Ale czy nie warto sprawdzić?</p>
         </div>
         <div class="four columns">
             <h2>Zarobki</h2>
             <p>Informacje o zarobkach anonimowo zostawione przez użytkowników. Czy zarabiasz tyle ile zasługujesz?</p>
         </div>
         <div class="four columns">
-          <h2>Rozmowy</h2>
-          <p>Wrażenia z rozmów kwalifikacyjnych w firmie. O co pytają. Jak zdobyć tam pracę. Czy warto w ogóle zawracać sobie głowę?</p>
+            <h2>Rozmowy</h2>
+            <p>Wrażenia z rozmów kwalifikacyjnych w firmie. O co pytają. Jak zdobyć tam pracę. Czy warto w ogóle
+                zawracać sobie głowę?</p>
         </div>
     </div>
     <div class="container">

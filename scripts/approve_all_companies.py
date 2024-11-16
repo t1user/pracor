@@ -1,15 +1,14 @@
+import getpass
 import os
 import sys
 
-
-import getpass
 user = getpass.getuser()
-proj_path = "/home/" + user + "/pracr/"
+proj_path = "/home/" + user + "/pracor/"
 
 sys.path.append(proj_path)
-import pracr.wsgi
 import datetime
 
+import pracor.wsgi
 from reviews.models import Company
 from users.models import User
 
@@ -17,9 +16,7 @@ companies = Company.objects.all()
 reviewer = User.objects.get(email="tmierz@rocketmail.com")
 
 companies.update(
-    approved=True,
-    reviewer=reviewer,
-    reviewed_date=datetime.datetime.now()
+    approved=True, reviewer=reviewer, reviewed_date=datetime.datetime.now()
 )
 
 """
