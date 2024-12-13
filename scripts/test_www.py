@@ -11,7 +11,6 @@ import requests
 proj_path = "/home/tomek/pracor/"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pracor.settings")
 sys.path.append(proj_path)
-import pracor.wsgi
 from reviews.models import Company
 
 COUNTER = 0
@@ -19,8 +18,6 @@ TIMEOUTS = []
 
 
 def test_www(company):
-    number = company.pk
-    name = company.name
     www = company.website
     try:
         r = requests.get(www, timeout=30)
@@ -37,7 +34,6 @@ def test_www(company):
         return True
     except requests.exceptions.ReadTimeout as e:
         print("Timeout ", e.args, company.website)
-        global TIMEOUTS
         TIMEOUTS.append(company)
         return True
     return True

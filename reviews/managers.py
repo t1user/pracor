@@ -1,23 +1,6 @@
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import models
-from django.db.models import Avg, Max, Min, Count, Sum, Aggregate, F, Q
-from django.contrib.postgres.aggregates.general import StringAgg
-
-
-class ArrayAgg(Aggregate):
-    """
-    Class copied from Django2.0 to provide 'distinct' functionality.
-    """
-
-    function = "ARRAY_AGG"
-    template = "%(function)s(%(distinct)s%(expressions)s)"
-
-    def __init__(self, expression, distinct=False, **extra):
-        super().__init__(expression, distinct="DISTINCT " if distinct else "", **extra)
-
-    def convert_value(self, value, expression, connection, *args):
-        if not value:
-            return []
-        return value
+from django.db.models import Avg, Count, Max, Min
 
 
 class SelectedManager(models.Manager):
@@ -78,7 +61,6 @@ class SalaryManager(SelectedManager):
                 ),
                 bonus_annual_max=Max("bonus_gross_annual"),
                 bonus_annual_count=Count("bonus_gross_annual"),
-                # distinct=True available only in Django2.0, that's why ArrayAgg is overriden
                 bonus_periods=ArrayAgg("bonus_period", distinct=True),
                 salary_object_list=ArrayAgg("id", distinct=True),
             )

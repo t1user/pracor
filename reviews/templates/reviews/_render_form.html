@@ -3,15 +3,11 @@
     {{ form.non_field_errors }}
     {% for field in form %}
 
-    {% if field.field.widget.attrs.class %}
     {% if 'break_before' in field.field.widget.attrs.class %}
-    <br/>
+    <br />
     {% endif %}
-    
-    <div class="form_field {{ field.field.widget.attrs.class }}">
-        {% else %}
-        <div class="form_field_no_class">
-        {% endif %}
+
+    <div class="form_field {{ field.field.widget.attrs.class|default:'form_field_no_class' }}">
         <label for="{{ field.id_for_label }}">
             {{ field.label|safe }}
             {% if field.field.required %}

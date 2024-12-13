@@ -23,15 +23,15 @@ pracor | {{ company.name }} | Opinie, zarobki, rozmowy kwalifikacyjne
         <div class="row">
             <div class="seven columns">
                 <article class="counter">
-                    <a class="counter-button" href="{% url 'company_items' company.pk 'opinie' company.slug %}">
+                    <a class="counter-button" href="{% url 'company_items' 'opinie' company.pk  company.slug %}">
                         <div class="counter-title">Opinie</div>
                         <div class="counter-link">{{ company.reviews.count }}</div>
                     </a>
-                    <a class="counter-button" href="{% url 'company_items' company.pk 'zarobki' company.slug %}">
+                    <a class="counter-button" href="{% url 'company_items' 'zarobki' company.pk company.slug %}">
                         <div class="counter-title">Zarobki</div>
                         <div class="counter-link">{{ company.salaries.count }}</div>
                     </a>
-                    <a class="counter-button" href="{% url 'company_items' company.pk 'rozmowy' company.slug %}">
+                    <a class="counter-button" href="{% url 'company_items' 'rozmowy' company.pk company.slug %}">
                         <div class="counter-title">Rozmowy</div>
                         <div class="counter-link">{{ company.interviews.count }}</div>
                     </a>

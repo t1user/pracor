@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin
-from django.core.exceptions import *
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect, JsonResponse
@@ -386,7 +386,7 @@ class NoSlugRedirectMixin:
         """
         Check if view has been called with proper slug, if not redirect.
         """
-        if kwargs.pop("slug") != self.object.slug:
+        if kwargs.pop("slug", "") != self.object.slug:
             # preserve GET parameters if any
             args = request.META.get("QUERY_STRING", "")
             if args:
@@ -547,7 +547,6 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
         return super().get(request, **kwargs)
 
     def form_valid(self, form):
-        form.instance.headquarters_city = form.instance.headquarters_city.title()
         # this is typically done in superclass, doing it here gives access to
         # newly created object
         self.object = form.save()
@@ -565,7 +564,7 @@ class CompanyCreate(LoginRequiredMixin, CreateView):
             try:
                 new_name = new_names.pop()
                 self.success_url = new_name[1]
-            except:
+            except Exception:
                 pass
         # calling superclass is unnessesary as all it does is self.object=form.save()
         # (done above) plus the redirect below
@@ -613,7 +612,7 @@ class SearchCompanyCreate(CompanyCreate):
         if item not in ["review", "salary"]:
             try:
                 return redirect(request.META.get("HTTP_REFERER"))
-            except:
+            except Exception:
                 return redirect("home")
         self.request.session["item"] = item
         self.initial.update({"item": item})
@@ -625,7 +624,7 @@ class SearchCompanyCreate(CompanyCreate):
         item = self.request.session.get("item")
         try:
             return reverse(item, kwargs={"id": id})
-        except:
+        except Exception:
             messages.add_message(
                 self.request,
                 messages.WARNING,
@@ -1065,7 +1064,7 @@ class ContactView(FormView):
                 self.request, messages.SUCCESS, "Wiadomość została wysłana."
             )
             self.record_send()
-        except:
+        except Exception:
             messages.add_message(
                 self.request, messages.WARNING, "Wystąpił błąd, spróbuj ponownie."
             )

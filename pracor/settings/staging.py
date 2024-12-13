@@ -3,7 +3,7 @@ import sys
 
 from pracor.sendgrid_key import SENDGRID_API_KEY
 
-from .base import *
+from .base import *  # noqa
 
 DEBUG = False
 
@@ -14,10 +14,6 @@ ALLOWED_HOSTS = [
     "pracor.pl",
     "157.181.198.35.bc.googleusercontent.com",
 ]
-
-
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
     "default": {
@@ -47,7 +43,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 
-LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), "log")
+LOG_ROOT = os.path.join(os.path.dirname(BASE_DIR), "log")  # noqa
 HANDLERS_LIST = ["mail_admins", "rotating_file", "day_rotating_file"]
 LOGLEVEL = os.environ.get("PRACOR_LOGLEVEL", "ERROR").upper()
 LOGGING = {

@@ -27,66 +27,37 @@ urlpatterns = [
         views.CompanySearchView.as_view(),
         name="company_search",
     ),
-    re_path(
-        r"^(?P<pk>\d+)/opinie/(?P<slug>[-\w\d]+)?$",
-        views.ReviewItemsView.as_view(),
-        name="review_items",
-    ),
-    re_path(
-        r"^(?P<pk>\d+)/zarobki/(?P<slug>[-\w\d]+)?$",
-        views.SalaryItemsView.as_view(),
-        name="salary_items",
-    ),
-    re_path(
-        r"^(?P<pk>\d+)/rozmowy/(?P<slug>[-\w\d]+)?$",
+    path("opinie/<pk>/<slug>", views.ReviewItemsView.as_view(), name="review_items"),
+    path("zarobki/<pk>/<slug>", views.SalaryItemsView.as_view(), name="salary_items"),
+    path(
+        "rozmowy/<pk>/<slug>",
         views.InterviewItemsView.as_view(),
         name="interview_items",
     ),
-    re_path(
-        r"^(?P<pk>\d+)/(?P<item>\w+)/(?P<slug>[-\w\d]+)?$",
+    path(
+        "<item>/<pk>/<slug>",
         views.CompanyItemsRedirectView.as_view(),
         name="company_items",
     ),
-    re_path(
-        r"^(?P<pk>\d+)/(?P<slug>[-\w\d]+)?$",
-        views.CompanyDetailView.as_view(),
-        name="company_page",
-    ),
-    re_path(
-        r"^search_company/create/(?P<item>\w+)/(?P<company>.*)/$",
+    path("<pk>/<slug>/", views.CompanyDetailView.as_view(), name="company_page"),
+    path("<pk>/", views.CompanyDetailView.as_view(), name="company_page"),
+    path(
+        "search_company/create/<item>/<company>/",
         views.SearchCompanyCreate.as_view(),
         name="search_company_create",
     ),
-    re_path(
-        r"^company/create/(?P<company>.*)/$",
+    path(
+        "company/create/<company>/",
         views.CompanyCreate.as_view(),
         name="company_create",
     ),
-    re_path(
-        r"^company/update/(?P<pk>\d+)/$",
-        views.CompanyUpdate.as_view(),
-        name="company_update",
-    ),
-    re_path(
-        r"^company/delete/(?P<pk>\d+)/$",
-        views.CompanyDelete.as_view(),
-        name="company_delete",
-    ),
+    path("company/update/<pk>/", views.CompanyUpdate.as_view(), name="company_update"),
+    path("company/delete/<pk>/", views.CompanyDelete.as_view(), name="company_delete"),
     path("company/list/", views.CompanyList.as_view(), name="company_list"),
-    re_path(
-        r"^dodaj/opinie/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$",
-        views.ReviewCreate.as_view(),
-        name="review",
-    ),
-    re_path(
-        r"^dodaj/zarobki/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$",
-        views.SalaryCreate.as_view(),
-        name="salary",
-    ),
-    re_path(
-        r"^dodaj/rozmowy/(?P<id>\d*)/(?P<slug>[-\w\d]+)?/$",
-        views.InterviewCreate.as_view(),
-        name="interview",
+    path("dodaj/opinie/<id>/<slug>/", views.ReviewCreate.as_view(), name="review"),
+    path("dodaj/zarobki/<id>/<slug>/", views.SalaryCreate.as_view(), name="salary"),
+    path(
+        "dodaj/rozmowy/<id>/<slug>/", views.InterviewCreate.as_view(), name="interview"
     ),
     path("kontakt/", views.ContactView.as_view(), name="contact"),
 ]

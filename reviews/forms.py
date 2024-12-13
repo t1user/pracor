@@ -192,8 +192,8 @@ class ReviewForm(forms.ModelForm):
 
         help_texts = {
             "title": "Jedno zdanie podsumowujące opinię",
-            "pros": "Minimum 15 słów (1-2 zdania). Konieczne by opinia była wyważona.",
-            "cons": "Minimum 15 słów (1-2 zdania). Konieczne by opinia była wyważona.",
+            "pros": "Minimum 13 słów (1-2 zdania). Konieczne by opinia była wyważona.",
+            "cons": "Minimum 13 słów (1-2 zdania). Konieczne by opinia była wyważona.",
             "comment": "Inne uwagi o tym co mogłoby sprawić, że praca w tej firmie byłaby lepsza.",
         }
 
@@ -261,7 +261,7 @@ class SalaryForm(forms.ModelForm):
         self.request = request
         self.company = company
         # choose only core items or relevant to the company
-        extra_benefits = self.company.benefits
+        extra_benefits = self.company.benefits or []
         self.fields["benefits"].queryset = Benefit.objects.filter(
             Q(core=True) | Q(pk__in=extra_benefits)
         )

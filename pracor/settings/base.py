@@ -7,19 +7,13 @@ from pracor.linkedin_config import *
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'yiym2_8*6$km-^uy-m7eb!x*7_(xpv6rmwu3t40%+71natjp2e'
 try:
     from pracor.secret_key import SECRET_KEY
 except ImportError:
     from pracor.generate_secret_key import generate
 
     generate()
-    from pracor.secret_key import SECRET_KEY
+    from pracor.secret_key import SECRET_KEY  # noqa
 
 
 DJANGO_APPS = [
@@ -127,22 +121,15 @@ PASSWORD_HASHERS = [
 
 AUTH_USER_MODEL = "users.User"
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
-
 LANGUAGE_CODE = "pl"
 
-TIME_ZONE = "Europe/Berlin"
+TIME_ZONE = "Europe/Warsaw"
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 
 STATICFILES_DIRS = [

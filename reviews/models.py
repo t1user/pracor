@@ -1,6 +1,9 @@
 import logging
+import re
 
 from django.conf import settings
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import Avg, Count
 from django.urls import reverse
@@ -8,8 +11,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from unidecode import unidecode
 
-from .managers import SalaryManager  # modified version of ArrayAgg
-from .managers import ArrayAgg, SelectedManager
+from .managers import SalaryManager, SelectedManager
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +51,13 @@ class Company(ApprovableModel):
 
     # only three values are required - to make company creation easy for users
     name = models.CharField("nazwa", max_length=200, unique=True, db_index=True)
-    headquarters_city = models.CharField("siedziba centrali", max_length=60)
-    website = models.URLField("strona www", unique=True, db_index=True)
+    headquarters_city = models.CharField("miasto centrali", max_length=60)
+    website = models.URLField(
+        "strona www", unique=True, db_index=True, validators=[URLValidator()]
+    )
 
     # other fields are optional, to be filled-in by admins (rather than users)
-    date = models.DateField("data dodania do bazy", auto_now_add=True, editable=False)
+    date = models.DateField("data dodania", auto_now_add=True, editable=False)
     region = models.CharField("województwo", max_length=40, blank=True, null=True)
     country = models.CharField("kraj", max_length=40, default="Polska")
     employment = models.CharField(
@@ -65,7 +69,7 @@ class Company(ApprovableModel):
     isin = models.CharField("ISIN", max_length=30, blank=True, null=True)
 
     # slug created automatically by save()
-    slug = models.SlugField(null=True, max_length=200, editable=False)
+    slug = models.SlugField(max_length=200, editable=False)
 
     class Meta:
         verbose_name = "Firma"
@@ -76,24 +80,13 @@ class Company(ApprovableModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(unidecode(self.name))
-        # get rid of '-sa', '-sp-z-oo' and '-sp-z-oo-sp-k' etc. endings
-        endings = [
-            "-sa",
-            "-sp-z-oo",
-            "-sp-z-oo-sp-k",
-            "-sp-j",
-            "-sp-j-sp-j",
-            "-sp-k",
-            "-sp-j-sp-j",
-            "-sp-z-oo-ska",
-            "-sp-z-oo-sp-j",
-            "-spolka-z-oo",
-        ]
-        for e in endings:
-            if self.slug.endswith(e):
-                self.slug = self.slug.replace(e, "")
+        if not self.slug:
+            self.slug = self._generate_slug()
         super().save(*args, **kwargs)
+
+    def _generate_slug(self):
+        base_slug = slugify(unidecode(self.name))
+        return re.sub(r"-(sa|sp-z-oo(-sp-(k|ska|j))?)$", "", base_slug)
 
     def get_absolute_url(self):
         return reverse("company_page", kwargs={"pk": self.pk, "slug": self.slug})
@@ -193,13 +186,11 @@ class Position(models.Model):
         ("B", "część etatu"),
         ("C", "praktyka"),
     ]
-    year = timezone.now().year
-    years = range(year, 1959, -1)
-    YEARS = [(i, i) for i in years]
+
+    YEARS = [(i, i) for i in range(timezone.now().year, 1959, -1)]
     YEARS_E = YEARS[:]
     YEARS_E.insert(0, (0, "obecnie"))
-    months = range(1, 13)
-    MONTHS = [(i, "{:02}".format(i)) for i in months]
+    MONTHS = [(i, "{:02}".format(i)) for i in range(1, 13)]
     MONTHS_E = MONTHS[:]
     MONTHS_E.insert(0, ("", "--"))
 

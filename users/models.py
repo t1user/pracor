@@ -68,8 +68,7 @@ class User(AbstractUser):
 class Profile(models.Model):
     year = timezone.now().year
     SEX = [("K", "Kobieta"), ("M", "Mężczyzna")]
-    career_year = range(year, 1959, -1)
-    CAREER_YEAR = [(i, i) for i in career_year]
+    CAREER_YEAR = [(i, i) for i in range(year, 1959, -1)]
     EDU = [
         ("A", "wyższe"),
         ("A0", "student"),

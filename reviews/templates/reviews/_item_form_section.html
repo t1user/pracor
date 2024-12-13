@@ -4,22 +4,21 @@
         Popraw błędy poniżej
     </p>
 </article>
-    {% endif %}
+{% endif %}
 <atricle>
     <form action='' method='POST' autocomplete="off">
 
         {% include "reviews/_render_form.html" with form=form %}
-        
+
         {% if position_form %}
         <h4>Dotyczy stanowiska:</h4>
         <i>Daty zatrudnienia są tylko do wiadomości serwisu, nie będą publikowane.</i>
-        
+
         {% include "reviews/_render_form.html" with form=position_form %}
 
         {% endif %}
         {% csrf_token %}
-        <input type='submit' class="button-primary" value='Wyślij'/>
+        <input type='submit' class="button-primary" value='Wyślij' />
     </form>
     <div class="required"><i>*Pola wymagane</i></div>
 </atricle>
-

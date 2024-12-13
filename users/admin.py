@@ -17,7 +17,7 @@ class SocialDjangoInline(admin.StackedInline):
     readonly_fields = ("user", "provider", "uid", "extra_data")
     list_filter = ("provider",)
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
